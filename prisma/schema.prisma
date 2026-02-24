@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ENUMS ────────────────────────────────────────────────────────────────────
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Language {
+  AR
+  FR
+  EN
+}
+
+enum CaseStatus {
+  PENDING_REVIEW
+  IN_PROGRESS
+  RESOLVED
+  STILL_SUFFERING
+}
+
+enum NotificationType {
+  CASE_APPROVED
+  CASE_REJECTED
+  STATUS_CHANGED
+}
+
+// ─── USERS ────────────────────────────────────────────────────────────────────
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  password       String
+  role           Role     @default(USER)
+  language       Language @default(FR)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  cases          Case[]
+  statusHistory  StatusHistory[]
+  notifications  Notification[]
+
+  @@map("users")
+}
+
+// ─── CASES ────────────────────────────────────────────────────────────────────
+
+model Case {
+  id           String     @id @default(cuid())
+  title        String
+  description  String     @db.Text
+  governorate  String
+  city         String?
+  latitude     Float?
+  longitude    Float?
+  status       CaseStatus @default(PENDING_REVIEW)
+  images       String[]   // array of image URLs
+  isDeleted    Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Who submitted this case
+  authorId     String
+  author       User       @relation(fields: [authorId], references: [id])
+
+  // Relations
+  contacts     CaseContact[]
+  assistants   CaseAssistant[]
+  statusHistory StatusHistory[]
+  notifications Notification[]
+
+  @@map("cases")
+}
+
+// ─── CASE CONTACT (the person in need) ────────────────────────────────────────
+
+model CaseContact {
+  id        String  @id @default(cuid())
+  fullName  String
+  phone     String
+  email     String?
+  address   String?
+
+  caseId    String
+  case      Case    @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@map("case_contacts")
+}
+
+// ─── CASE ASSISTANT (organisations / people who can help) ─────────────────────
+
+model CaseAssistant {
+  id      String  @id @default(cuid())
+  name    String
+  contact String
+
+  caseId  String
+  case    Case    @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@map("case_assistants")
+}
+
+// ─── STATUS HISTORY (audit timeline) ─────────────────────────────────────────
+
+model StatusHistory {
+  id          String     @id @default(cuid())
+  oldStatus   CaseStatus
+  newStatus   CaseStatus
+  note        String?
+  createdAt   DateTime   @default(now())
+
+  // Which case was changed
+  caseId      String
+  case        Case       @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  // Which admin made the change
+  changedById String
+  changedBy   User       @relation(fields: [changedById], references: [id])
+
+  @@map("status_history")
+}
+
+// ─── NOTIFICATIONS ────────────────────────────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  message   String
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  // Who receives the notification
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Which case triggered the notification
+  caseId    String
+  case      Case             @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
