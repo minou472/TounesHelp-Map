@@ -32,7 +32,9 @@ export async function GET(req: NextRequest) {
               { city: { contains: search, mode: "insensitive" } },
               { author: { email: { contains: search, mode: "insensitive" } } },
               { contacts: { name: { contains: search, mode: "insensitive" } } },
-              { assistants: { name: { contains: search, mode: "insensitive" } } },
+              {
+                assistants: { name: { contains: search, mode: "insensitive" } },
+              },
             ]
           : undefined,
       },

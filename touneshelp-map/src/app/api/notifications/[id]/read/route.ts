@@ -18,7 +18,10 @@ export async function PATCH(
     });
 
     if (!notification) {
-      return NextResponse.json({ error: "Notification not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Notification not found" },
+        { status: 404 }
+      );
     }
 
     // Check if notification belongs to user

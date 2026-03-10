@@ -13,7 +13,10 @@ export async function POST(req: NextRequest) {
 
     const decoded = verifyRefreshToken(refreshToken);
     if (!decoded) {
-      return NextResponse.json({ error: "Invalid refresh token" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Invalid refresh token" },
+        { status: 401 }
+      );
     }
 
     const user = await prisma.user.findUnique({

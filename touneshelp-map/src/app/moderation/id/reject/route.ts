@@ -30,7 +30,7 @@ export async function POST(
 
     const updatedCase = await prisma.case.update({
       where: { id: params.id },
-      data: { 
+      data: {
         status: "REJECTED",
         rejectionReason: reason,
       },

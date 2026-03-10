@@ -19,7 +19,7 @@ export async function PATCH(
       where: { id: params.id },
       data: {
         ...(isActive !== undefined && { isActive }),
-        ...(role     !== undefined && { role }),
+        ...(role !== undefined && { role }),
       },
     });
 
@@ -27,7 +27,6 @@ export async function PATCH(
       message: "User updated",
       user: { id: updated.id, role: updated.role, isActive: updated.isActive },
     });
-
   } catch (error) {
     return NextResponse.json(
       { error: "Something went wrong" },

@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -22,9 +22,11 @@ enum Language {
 
 enum CaseStatus {
   PENDING_REVIEW
+  ACTIVE
   IN_PROGRESS
   RESOLVED
   STILL_SUFFERING
+  REJECTED
 }
 
 enum NotificationType {
@@ -36,14 +38,21 @@ enum NotificationType {
 // ─── USERS ────────────────────────────────────────────────────────────────────
 
 model User {
-  id             String   @id @default(cuid())
-  email          String   @unique
+  id             String    @id @default(cuid())
+  email          String    @unique
   password       String
-  role           Role     @default(USER)
-  language       Language @default(FR)
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  role           Role      @default(USER)
+  language       Language  @default(FR)
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Password reset fields
+  resetToken     String?
+  resetTokenExpires DateTime?
+
+  // Rejection reason for cases
+  rejectionReason String?
 
   // Relations
   cases          Case[]
@@ -58,7 +67,7 @@ model User {
 model Case {
   id           String     @id @default(cuid())
   title        String
-  description  String     @db.Text
+  description  String
   governorate  String
   city         String?
   latitude     Float?
