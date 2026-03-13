@@ -3,10 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getAuthUser } from "@/lib/auth";
 
 // GET /api/cases/:id — get a specific case by ID
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: NextRequest, { params }: any) {
   try {
     const caseData = await prisma.case.findUnique({
       where: { id: params.id },
@@ -36,10 +33,7 @@ export async function GET(
 }
 
 // DELETE /api/cases/:id — soft delete a case
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: NextRequest, { params }: any) {
   try {
     const user = await getAuthUser();
     if (!user) {

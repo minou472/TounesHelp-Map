@@ -3,10 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getAuthUser } from "@/lib/auth";
 
 // POST /api/moderation/:id/reject — reject a case
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: NextRequest, { params }: any) {
   try {
     const user = await getAuthUser();
     if (!user) {

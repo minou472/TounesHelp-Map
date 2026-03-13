@@ -3,10 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 
 // PATCH /api/admin/users/:id — block/unblock or promote to admin
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest, { params }: any) {
   try {
     const admin = await requireAdmin();
     if (!admin) {

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/lib/store/auth-store";
 import PublicLayout from "@/components/layouts/publicLayout";
@@ -11,6 +11,8 @@ export default function LoginPage() {
   const t = useTranslations("auth");
   const tValidation = useTranslations("validation");
   const router = useRouter();
+  const params = useParams();
+  const locale = params.locale as string;
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") || "/";
 
@@ -52,9 +54,14 @@ export default function LoginPage() {
     try {
       await login(formData);
 
-      // Role-based redirect will be handled by the store response
-      // But we can also check the redirectTo parameter
-      router.push(redirectTo);
+      // Role-based redirect after successful login
+      const { user } = useAuthStore.getState();
+
+      if (user?.role === "ADMIN") {
+        router.push(`/${locale}/admin`);
+      } else {
+        router.push(`/${locale}/dashboard`);
+      }
     } catch (err) {
       // Error is handled by the store
     }

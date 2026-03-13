@@ -3,10 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getAuthUser } from "@/lib/auth";
 
 // GET /api/moderation/:id — get a specific case for moderation review
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: NextRequest, { params }: any) {
   try {
     const user = await getAuthUser();
     if (!user) {

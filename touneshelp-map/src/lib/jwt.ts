@@ -1,7 +1,11 @@
 import jwt from "jsonwebtoken";
 
-const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET!;
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
+const ACCESS_SECRET =
+  process.env.JWT_ACCESS_SECRET ||
+  "fallback-access-secret-change-in-production";
+const REFRESH_SECRET =
+  process.env.JWT_REFRESH_SECRET ||
+  "fallback-refresh-secret-change-in-production";
 
 // ── CREATE TOKENS ─────────────────────────────────────────────────────────────
 
@@ -25,6 +29,7 @@ export function verifyAccessToken(token: string) {
     return null;
   }
 }
+
 export function verifyRefreshToken(token: string) {
   try {
     return jwt.verify(token, REFRESH_SECRET) as {

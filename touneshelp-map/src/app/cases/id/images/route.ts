@@ -5,10 +5,7 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
 // POST /api/cases/:id/images — upload images for a case
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: NextRequest, { params }: any) {
   try {
     const user = await getAuthUser();
     if (!user) {

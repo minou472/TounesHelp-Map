@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "bootstrap": "^5.2.3",
     "c12": "^3.1.0",
     "chokidar": "^4.0.3",
     "citty": "^0.1.6",

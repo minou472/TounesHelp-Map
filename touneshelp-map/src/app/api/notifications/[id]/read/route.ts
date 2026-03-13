@@ -3,10 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getAuthUser } from "@/lib/auth";
 
 // PATCH /api/notifications/:id/read — mark notification as read
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest, { params }: any) {
   try {
     const user = await getAuthUser();
     if (!user) {

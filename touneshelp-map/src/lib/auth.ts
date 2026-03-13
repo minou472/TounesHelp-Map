@@ -9,6 +9,7 @@ export async function getAuthUser() {
   const payload = verifyAccessToken(token);
   return payload; // { userId, role } or null
 }
+
 // Call this to check if the user is an admin
 export async function requireAdmin() {
   const user = await getAuthUser();
