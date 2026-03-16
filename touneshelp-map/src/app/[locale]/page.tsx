@@ -11,21 +11,47 @@ export default function HomePage() {
             <div className="flex items-center gap-3">
               <div className="group relative">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 via-cyan-600 to-emerald-500 shadow-lg ring-2 ring-white/30 transition-all hover:scale-110 hover:shadow-xl">
-                  <span className="text-xl font-bold text-white drop-shadow-lg">T</span>
+                  <span className="text-xl font-bold text-white drop-shadow-lg">
+                    T
+                  </span>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-emerald-400/20 rounded-2xl blur opacity-0 transition-opacity group-hover:opacity-100"></div>
               </div>
               <div>
-                <h1 className="text-2xl font-black bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent drop-shadow-lg">TounesHelp</h1>
-                <p className="text-xs text-slate-500 font-medium tracking-wide uppercase">Community Impact Platform</p>
+                <h1 className="text-2xl font-black bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent drop-shadow-lg">
+                  TounesHelp
+                </h1>
+                <p className="text-xs text-slate-500 font-medium tracking-wide uppercase">
+                  Community Impact Platform
+                </p>
               </div>
             </div>
-            
+
             <div className="hidden items-center gap-8 md:flex">
-              <a href="#about" className="text-slate-700 hover:text-cyan-600 font-semibold transition-all py-2 hover:-translate-y-0.5">About</a>
-              <a href="#mission" className="text-slate-700 hover:text-emerald-600 font-semibold transition-all py-2 hover:-translate-y-0.5">Mission</a>
-              <a href="#cases" className="text-slate-700 hover:text-orange-600 font-semibold transition-all py-2 hover:-translate-y-0.5">Cases</a>
-              <a href="#contact" className="text-slate-700 hover:text-purple-600 font-semibold transition-all py-2 hover:-translate-y-0.5">Contact</a>
+              <a
+                href="#about"
+                className="text-slate-700 hover:text-cyan-600 font-semibold transition-all py-2 hover:-translate-y-0.5"
+              >
+                About
+              </a>
+              <a
+                href="#mission"
+                className="text-slate-700 hover:text-emerald-600 font-semibold transition-all py-2 hover:-translate-y-0.5"
+              >
+                Mission
+              </a>
+              <a
+                href="#cases"
+                className="text-slate-700 hover:text-orange-600 font-semibold transition-all py-2 hover:-translate-y-0.5"
+              >
+                Cases
+              </a>
+              <a
+                href="#contact"
+                className="text-slate-700 hover:text-purple-600 font-semibold transition-all py-2 hover:-translate-y-0.5"
+              >
+                Contact
+              </a>
             </div>
 
             <div className="flex items-center gap-3">
@@ -47,12 +73,6 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden py-24 lg:py-32">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 via-emerald-400/5 to-orange-400/10"></div>
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-cyan-400/20 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-400/20 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
       {/* Hero Section */}
       <section className="px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
@@ -421,8 +441,6 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
-        </div>
-        };
-        );
-     };
-        
+    </div>
+  );
+}
