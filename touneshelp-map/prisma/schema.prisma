@@ -3,37 +3,13 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 // ─── ENUMS ────────────────────────────────────────────────────────────────────
-
-enum Role {
-  USER
-  ADMIN
-}
-
-enum Language {
-  AR
-  FR
-  EN
-}
-
-enum CaseStatus {
-  PENDING_REVIEW
-  ACTIVE
-  IN_PROGRESS
-  RESOLVED
-  STILL_SUFFERING
-  REJECTED
-}
-
-enum NotificationType {
-  CASE_APPROVED
-  CASE_REJECTED
-  STATUS_CHANGED
-}
+// Note: Using String instead of Enum for SQLite compatibility
+// Enum will be handled at application level
 
 // ─── USERS ────────────────────────────────────────────────────────────────────
 
@@ -41,8 +17,8 @@ model User {
   id             String    @id @default(cuid())
   email          String    @unique
   password       String
-  role           Role      @default(USER)
-  language       Language  @default(FR)
+  role           String    @default("USER")    // "USER" or "ADMIN"
+  language       String    @default("FR")     // "AR", "FR", or "EN"
   isActive       Boolean   @default(true)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -65,22 +41,22 @@ model User {
 // ─── CASES ────────────────────────────────────────────────────────────────────
 
 model Case {
-  id           String     @id @default(cuid())
+  id           String   @id @default(cuid())
   title        String
   description  String
   governorate  String
   city         String?
   latitude     Float?
   longitude    Float?
-  status       CaseStatus @default(PENDING_REVIEW)
-  images       String[]   // array of image URLs
-  isDeleted    Boolean    @default(false)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  status       String   @default("PENDING_REVIEW")  // CaseStatus as String
+  images       String   // JSON string of image URLs
+  isDeleted    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   // Who submitted this case
   authorId     String
-  author       User       @relation(fields: [authorId], references: [id])
+  author       User     @relation(fields: [authorId], references: [id])
 
   // Relations
   contacts     CaseContact[]
@@ -122,19 +98,19 @@ model CaseAssistant {
 // ─── STATUS HISTORY (audit timeline) ─────────────────────────────────────────
 
 model StatusHistory {
-  id          String     @id @default(cuid())
-  oldStatus   CaseStatus
-  newStatus   CaseStatus
+  id          String   @id @default(cuid())
+  oldStatus   String   // CaseStatus as String
+  newStatus   String   // CaseStatus as String
   note        String?
-  createdAt   DateTime   @default(now())
+  createdAt   DateTime @default(now())
 
   // Which case was changed
   caseId      String
-  case        Case       @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  case        Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
   // Which admin made the change
   changedById String
-  changedBy   User       @relation(fields: [changedById], references: [id])
+  changedBy   User     @relation(fields: [changedById], references: [id])
 
   @@map("status_history")
 }
@@ -142,19 +118,19 @@ model StatusHistory {
 // ─── NOTIFICATIONS ────────────────────────────────────────────────────────────
 
 model Notification {
-  id        String           @id @default(cuid())
-  type      NotificationType
+  id        String   @id @default(cuid())
+  type      String   // NotificationType as String
   message   String
-  isRead    Boolean          @default(false)
-  createdAt DateTime         @default(now())
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
 
   // Who receives the notification
   userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Which case triggered the notification
   caseId    String
-  case      Case             @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  case      Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
 }
