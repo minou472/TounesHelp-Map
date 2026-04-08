@@ -1,62 +1,113 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '../ui/card';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { mockUsers } from '../../data/tunisiaData';
-import { Search, UserPlus, Eye, Edit, Ban, CheckCircle, XCircle, Filter } from 'lucide-react';
+import { fetchAdminUsers, createUser, updateUser, deleteUser, type AdminUser, type CreateUserData, type UpdateUserData } from '../../lib/backendApi';
+import { Search, UserPlus, Edit, Ban, CheckCircle, Trash2 } from 'lucide-react';
 
-type UserRole = 'user' | 'contact' | 'org' | 'admin';
-type AccountStatus = 'active' | 'suspended' | 'pending';
+type UserRole = 'USER' | 'ADMIN';
+type AccountStatus = 'ACTIVE' | 'BLOCKED';
 
 const roleLabels: Record<UserRole, string> = {
-  user: 'Utilisateur',
-  contact: 'Contact de cas',
-  org: 'Organisation',
-  admin: 'Administrateur',
+  USER: 'Utilisateur',
+  ADMIN: 'Administrateur',
 };
 
 const roleColors: Record<UserRole, string> = {
-  user: 'bg-[#718096] text-white',
-  contact: 'bg-[#1E88E5] text-white',
-  org: 'bg-[#43A047] text-white',
-  admin: 'bg-[#9C27B0] text-white',
+  USER: 'bg-[#718096] text-white',
+  ADMIN: 'bg-[#9C27B0] text-white',
 };
 
 const statusLabels: Record<AccountStatus, string> = {
-  active: 'Actif',
-  suspended: 'Suspendu',
-  pending: 'En attente',
+  ACTIVE: 'Actif',
+  BLOCKED: 'Bloqué',
 };
 
 const statusColors: Record<AccountStatus, string> = {
-  active: 'bg-[#43A047] text-white',
-  suspended: 'bg-[#E53935] text-white',
-  pending: 'bg-[#FF9800] text-white',
+  ACTIVE: 'bg-[#43A047] text-white',
+  BLOCKED: 'bg-[#E53935] text-white',
 };
 
 export function UsersManagement() {
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<UserRole | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<AccountStatus | 'all'>('all');
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [formData, setFormData] = useState<CreateUserData | UpdateUserData>({});
 
-  // Extended user data with additional fields
-  const enhancedUsers = mockUsers.map((user, index) => ({
-    ...user,
-    role: (['user', 'contact', 'org', 'admin'] as UserRole[])[index % 4],
-    status: (['active', 'suspended', 'pending'] as AccountStatus[])[index % 3],
-    casesSubmitted: Math.floor(Math.random() * 10),
-    joinDate: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000),
-    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=1E88E5&color=fff`,
-  }));
+  useEffect(() => {
+    loadUsers();
+  }, []);
 
-  const filteredUsers = enhancedUsers.filter(user => {
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchAdminUsers();
+      setUsers(data);
+    } catch (error) {
+      console.error('Failed to load users:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateUser = async () => {
+    try {
+      await createUser(formData as CreateUserData);
+      setShowCreateForm(false);
+      setFormData({});
+      loadUsers();
+    } catch (error) {
+      console.error('Failed to create user:', error);
+    }
+  };
+
+  const handleUpdateUser = async () => {
+    if (!editingUser) return;
+    try {
+      await updateUser(editingUser.id, formData as UpdateUserData);
+      setEditingUser(null);
+      setFormData({});
+      loadUsers();
+    } catch (error) {
+      console.error('Failed to update user:', error);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to delete this user?')) return;
+    try {
+      await deleteUser(userId);
+      loadUsers();
+    } catch (error) {
+      console.error('Failed to delete user:', error);
+    }
+  };
+
+  const handleBlockUser = async (user: AdminUser) => {
+    try {
+      await updateUser(user.id, { status: user.status === 'ACTIVE' ? 'BLOCKED' : 'ACTIVE' });
+      loadUsers();
+    } catch (error) {
+      console.error('Failed to update user status:', error);
+    }
+  };
+
+  const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRole = roleFilter === 'all' || user.role === roleFilter;
     const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
     return matchesSearch && matchesRole && matchesStatus;
   });
+
+  if (loading) {
+    return <div className="flex justify-center p-8">Loading users...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -66,11 +117,77 @@ export function UsersManagement() {
           <h2 className="text-2xl font-bold text-[#1A202C]">Gestion des utilisateurs</h2>
           <p className="text-sm text-[#718096] mt-1">Gérer les comptes utilisateurs et leurs permissions</p>
         </div>
-        <Button className="bg-[#1E88E5] hover:bg-[#1976D2] text-white">
+        <Button
+          onClick={() => setShowCreateForm(true)}
+          className="bg-[#1E88E5] hover:bg-[#1976D2] text-white"
+        >
           <UserPlus size={18} className="mr-2" />
           Ajouter un utilisateur
         </Button>
       </div>
+
+      {/* Create/Edit Form */}
+      {(showCreateForm || editingUser) && (
+        <Card className="p-4 bg-white border border-[#E2E8F0]">
+          <h3 className="text-lg font-semibold mb-4">
+            {showCreateForm ? 'Créer un utilisateur' : 'Modifier l\'utilisateur'}
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              placeholder="Nom"
+              value={formData.name || ''}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            />
+            <Input
+              placeholder="Email"
+              type="email"
+              value={formData.email || ''}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            />
+            <Input
+              placeholder="Téléphone"
+              value={formData.phone || ''}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            />
+            <select
+              value={formData.role || 'USER'}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
+              className="w-full h-10 px-3 border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88E5]"
+            >
+              <option value="USER">Utilisateur</option>
+              <option value="ADMIN">Administrateur</option>
+            </select>
+            {!showCreateForm && (
+              <select
+                value={formData.status || editingUser?.status || 'ACTIVE'}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value as AccountStatus })}
+                className="w-full h-10 px-3 border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88E5]"
+              >
+                <option value="ACTIVE">Actif</option>
+                <option value="BLOCKED">Bloqué</option>
+              </select>
+            )}
+          </div>
+          <div className="flex gap-2 mt-4">
+            <Button
+              onClick={showCreateForm ? handleCreateUser : handleUpdateUser}
+              className="bg-[#43A047] hover:bg-[#388E3C] text-white"
+            >
+              {showCreateForm ? 'Créer' : 'Modifier'}
+            </Button>
+            <Button
+              onClick={() => {
+                setShowCreateForm(false);
+                setEditingUser(null);
+                setFormData({});
+              }}
+              variant="outline"
+            >
+              Annuler
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {/* Filters */}
       <Card className="p-4 bg-white border border-[#E2E8F0]">
@@ -94,10 +211,8 @@ export function UsersManagement() {
               className="w-full h-10 px-3 border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88E5]"
             >
               <option value="all">Tous les rôles</option>
-              <option value="user">Utilisateur</option>
-              <option value="contact">Contact de cas</option>
-              <option value="org">Organisation</option>
-              <option value="admin">Administrateur</option>
+              <option value="USER">Utilisateur</option>
+              <option value="ADMIN">Administrateur</option>
             </select>
           </div>
 
@@ -109,95 +224,83 @@ export function UsersManagement() {
               className="w-full h-10 px-3 border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88E5]"
             >
               <option value="all">Tous les statuts</option>
-              <option value="active">Actif</option>
-              <option value="suspended">Suspendu</option>
-              <option value="pending">En attente</option>
+              <option value="ACTIVE">Actif</option>
+              <option value="BLOCKED">Bloqué</option>
             </select>
           </div>
         </div>
       </Card>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="p-4 bg-white border border-[#E2E8F0]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#E3F2FD] rounded-lg flex items-center justify-center">
-              <svg className="text-[#1E88E5]" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-              </svg>
+      {/* Users List */}
+      <div className="space-y-4">
+        {filteredUsers.map((user) => (
+          <Card key={user.id} className="p-4 bg-white border border-[#E2E8F0]">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <img
+                  src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=1E88E5&color=fff`}
+                  alt={user.name}
+                  className="w-12 h-12 rounded-full"
+                />
+                <div>
+                  <h3 className="font-semibold text-[#1A202C]">{user.name}</h3>
+                  <p className="text-sm text-[#718096]">{user.email}</p>
+                  <p className="text-sm text-[#718096]">{user.phone}</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Badge className={roleColors[user.role]}>
+                  {roleLabels[user.role]}
+                </Badge>
+                <Badge className={statusColors[user.status]}>
+                  {statusLabels[user.status]}
+                </Badge>
+                <div className="text-sm text-[#718096]">
+                  <div>Cases: {user.casesCreated || 0}</div>
+                  <div>Helped: {user.helpedCount || 0}</div>
+                </div>
+              </div>
+              <div className="flex space-x-2">
+                <Button
+                  onClick={() => {
+                    setEditingUser(user);
+                    setFormData({
+                      name: user.name,
+                      email: user.email,
+                      phone: user.phone,
+                      role: user.role,
+                      status: user.status,
+                    });
+                  }}
+                  variant="outline"
+                  size="sm"
+                >
+                  <Edit size={16} />
+                </Button>
+                <Button
+                  onClick={() => handleBlockUser(user)}
+                  variant="outline"
+                  size="sm"
+                  className={user.status === 'ACTIVE' ? 'text-[#E53935]' : 'text-[#43A047]'}
+                >
+                  {user.status === 'ACTIVE' ? <Ban size={16} /> : <CheckCircle size={16} />}
+                </Button>
+                <Button
+                  onClick={() => handleDeleteUser(user.id)}
+                  variant="outline"
+                  size="sm"
+                  className="text-[#E53935]"
+                >
+                  <Trash2 size={16} />
+                </Button>
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-[#718096]">Total</p>
-              <p className="text-xl font-bold text-[#1A202C]">{enhancedUsers.length}</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4 bg-white border border-[#E2E8F0]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#E8F5E9] rounded-lg flex items-center justify-center">
-              <CheckCircle className="text-[#43A047]" size={20} />
-            </div>
-            <div>
-              <p className="text-xs text-[#718096]">Actifs</p>
-              <p className="text-xl font-bold text-[#1A202C]">
-                {enhancedUsers.filter(u => u.status === 'active').length}
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4 bg-white border border-[#E2E8F0]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#FFF3E0] rounded-lg flex items-center justify-center">
-              <svg className="text-[#FF9800]" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-xs text-[#718096]">En attente</p>
-              <p className="text-xl font-bold text-[#1A202C]">
-                {enhancedUsers.filter(u => u.status === 'pending').length}
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4 bg-white border border-[#E2E8F0]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#FCE4EC] rounded-lg flex items-center justify-center">
-              <XCircle className="text-[#E53935]" size={20} />
-            </div>
-            <div>
-              <p className="text-xs text-[#718096]">Suspendus</p>
-              <p className="text-xl font-bold text-[#1A202C]">
-                {enhancedUsers.filter(u => u.status === 'suspended').length}
-              </p>
-            </div>
-          </div>
-        </Card>
+          </Card>
+        ))}
       </div>
-
-      {/* Users Table */}
-      <Card className="bg-white border border-[#E2E8F0] overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-[#F5F7FA] border-b border-[#E2E8F0]">
-              <tr>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-[#1A202C]">
-                  Utilisateur
-                </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-[#1A202C]">
-                  Email
-                </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-[#1A202C]">
-                  Rôle
-                </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-[#1A202C]">
-                  Cas soumis
-                </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-[#1A202C]">
-                  Statut
+    </div>
+  );
+}
                 </th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-[#1A202C]">
                   Date d'inscription

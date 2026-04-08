@@ -72,8 +72,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(init?.headers || {}),
-    },
+      ...(init?.headers || {})
+    }
   });
 
   const payload = await res.json();
@@ -84,7 +84,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return payload.data as T;
 }
 
-export function mapCaseStatus(status: BackendCase["status"]): TunisiaCase["status"] {
+export function mapCaseStatus(
+  status: BackendCase["status"]
+): TunisiaCase["status"] {
   if (status === "SUFFERING") return "suffering";
   if (status === "HELPING") return "helping";
   return "resolved";
@@ -120,11 +122,16 @@ export function mapBackendCaseToUi(item: BackendCase): TunisiaCase {
     dateSubmitted: item.createdAt,
     datePublished: item.datePublished || undefined,
     dateResolved: item.dateResolved || undefined,
-    images: images.length ? images : ["https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800"],
+    images: images.length
+      ? images
+      : ["https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800"]
   };
 }
 
-export async function fetchCases(params?: { status?: "SUFFERING" | "HELPING" | "RESOLVED"; limit?: number }) {
+export async function fetchCases(params?: {
+  status?: "SUFFERING" | "HELPING" | "RESOLVED";
+  limit?: number;
+}) {
   const query = new URLSearchParams();
   if (params?.status) query.set("status", params.status);
   query.set("limit", String(params?.limit || 100));
@@ -146,3 +153,55 @@ export function fetchAdminUsers() {
   return request<AdminUser[]>("/api/users?limit=200");
 }
 
+export type CreateUserData = {
+  name: string;
+  email: string;
+  phone?: string;
+  role?: "USER" | "ADMIN";
+  status?: "ACTIVE" | "BLOCKED";
+};
+
+export type UpdateUserData = {
+  name?: string;
+  phone?: string;
+  bio?: string;
+  role?: "USER" | "ADMIN";
+  status?: "ACTIVE" | "BLOCKED";
+};
+
+export function createUser(data: CreateUserData) {
+  return request<AdminUser>("/api/users", {
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+}
+
+export function updateUser(id: string, data: UpdateUserData) {
+  return request<AdminUser>(`/api/users/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(data)
+  });
+}
+
+export function deleteUser(id: string) {
+  return request<{ message: string }>(`/api/users/${id}`, {
+    method: "DELETE"
+  });
+}
+
+export type ChatbotResponse = {
+  response: string;
+  links?: string[];
+  language: string;
+};
+
+export function sendChatbotMessage(
+  sessionId: string,
+  message: string,
+  language: string
+) {
+  return request<ChatbotResponse>("/api/chatbot", {
+    method: "POST",
+    body: JSON.stringify({ sessionId, message, language })
+  });
+}
