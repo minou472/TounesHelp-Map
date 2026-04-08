@@ -1,0 +1,32 @@
+{
+  "admin": {
+    "welcome_admin": "مرحباً، أيها المشرف",
+    "dashboard": "لوحة القيادة",
+    "case_management": "إدارة الحالات",
+    "users": "المستخدمين",
+    "places_locations": "الأماكن والمواقع",
+    "moderation_queue": "قائمة الإشراف",
+    "notifications": "الإشعارات",
+    "settings": "الإعدادات",
+    "chatbot": "الروبوت الآلي",
+    "search": "بحث...",
+    "active_cases": "الحالات النشطة",
+    "this_month": "هذا الشهر",
+    "this_week": "هذا الأسبوع",
+    "pending": "في الانتظار",
+    "resolved_this_month": "تم حلها هذا الشهر",
+    "vs_last_month": "مقارنة بالشهر الماضي",
+    "total_users": "إجمالي المستخدمين",
+    "cases_by_status": "الحالات حسب الحالة",
+    "activity_last_7_days": "النشاط (آخر 7 أيام)",
+    "top_10_governorates": "أعلى 10 ولايات",
+    "recent_activity": "النشاط الأخير",
+    "view_all": "عرض الكل",
+    "logout": "تسجيل الخروج",
+    "status_suffering": "لا يزال يعاني",
+    "status_helping": "قيد المساعدة",
+    "status_resolved": "تم الحل",
+    "admin_label": "مشرف",
+    "admin_email": "admin@touneshelp.tn"
+  }
+}

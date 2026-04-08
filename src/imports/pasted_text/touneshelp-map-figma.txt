@@ -1,0 +1,666 @@
+Create a complete high-fidelity UI/UX design in Figma for a 
+humanitarian social platform called "TounesHelp Map" — a web 
+application that connects suffering communities across Tunisia 
+with NGOs, volunteers and donors.
+
+════════════════════════════════════════
+DESIGN SYSTEM — APPLY TO ALL SCREENS
+════════════════════════════════════════
+
+COLOR PALETTE:
+Primary Red:        #C0392B (urgency, suffering, CTAs)
+Warm Amber:         #E67E22 (hope, in-progress cases)
+Forest Green:       #27AE60 (resolved, success)
+Warm Background:    #FDF6EC (main page background)
+Deep Dark:          #1A0A00 (navbar, dark sections)
+Card White:         #FFFFFF (all cards)
+Text Primary:       #1C1C1E
+Text Secondary:     #6B6B6B
+Border Light:       #F0E6D3
+
+TYPOGRAPHY:
+Font Family: Inter (Google Fonts)
+H1: 56px / Bold / #1C1C1E
+H2: 36px / Bold / #1C1C1E
+H3: 24px / SemiBold / #1C1C1E
+Body Large: 18px / Regular / #6B6B6B
+Body: 16px / Regular / #6B6B6B
+Small: 13px / Regular / #6B6B6B
+Label: 11px / Bold / Uppercase / Letter-spacing 2px
+
+COMPONENTS TO CREATE IN THE DESIGN SYSTEM:
+- Button Primary: red fill, white text, rounded-xl, 
+  48px height, hover state darker red
+- Button Outline: transparent fill, dark border, 
+  rounded-xl, hover state dark fill white text
+- Button Ghost: no border, red text, hover light red bg
+- Input Field: white bg, light border, rounded-lg, 
+  48px height, focus state red border
+- Status Badge Suffering: red pill #C0392B bg, white text
+- Status Badge Helping: amber pill #E67E22 bg, white text
+- Status Badge Resolved: green pill #27AE60 bg, white text
+- Case Card (full spec below)
+- Mini Case Card (dashboard version)
+- Avatar Circle: colored circle with user initial
+- Notification Bell with red badge counter
+- Toast Notification: success green / error red
+- Loading Skeleton: animated gray bars
+- Empty State: illustration + text + button
+- Modal Overlay: dark 50% overlay + white centered card
+- Progress Bar: 5 steps, red filled, gray unfilled
+
+SPACING SYSTEM:
+Base unit: 8px
+Use: 8 / 16 / 24 / 32 / 48 / 64 / 96px
+
+BORDER RADIUS:
+Small: 8px (inputs, small elements)
+Medium: 12px (buttons, chips)
+Large: 20px (cards)
+XLarge: 24px (case cards, modals)
+
+SHADOWS:
+Card shadow: 0 8px 32px rgba(0,0,0,0.10)
+Hover shadow: 0 16px 48px rgba(192,57,43,0.18)
+Navbar shadow: 0 2px 16px rgba(0,0,0,0.08)
+
+════════════════════════════════════════
+SCREEN 1 — HOMEPAGE (Desktop 1440px)
+════════════════════════════════════════
+
+NAVBAR (sticky, white, full width, height 72px):
+Left: Red circle with white "T" logo (40px) + 
+      "TounesHelp Map" bold text dark
+Center: Navigation links (space-x-8):
+      "Accueil" / "Les Cas" / "Carte" / "À propos"
+      Active link has red color and red underline dot
+Right: Language switcher (AR / FR / EN) pill buttons +
+       "Se connecter" ghost button +
+       "S'inscrire" red filled button
+
+HERO SECTION (full viewport height, bg #FDF6EC):
+Split layout 50/50:
+
+LEFT HALF (vertical center aligned, padding-left 96px):
+- Small red uppercase label with letter-spacing:
+  "ILS ONT BESOIN DE VOUS — MAINTENANT"
+- Large headline 56px bold dark, 3 lines:
+  "De vraies personnes."
+  "Une vraie souffrance."
+  "Une vraie Tunisie."
+- Body text 18px warm gray, max-width 480px:
+  "TounesHelp Map connecte les communautés oubliées 
+  de Tunisie avec des bénévoles, des ONG et des donateurs. 
+  Chaque cas est réel. Chaque histoire compte."
+- Two CTA buttons side by side (gap 16px):
+  Button 1: Red filled 56px height "Voir les cas →"
+  Button 2: Dark outline "Signaler un cas"
+- Three stat counters below (flex row, gap 48px):
+  Each counter: large bold number in primary color + 
+  small label below
+  "247" red / "Cas signalés"
+  "89" green / "Résolus"
+  "24" amber / "Gouvernorats"
+
+RIGHT HALF:
+A 3-column × 2-row CSS mosaic grid of case photos:
+- Top-left: tall card (spans 2 rows), large image, 
+  governorate overlay label at bottom
+- Top-center: square image card
+- Top-right: square image card  
+- Bottom-center: wide card (spans 2 cols), image
+- Bottom-right: square image card
+All cards: rounded-2xl, overflow hidden, 
+dark gradient overlay at bottom,
+white small text showing governorate name
+Use warm placeholder gradients: 
+  amber/red / red/dark / amber/green combinations
+
+HOW IT WORKS SECTION (white bg, padding 96px):
+Title centered: "Comment ça fonctionne ?"
+Subtitle centered gray: "Simple, rapide et transparent"
+Three step cards in a horizontal row (gap 32px):
+Each card (white, rounded-2xl, shadow, padding 40px):
+  - Large number badge top: "01" / "02" / "03" 
+    in red circle (56px)
+  - Icon below (64px): 
+    Step 1: megaphone icon (signaler)
+    Step 2: shield check icon (vérifier)
+    Step 3: hands heart icon (aider)
+  - Title bold 20px
+  - Description 16px gray
+  Arrow between cards: light gray →
+
+HORIZONTAL CASES PREVIEW SECTION 
+(bg #FDF6EC, padding 64px top/bottom):
+Section header (flex space-between):
+  Left: Title "Les derniers cas signalés" bold 36px
+  Right: Red link "Voir tous les cas →"
+
+Horizontally scrolling row of CASE CARDS:
+(overflow-x scroll, padding-bottom 16px for scrollbar space)
+Show 4.5 cards to hint at horizontal scroll
+
+CASE CARD DESIGN (340px wide, min-height 580px):
+┌─────────────────────────────────┐
+│  [PHOTO AREA - 200px height]   │
+│  ┌──────────────────────────┐  │
+│  │  Status Badge top-right  │  │
+│  │  📍 Gouvernorat chip     │  │
+│  └──────────────────────────┘  │
+├─────────────────────────────────┤
+│                                 │
+│  CASE TITLE bold 18px          │
+│  2 lines max with ellipsis     │
+│                                 │
+│  Description of suffering       │
+│  14px warm gray, 3 lines max   │
+│  "Lire plus →" red link        │
+│                                 │
+│  ─────────────────────────────  │
+│                                 │
+│  👤 Personne concernée         │
+│  Name of person in need        │
+│                                 │
+│  📞 +216 XX XXX XXX            │
+│  ✉️  email@example.com         │
+│                                 │
+│  ─────────────────────────────  │
+│                                 │
+│  [JE VEUX AIDER - RED BUTTON]  │
+└─────────────────────────────────┘
+
+Card states:
+Default: white bg, soft shadow
+Hover: lifted (-8px Y), deeper red shadow
+Status badge colors:
+  "Souffre encore": red #C0392B
+  "En cours d'aide": amber #E67E22  
+  "Résolu": green #27AE60
+
+STATS SECTION (dark bg #1A0A00, padding 96px):
+Three large stat blocks centered horizontally:
+Block 1: "127" in red 72px bold / "Cas encore en souffrance"
+Block 2: "63" in amber 72px bold / "En cours d'aide"
+Block 3: "89" in green 72px bold / "Cas résolus"
+Divider lines between blocks
+
+CTA BANNER (red bg #C0392B):
+Centered text white 36px bold:
+"Vous pouvez changer une vie aujourd'hui"
+White outline button below: "Créer un compte gratuitement"
+
+FOOTER (dark bg #1A0A00):
+Logo + tagline left
+Links center: Cas / Carte / À propos / Contact
+Social icons right
+Copyright bottom: "© 2024 TounesHelp Map"
+
+════════════════════════════════════════
+SCREEN 2 — CASES PAGE (Desktop 1440px)
+════════════════════════════════════════
+
+SAME NAVBAR as homepage.
+
+PAGE HEADER (dark bg #1A0A00, padding 64px):
+Title white 48px bold: "Les Cas"
+Subtitle white/60: "Chaque carte représente une vraie 
+personne qui attend votre aide"
+Search bar below: white bg, 600px wide centered,
+rounded-full, search icon left, placeholder 
+"Rechercher par titre, lieu, situation..."
+
+STICKY FILTER BAR (white, shadow-sm, padding 16px 96px):
+Left side — Status filter pills (flex row gap 12px):
+"Tous" (active = red filled) /
+"Souffre encore" (red outline) /
+"En cours d'aide" (amber outline) /
+"Résolu" (green outline)
+
+Right side — Additional filters:
+Governorate dropdown (white, border, rounded-lg)
+Sort dropdown: "Plus récent" / "Plus ancien" / "Par gouvernorat"
+
+HORIZONTAL SCROLL SECTION (title "À la une"):
+Same case cards as homepage, full horizontal scroll
+With left/right arrow navigation buttons floating 
+on the sides
+
+FULL GRID SECTION (title "Tous les cas"):
+Responsive grid: 3 columns on desktop
+Same case card design
+Pagination at bottom: numbered pages, prev/next arrows
+
+════════════════════════════════════════
+SCREEN 3 — CASE DETAIL PAGE (Desktop)
+════════════════════════════════════════
+
+BACK BUTTON top-left: "← Retour aux cas"
+
+HERO IMAGE: Full width, 400px height, case main photo
+Status badge overlaid top-right
+
+TWO COLUMN LAYOUT below hero:
+
+LEFT COLUMN (65% width):
+- Case title H1 bold
+- Location chip: pin icon + governorate + city
+- Date: "Signalé le 15 janvier 2024"
+- Status badge large
+- Full description text (no line clamp)
+- Photo gallery: horizontal scroll of thumbnails
+  Click thumbnail → lightbox overlay with arrows
+- Video player if video exists (HTML5 style)
+
+RIGHT COLUMN (35% width, sticky):
+Card 1 — La personne dans le besoin (white card shadow):
+  Title: "Personne concernée"
+  Name bold / Phone clickable / 
+  Number of people affected
+  
+Card 2 — Prendre contact (white card, red top border):
+  Title: "Contacter le responsable du cas"
+  Creator name / Creator phone / Creator email
+  Big red button: "Contacter maintenant"
+  
+Card 3 — Statut du cas (white card):
+  Vertical timeline:
+  ● Soumis — date
+  ● En cours d'examen — date  
+  ● Publié — date
+  ● En cours d'aide — date (if applicable)
+  ● Résolu — date (if applicable)
+
+════════════════════════════════════════
+SCREEN 4 — LOGIN PAGE (Desktop)
+════════════════════════════════════════
+
+TWO COLUMN LAYOUT full viewport height:
+
+LEFT COLUMN (45% width, bg #1A0A00):
+Vertical center aligned, padding 64px:
+- Logo: white "T" circle + "TounesHelp Map" white
+- Headline white 36px bold:
+  "Ensemble, aidons la Tunisie"
+- Body white/70 18px:
+  "Connectez-vous pour signaler des cas, 
+  suivre leur évolution et agir."
+- Three white checkmark list items:
+  ✓ Signalez des cas en quelques minutes
+  ✓ Suivez la progression en temps réel
+  ✓ Rejoignez une communauté solidaire
+- Red italic quote at bottom:
+  "Chaque action compte. Chaque vie vaut."
+
+RIGHT COLUMN (55% width, bg #FDF6EC):
+Centered white card (max-width 480px, rounded-2xl, shadow):
+- Red T logo circle 48px centered
+- Title: "Se connecter" 28px bold centered
+- "Pas encore de compte ? S'inscrire →" gray + red link
+
+FORM:
+Email field with label "Adresse e-mail"
+Password field with label "Mot de passe" + eye icon toggle
+"Mot de passe oublié ?" right-aligned small red link
+Red full-width submit button "Se connecter" 52px height
+Loading state: spinner inside button
+
+Error state: red banner above form
+"E-mail ou mot de passe incorrect"
+
+════════════════════════════════════════
+SCREEN 5 — REGISTER PAGE (Desktop)
+════════════════════════════════════════
+
+Same two-column layout as login.
+
+Left: dark with "Rejoignez TounesHelp Map" messaging
+
+Right: registration form card with:
+- Full name input
+- Email input with real-time uniqueness check:
+  Green ✓ checkmark if available
+  Red ✗ if already taken
+- Password input with 4-bar strength meter:
+  Bar 1 red: Faible
+  Bar 2 orange: Moyen
+  Bar 3 yellow: Bien
+  Bar 4 green: Fort
+- Confirm password (red error if mismatch)
+- Phone number input (+216 format)
+- Terms checkbox
+- Red submit button "Créer mon compte"
+
+════════════════════════════════════════
+SCREEN 6 — CASE CREATION FORM (Desktop)
+════════════════════════════════════════
+
+UserLayout navbar (with user avatar, notification bell).
+
+TOP PROGRESS BAR (full width, sticky):
+Five labeled steps:
+[1. Informations] → [2. Localisation] → 
+[3. Personne] → [4. Médias] → [5. Révision]
+Active step: red filled circle + red text
+Completed step: green filled circle + checkmark
+Future step: gray circle + gray text
+Red filled bar connecting completed steps
+
+FORM AREA (max-width 720px centered):
+
+STEP 1 VISUAL:
+White card, rounded-2xl, shadow:
+Title: "Informations de base" with step 1 red badge
+- Titre du cas: full-width input, char counter top-right
+- Description: tall textarea (200px min-height),
+  char counter bottom-right, "150 caractères minimum"
+- Two-column row: Nom créateur (read-only gray) + Téléphone
+- Email (read-only gray, full width)
+Next button bottom-right red
+
+STEP 2 VISUAL:
+- Gouvernorat dropdown full width
+- Ville input full width
+- Interactive map (400px height, rounded-xl):
+  Shows Tunisia centered
+  Red draggable pin when placed
+  Gray crosshair hint before pin placement
+- Coordinates display: gray pill "📍 33.88, 9.53"
+
+STEP 3 VISUAL:
+- Nom de la victime input
+- Téléphone de la victime input
+- Nombre de personnes: number stepper (- / number / +)
+- Relation dropdown
+
+STEP 4 VISUAL:
+Photo upload zone (dashed border, rounded-2xl):
+  Upload cloud icon 48px
+  "Glissez vos photos ici ou cliquez pour parcourir"
+  "Max 10 photos · 5MB · JPG PNG WebP"
+After upload: 3-column thumbnail grid with X badges
+
+Video upload zone (same style below, smaller):
+  "Vidéo optionnelle · 1 max · 50MB · MP4 MOV"
+After upload: video player preview
+
+STEP 5 VISUAL:
+Summary sections — one collapsible card per step:
+Each card: step title + edit icon link + data summary
+Full-width red submit button at bottom
+
+════════════════════════════════════════
+SCREEN 7 — USER DASHBOARD (Desktop)
+════════════════════════════════════════
+
+UserLayout: navbar with avatar, bell, logout.
+
+WELCOME HEADER (bg #FDF6EC, padding 48px 96px):
+Left: "Bon retour, Admin 👋" H2 bold
+      "Voici l'état de vos cas signalés" gray
+Right: Red button "+ Signaler un nouveau cas"
+
+STATS ROW (3 cards, gap 24px, margin 32px 96px):
+Card 1 (light red bg, red left border 4px):
+  Red icon + "127" bold 36px + "Souffre encore" label
+Card 2 (light amber bg, amber left border 4px):
+  Amber icon + "63" bold 36px + "En cours d'aide" label
+Card 3 (light green bg, green left border 4px):
+  Green icon + "89" bold 36px + "Résolus" label
+
+ACCORDION SECTION (margin 0 96px):
+
+ACCORDION ITEM 1 — "Cas en souffrance" (collapsed by default):
+Header (light red bg #FFF0EE, padding 20px 24px, 
+rounded-xl, cursor pointer):
+  Left: red dot 10px + "Cas en souffrance" bold + 
+        red badge "12"
+  Right: chevron-down icon (rotates 180° when open)
+
+When EXPANDED — vertical list of MINI CASE CARDS:
+Each mini card (white bg, border-left 4px red, 
+rounded-lg, padding 16px, shadow-sm):
+┌──────────────────────────────────────────────┐
+│ 🔴 "Souffre encore"  📍 Kasserine  📅 12 jan │
+│ Famille sans eau potable depuis 3 mois...    │
+│                          [Modifier] [Suppr.] │
+└──────────────────────────────────────────────┘
+
+ACCORDION ITEM 2 — "En cours d'aide":
+Same structure, amber colors, amber badge
+Mini cards with amber left border
+
+ACCORDION ITEM 3 — "Cas résolus":
+Same structure, green colors
+Mini cards with green left border + 
+"Voir la résolution →" link instead of edit/delete
+
+════════════════════════════════════════
+SCREEN 8 — ADMIN DASHBOARD (Desktop)
+════════════════════════════════════════
+
+COMPLETELY SEPARATE LAYOUT from main platform.
+
+SIDEBAR (fixed left, width 260px, bg #1A1A2E, full height):
+Top section:
+  Logo: white circle "T" 36px + "TounesHelp" white bold
+  Subtitle: "Administration" small gray
+
+Nav links (padding 8px 16px, rounded-lg on hover):
+  Each link: icon 20px + label + active state:
+  Active = red left border 3px + red text + light red bg
+  
+  🏠 Tableau de bord  (active)
+  📋 Modération       (with red badge showing pending count)
+  📁 Tous les cas
+  👥 Utilisateurs
+  📊 Statistiques
+
+Bottom section:
+  Divider line
+  Admin avatar circle (red) + "Admin User" + "Administrateur"
+  Logout button: red text "Se déconnecter"
+
+Collapse toggle: arrow button on right edge of sidebar
+Collapsed state: 64px wide, icons only, tooltip on hover
+
+MAIN CONTENT AREA (margin-left 260px):
+
+TOP BAR (white, shadow, height 64px, padding 0 32px):
+Left: Page title "Tableau de bord" H3 bold
+Right: notification bell + red badge + admin avatar
+
+KPI CARDS ROW (4 cards, grid 4 cols, gap 24px, margin 32px):
+Card 1 (blue left border): 
+  "Total des cas" / large number / 📁 icon
+  Small: "+12 ce mois"
+Card 2 (red left border + pulsing red dot):
+  "En attente de modération" / large number / ⏳ icon
+  Small: "Nécessite votre attention"
+Card 3 (green left border):
+  "Cas résolus" / large number / ✅ icon
+Card 4 (purple left border):
+  "Utilisateurs inscrits" / large number / 👥 icon
+
+BAR CHART SECTION (white card, rounded-2xl, shadow, margin 0 32px):
+Title: "Cas par gouvernorat" + subtitle
+Horizontal bar chart (Recharts style):
+  Y-axis: governorate names
+  X-axis: number of cases
+  Bars: red colored
+  Hover tooltip
+
+RECENT ACTIVITY FEED (white card, rounded-2xl, margin 24px 32px):
+Title: "Activité récente"
+Vertical list of activity items:
+Each item (padding 16px, border-bottom):
+  Left: colored circle icon (green=approved, red=rejected, 
+        amber=status changed)
+  Center: action description + case title bold link
+  Right: timestamp gray "il y a 2h"
+
+════════════════════════════════════════
+SCREEN 9 — ADMIN MODERATION PAGE
+════════════════════════════════════════
+
+Same admin sidebar layout.
+
+PAGE HEADER:
+Title "File de modération" + subtitle
+Red badge: "14 cas en attente"
+
+FILTER BAR above table:
+Search input / Date range picker / Governorate dropdown
+
+DATA TABLE (white card, rounded-2xl, shadow):
+Columns with sort arrows:
+# | Titre du cas | Auteur | Gouvernorat | Date | Actions
+
+Each row:
+  # number gray
+  Case title bold (clickable → opens preview modal)
+  Author email gray
+  Governorate chip (light gray pill)
+  Relative date "il y a 3h"
+  Actions: 
+    "Aperçu" ghost button
+    "Approuver" green button (small)
+    "Rejeter" red outline button (small)
+
+Row hover: light gray background
+Alternating rows: white / very light gray
+
+REJECT MODAL (dark overlay):
+White card centered 480px wide rounded-2xl:
+  Title: "Motif du rejet" 
+  Subtitle: "Ce message sera envoyé à l'auteur du cas"
+  Textarea: 200px height, placeholder 
+  "Expliquez pourquoi ce cas ne peut pas être publié..."
+  Error if less than 20 chars
+  Two buttons: "Annuler" outline + "Confirmer le rejet" red
+
+APPROVE TOAST (top-right, slide in from right):
+Green background, white text:
+"✓ Cas approuvé et publié avec succès"
+Auto-dismisses after 3 seconds
+
+════════════════════════════════════════
+SCREEN 10 — ADMIN USERS PAGE
+════════════════════════════════════════
+
+Same admin sidebar.
+
+PAGE HEADER + search + stats row:
+"X utilisateurs inscrits" / "X actifs" / "X bloqués"
+
+USERS TABLE:
+Columns: Avatar+Name | Email | Rôle | Statut | 
+         Date inscription | Actions
+
+Role badge: 
+  "Administrateur" = purple pill
+  "Utilisateur" = blue pill
+
+Status badge:
+  "Actif" = green pill
+  "Bloqué" = red pill
+
+Actions dropdown per row (three dots menu):
+  "Voir les cas"
+  "Promouvoir en admin"
+  "Bloquer le compte" (red text)
+  "Réactiver" (if blocked)
+
+════════════════════════════════════════
+SCREEN 11 — INTERACTIVE MAP PAGE
+════════════════════════════════════════
+
+Full viewport height layout with NavBar only.
+
+MAP AREA (full screen Leaflet map):
+Tunisia centered, zoom level 7
+Color-coded case markers:
+  Red teardrop pin: Souffre encore
+  Amber teardrop pin: En cours d'aide
+  Green teardrop pin: Résolu
+Cluster badges when zoomed out (circle with number)
+
+FLOATING SEARCH BAR (absolute top-center):
+White rounded-full pill, shadow
+"Rechercher un cas sur la carte..."
+
+FLOATING LEGEND (absolute bottom-right, white card, shadow):
+Title: "Légende"
+● Rouge — Souffre encore
+● Ambre — En cours d'aide
+● Vert — Résolu
+
+MARKER POPUP (appears on click):
+White card 280px wide rounded-xl shadow:
+  Status badge top-right
+  Case title bold
+  Location: governorate + city
+  Short description 2 lines
+  Two buttons: "Voir le cas" red / "Itinéraire" outline
+
+════════════════════════════════════════
+MOBILE SCREENS (375px width)
+════════════════════════════════════════
+
+MOBILE NAVBAR:
+Logo left + hamburger menu right
+Drawer menu slides from right (full width overlay):
+  All nav links stacked vertically
+  Language switcher
+  Login / Register buttons at bottom
+
+MOBILE HOMEPAGE HERO:
+Stack vertically: text section on top, mosaic below
+Headline reduced to 36px
+Buttons stack vertically full width
+
+MOBILE CASE CARDS:
+Stack vertically in a single column
+Cards full width (calc 100vw - 32px)
+Horizontal scroll section becomes vertical stack
+
+MOBILE USER DASHBOARD:
+Stats cards stack 1 per row
+Accordion items full width
+
+MOBILE ADMIN:
+Sidebar replaced by bottom tab bar:
+  Dashboard / Modération / Cas / Users
+  (4 icon tabs with labels)
+
+════════════════════════════════════════
+FIGMA ORGANIZATION
+════════════════════════════════════════
+
+Create these pages in Figma:
+Page 1: 🎨 Design System (colors, typography, components)
+Page 2: 🖥️ Desktop Screens (all 11 screens at 1440px)
+Page 3: 📱 Mobile Screens (all screens at 375px)
+Page 4: 🔄 User Flows (flowcharts connecting screens)
+Page 5: 📐 Wireframes (low-fidelity layout skeletons)
+
+For the User Flows page create 3 flows:
+Flow 1 — Visitor journey: 
+  Home → Cases → Case Detail → Register → Dashboard
+
+Flow 2 — User creates a case:
+  Login → Dashboard → New Case Form (5 steps) → 
+  Success Screen → Dashboard
+
+Flow 3 — Admin moderates:
+  Admin Login → Admin Dashboard → Moderation Queue → 
+  Approve/Reject → Notification sent
+
+Use Figma's built-in connector arrows between frames.
+
+Apply auto-layout to all components.
+Create variants for all interactive states:
+  Default / Hover / Active / Disabled / Error / Loading
+
+Export all components to a shared Figma library so 
+they can be reused across all screens consistently.

@@ -1,0 +1,23 @@
+/* TounesHelp Map Custom Theme */
+:root {
+  /* TounesHelp Color Palette */
+  --touneshelp-primary-red: #C0392B;
+  --touneshelp-warm-amber: #E67E22;
+  --touneshelp-forest-green: #27AE60;
+  --touneshelp-warm-bg: #FDF6EC;
+  --touneshelp-deep-dark: #1A0A00;
+  --touneshelp-card-white: #FFFFFF;
+  --touneshelp-text-primary: #1C1C1E;
+  --touneshelp-text-secondary: #6B6B6B;
+  --touneshelp-border-light: #F0E6D3;
+  
+  /* Status colors */
+  --touneshelp-status-suffering: #C0392B;
+  --touneshelp-status-helping: #E67E22;
+  --touneshelp-status-resolved: #27AE60;
+  
+  /* Light variations for backgrounds */
+  --touneshelp-light-red-bg: #FFF0EE;
+  --touneshelp-light-amber-bg: #FFF4ED;
+  --touneshelp-light-green-bg: #F0FFF4;
+}

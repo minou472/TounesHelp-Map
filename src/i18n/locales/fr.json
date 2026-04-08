@@ -1,0 +1,32 @@
+{
+  "admin": {
+    "welcome_admin": "Bienvenue, Admin",
+    "dashboard": "Tableau de bord",
+    "case_management": "Gestion des cas",
+    "users": "Utilisateurs",
+    "places_locations": "Lieux & Locations",
+    "moderation_queue": "File de modération",
+    "notifications": "Notifications",
+    "settings": "Paramètres",
+    "chatbot": "Chatbot",
+    "search": "Rechercher...",
+    "active_cases": "Cas actifs",
+    "this_month": "ce mois",
+    "this_week": "cette semaine",
+    "pending": "En attente",
+    "resolved_this_month": "Résolus ce mois",
+    "vs_last_month": "vs mois dernier",
+    "total_users": "Utilisateurs",
+    "cases_by_status": "Cas par statut",
+    "activity_last_7_days": "Activité (7 derniers jours)",
+    "top_10_governorates": "Top 10 Gouvernorats",
+    "recent_activity": "Activité récente",
+    "view_all": "Voir tout",
+    "logout": "Se déconnecter",
+    "status_suffering": "Souffre encore",
+    "status_helping": "En cours d'aide",
+    "status_resolved": "Résolu",
+    "admin_label": "Admin",
+    "admin_email": "admin@touneshelp.tn"
+  }
+}
