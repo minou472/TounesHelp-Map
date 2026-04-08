@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id               String     @id @default(cuid())
+  name             String
+  email            String     @unique
+  phone            String?
+  passwordHash     String
+  role             String     @default("USER")
+  status           String     @default("ACTIVE")
+  bio              String?
+  avatar           String?
+  rating           Float      @default(0)
+  helpedCount      Int        @default(0)
+  receivedHelpCount Int       @default(0)
+  // SQLite doesn't natively support arrays like String[] 
+  // We'll store it as a comma-separated string
+  skills           String     @default("")
+  casesCreated     Int        @default(0)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  // Relations
+  createdCases     TunisiaCase[]  @relation("CaseCreator")
+  helpedCases      CaseHelper[]
+  helpRequests     HelpRequest[]  @relation("RequestPoster")
+  helpProvided     HelpRequest[]  @relation("RequestHelper")
+
+  @@map("users")
+}
+
+model TunisiaCase {
+  id              String       @id @default(cuid())
+  title           String
+  description     String
+  fullDescription String
+  governorate     String
+  city            String
+  latitude        Float
+  longitude       Float
+  status          String       @default("SUFFERING") // Replaces CaseStatus
+  category        String       @default("OTHER")     // Replaces CaseCategory
+  victimName      String
+  victimPhone     String
+  victimEmail     String?
+  creatorName     String
+  creatorPhone    String
+  creatorEmail    String
+  peopleAffected  Int          @default(1)
+  
+  // SQLite doesn't support String[]
+  imagesJson      String       @default("[]")
+  videoUrl        String?
+  
+  datePublished   DateTime?
+  dateResolved    DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  // Relations
+  createdBy       User?        @relation("CaseCreator", fields: [createdById], references: [id])
+  createdById     String?
+  helpers         CaseHelper[]
+
+  @@map("tunisia_cases")
+}
+
+model CaseHelper {
+  id         String      @id @default(cuid())
+  caseId     String
+  userId     String
+  joinedAt   DateTime    @default(now())
+
+  case       TunisiaCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([caseId, userId])
+  @@map("case_helpers")
+}
+
+model HelpRequest {
+  id               String   @id @default(cuid())
+  title            String
+  description      String
+  category         String
+  location         String
+  urgency          String   @default("MEDIUM") // Replaces Urgency
+  status           String   @default("open")
+  helpersNeeded    Int      @default(1)
+  helpersConfirmed Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  postedBy         User     @relation("RequestPoster", fields: [postedById], references: [id])
+  postedById       String
+  helpers          User[]   @relation("RequestHelper")
+
+  @@map("help_requests")
+}
+
+model Place {
+  id          String   @id @default(cuid())
+  name        String
+  address     String
+  city        String
+  governorate String
+  latitude    Float
+  longitude   Float
+  type        String   // e.g. 'shelter', 'hospital', 'food_bank'
+  phone       String?
+  email       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("places")
+}
+
+model ChatbotLog {
+  id          String   @id @default(cuid())
+  sessionId   String
+  userMessage String
+  botResponse String
+  language    String   @default("fr")
+  createdAt   DateTime @default(now())
+
+  @@map("chatbot_logs")
+}
