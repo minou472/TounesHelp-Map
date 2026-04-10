@@ -28,5 +28,107 @@
     "status_resolved": "Résolu",
     "admin_label": "Admin",
     "admin_email": "admin@touneshelp.tn"
+  },
+  "welcome_user": "Bienvenue, {{name}}",
+  "home": {
+    "hero_subtitle": "ILS ONT BESOIN DE VOUS — MAINTENANT",
+    "hero_title_line1": "De vraies personnes.",
+    "hero_title_line2": "Une vraie souffrance.",
+    "hero_title_line3": "Une vraie Tunisie.",
+    "hero_description": "TounesHelp Map connecte les communautés oubliées de Tunisie avec des bénévoles, des ONG et des donateurs. Chaque cas est réel. Chaque histoire compte.",
+    "view_cases": "Voir les cas",
+    "report_case": "Signaler un cas",
+    "cases_reported": "Cas signalés",
+    "resolved_cases": "Cas résolus",
+    "helping_cases": "En cours d'aide",
+    "governorates": "Gouvernorats",
+    "suffering_cases": "Souffrent encore"
+  },
+  "navigation": {
+    "home": "Accueil",
+    "cases": "Les Cas",
+    "map": "Carte",
+    "about": "À propos",
+    "login": "Se connecter",
+    "dashboard": "Tableau de bord",
+    "logout": "Se déconnecter",
+    "profile": "Mon Profil",
+    "register": "S'inscrire"
+  },
+  "dashboard": {
+    "welcome_back": "Bon retour, {{name}} 👋",
+    "cases_status": "Voici l'état de vos cas signalés",
+    "report_new_case": "Signaler un nouveau cas",
+    "suffering": "Souffre encore",
+    "helping": "En cours d'aide",
+    "resolved": "Résolus",
+    "suffering_cases": "Cas en souffrance",
+    "helping_cases": "En cours d'aide",
+    "resolved_cases": "Cas résolus",
+    "edit": "Modifier",
+    "view_resolution": "Voir la résolution →",
+    "resolved_badge": "Résolu"
+  },
+  "create_case": {
+    "steps": {
+      "basic_info": "Informations",
+      "location": "Localisation",
+      "person": "Personne",
+      "media": "Médias",
+      "review": "Révision"
+    },
+    "headings": {
+      "basic_info": "Informations de base",
+      "location": "Localisation",
+      "person": "Personne concernée",
+      "media": "Médias",
+      "review": "Révision"
+    },
+    "labels": {
+      "case_title": "Titre du cas *",
+      "case_title_placeholder": "Décrivez brièvement la situation",
+      "description": "Description *",
+      "description_placeholder": "Décrivez la situation en détail...",
+      "governorate": "Gouvernorat *",
+      "governorate_placeholder": "Sélectionner un gouvernorat",
+      "city": "Ville/Délégation *",
+      "city_placeholder": "Ex: Sfax Ville",
+      "map_location": "Emplacement précis sur la carte *",
+      "map_click_hint": "Cliquez sur la carte pour définir l'emplacement exact du cas",
+      "coordinates": "Coordonnées:",
+      "victim_name": "Nom de la personne *",
+      "victim_name_placeholder": "Nom complet ou anonyme",
+      "victim_phone": "Téléphone *",
+      "victim_phone_placeholder": "+216",
+      "people_affected": "Nombre de personnes affectées",
+      "files_selected": "Fichiers sélectionnés:",
+      "upload_hint": "Glissez vos photos et vidéos ici ou cliquez pour parcourir",
+      "upload_limits": "Max 10 fichiers · 5MB chacun · Images: JPG PNG WebP · Vidéos: MP4 AVI MOV"
+    },
+    "buttons": {
+      "previous": "Précédent",
+      "next": "Suivant",
+      "submit": "Soumettre",
+      "upload": "Télécharger",
+      "uploading": "Téléchargement en cours..."
+    },
+    "messages": {
+      "file_type_error": "Type de fichier non supporté",
+      "file_size_error": "Fichier trop volumineux (max 5MB)",
+      "max_files_error": "Maximum 10 fichiers autorisés",
+      "upload_success": "fichier(s) téléchargé(s) avec succès",
+      "upload_error": "Erreur lors du téléchargement des fichiers",
+      "case_created": "Cas créé avec succès!",
+      "case_error": "Erreur lors de la création du cas",
+      "map_loading": "Chargement de la carte...",
+      "images_count": "image(s)",
+      "video_count": "1 vidéo"
+    },
+    "review": {
+      "basic_info": "Informations de base",
+      "location": "Localisation",
+      "person": "Personne concernée",
+      "media": "Médias"
+    }
   }
 }

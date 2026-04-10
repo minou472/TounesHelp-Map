@@ -16,16 +16,6 @@ type Message = {
 
 type Language = "fr" | "ar" | "en";
 
-type Message = {
-  id: number;
-  text: string;
-  sender: "user" | "bot";
-  timestamp: Date;
-  links?: { text: string; url: string }[];
-};
-
-type Language = "fr" | "ar" | "en";
-
 const translations = {
   fr: {
     greeting:
@@ -297,13 +287,14 @@ function getBotResponse(
 export function RabbitChatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
-  const [language, setLanguage] = useState<Language>("fr");
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [cases, setCases] = useState<TunisiaCase[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const { i18n } = useTranslation();
+  const language = (i18n.language as Language) || "fr";
   const t = translations[language];
 
   useEffect(() => {
@@ -470,19 +461,19 @@ export function RabbitChatbot() {
             </button>
             <div className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col gap-1 min-w-[100px]">
               <button
-                onClick={() => setLanguage("fr")}
+                onClick={() => i18n.changeLanguage("fr")}
                 className={`px-3 py-2 rounded text-sm text-left ${language === "fr" ? "bg-pink-100 text-pink-700" : "text-gray-700 hover:bg-gray-100"}`}
               >
                 🇫🇷 Français
               </button>
               <button
-                onClick={() => setLanguage("ar")}
+                onClick={() => i18n.changeLanguage("ar")}
                 className={`px-3 py-2 rounded text-sm text-left ${language === "ar" ? "bg-pink-100 text-pink-700" : "text-gray-700 hover:bg-gray-100"}`}
               >
                 🇹🇳 العربية
               </button>
               <button
-                onClick={() => setLanguage("en")}
+                onClick={() => i18n.changeLanguage("en")}
                 className={`px-3 py-2 rounded text-sm text-left ${language === "en" ? "bg-pink-100 text-pink-700" : "text-gray-700 hover:bg-gray-100"}`}
               >
                 🇬🇧 English

@@ -145,6 +145,40 @@ export async function fetchCaseById(id: string) {
   return mapBackendCaseToUi(data);
 }
 
+export type CreateCaseData = {
+  title: string;
+  description: string;
+  fullDescription: string;
+  governorate: string;
+  city: string;
+  latitude: number;
+  longitude: number;
+  category?:
+    | "MEDICAL"
+    | "EDUCATION"
+    | "FOOD"
+    | "SHELTER"
+    | "TRANSPORTATION"
+    | "WATER"
+    | "OTHER";
+  victimName: string;
+  victimPhone: string;
+  victimEmail?: string;
+  creatorName: string;
+  creatorPhone: string;
+  creatorEmail: string;
+  peopleAffected: number;
+  images: string[];
+  videoUrl?: string;
+};
+
+export function createCase(data: CreateCaseData) {
+  return request<BackendCase>("/api/cases", {
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+}
+
 export function fetchStats() {
   return request<StatsResponse>("/api/stats");
 }
@@ -204,4 +238,49 @@ export function sendChatbotMessage(
     method: "POST",
     body: JSON.stringify({ sessionId, message, language })
   });
+}
+
+export type UploadResponse = {
+  url: string;
+  type: "image" | "video";
+  size: number;
+  name: string;
+};
+
+export async function uploadFile(file: File): Promise<UploadResponse> {
+  const token = getToken();
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`${API_BASE_URL}/api/upload`, {
+    method: "POST",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
+    body: formData
+  });
+
+  const payload = await res.json();
+  if (!res.ok || payload?.success === false) {
+    throw new Error(payload?.error || "Upload failed");
+  }
+
+  return payload.data as UploadResponse;
+}
+export type NotificationsResponse = {
+  total: number;
+  breakdown: {
+    pendingCases: number;
+    recentUsers: number;
+    oldUnresolvedCases: number;
+  };
+  details: {
+    pendingCasesMessage: string | null;
+    recentUsersMessage: string | null;
+    oldCasesMessage: string | null;
+  };
+};
+
+export function fetchNotifications() {
+  return request<NotificationsResponse>("/api/notifications");
 }

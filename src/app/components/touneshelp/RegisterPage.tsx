@@ -6,6 +6,7 @@ import { Label } from "../ui/label";
 import { Checkbox } from "../ui/checkbox";
 import { Eye, EyeOff, Check, X } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "../../lib/auth";
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -31,18 +32,46 @@ export function RegisterPage() {
   const strengthLabels = ['', 'Faible', 'Moyen', 'Bien', 'Fort'];
   const strengthColors = ['', 'bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500'];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { login } = useAuth();
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      toast.error('Les mots de passe ne correspondent pas');
+      toast.error("Les mots de passe ne correspondent pas");
       return;
     }
     if (!formData.terms) {
-      toast.error('Veuillez accepter les conditions');
+      toast.error("Veuillez accepter les conditions");
       return;
     }
-    toast.success('Compte créé avec succès!');
-    navigate('/dashboard');
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000"}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone,
+        }),
+      });
+
+      const payload = await response.json();
+      if (!response.ok) {
+        toast.error(payload?.error || "Erreur lors de la création du compte");
+        if (response.status === 409) {
+          navigate("/connexion");
+        }
+        return;
+      }
+
+      login(payload.data.user, payload.data.token);
+      toast.success("Compte créé avec succès !");
+      navigate("/dashboard");
+    } catch (error) {
+      console.error(error);
+      toast.error("Impossible de créer le compte. Réessayez plus tard.");
+    }
   };
 
   return (

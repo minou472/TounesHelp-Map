@@ -2,35 +2,46 @@ import { Outlet, Link, useLocation } from "react-router";
 import { Button } from "../ui/button";
 import { Menu, X, LogOut, User } from "lucide-react";
 import { useState, useEffect } from "react";
-import { LanguageTranslator, LanguageTranslatorCompact } from "./LanguageTranslator";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { useTranslation } from "react-i18next";
+import {
+  LanguageTranslator,
+  LanguageTranslatorCompact
+} from "./LanguageTranslator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 
 export function TounesHelpRoot() {
   const location = useLocation();
+  const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userToken, setUserToken] = useState<string | null>(null);
 
   useEffect(() => {
-    setUserToken(localStorage.getItem('userToken'));
+    setUserToken(localStorage.getItem("userToken"));
   }, [location.pathname]);
 
   const handleLogout = () => {
-    localStorage.removeItem('userToken');
+    localStorage.removeItem("userToken");
     setUserToken(null);
   };
 
   // Check if we're on an admin page
-  const isAdminPage = location.pathname.startsWith('/admin');
-  
+  const isAdminPage = location.pathname.startsWith("/admin");
+
   // If admin page, just render outlet without navbar
   if (isAdminPage) {
     return <Outlet />;
   }
 
   const isActive = (path: string) => {
-    if (path === '/') {
-      return location.pathname === '/';
+    if (path === "/") {
+      return location.pathname === "/";
     }
     return location.pathname.startsWith(path);
   };
@@ -56,39 +67,39 @@ export function TounesHelpRoot() {
               <Link
                 to="/"
                 className={`text-[15px] relative ${
-                  isActive('/')
-                    ? 'text-[#C0392B] font-semibold'
-                    : 'text-[#6B6B6B] hover:text-[#1C1C1E]'
+                  isActive("/")
+                    ? "text-[#C0392B] font-semibold"
+                    : "text-[#6B6B6B] hover:text-[#1C1C1E]"
                 }`}
               >
-                Accueil
-                {isActive('/') && (
+                {t("navigation.home")}
+                {isActive("/") && (
                   <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#C0392B]" />
                 )}
               </Link>
               <Link
                 to="/cas"
                 className={`text-[15px] relative ${
-                  isActive('/cas')
-                    ? 'text-[#C0392B] font-semibold'
-                    : 'text-[#6B6B6B] hover:text-[#1C1C1E]'
+                  isActive("/cas")
+                    ? "text-[#C0392B] font-semibold"
+                    : "text-[#6B6B6B] hover:text-[#1C1C1E]"
                 }`}
               >
-                Les Cas
-                {isActive('/cas') && (
+                {t("navigation.cases")}
+                {isActive("/cas") && (
                   <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#C0392B]" />
                 )}
               </Link>
               <Link
                 to="/carte"
                 className={`text-[15px] relative ${
-                  isActive('/carte')
-                    ? 'text-[#C0392B] font-semibold'
-                    : 'text-[#6B6B6B] hover:text-[#1C1C1E]'
+                  isActive("/carte")
+                    ? "text-[#C0392B] font-semibold"
+                    : "text-[#6B6B6B] hover:text-[#1C1C1E]"
                 }`}
               >
-                Carte
-                {isActive('/carte') && (
+                {t("navigation.map")}
+                {isActive("/carte") && (
                   <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#C0392B]" />
                 )}
               </Link>
@@ -96,7 +107,7 @@ export function TounesHelpRoot() {
                 to="/"
                 className="text-[15px] text-[#6B6B6B] hover:text-[#1C1C1E]"
               >
-                À propos
+                {t("navigation.about")}
               </Link>
             </nav>
 
@@ -104,43 +115,55 @@ export function TounesHelpRoot() {
             <div className="hidden md:flex items-center gap-4">
               {/* Language Translator */}
               <LanguageTranslator />
-              
+
               {userToken ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="flex items-center gap-2 outline-none">
                       <Avatar className="h-9 w-9 border border-gray-200">
-                        <AvatarFallback className="bg-orange-100 text-[#C0392B]">U</AvatarFallback>
+                        <AvatarFallback className="bg-orange-100 text-[#C0392B]">
+                          U
+                        </AvatarFallback>
                       </Avatar>
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
                     <div className="flex items-center justify-start gap-2 p-2">
                       <div className="flex flex-col space-y-1 leading-none">
-                        <p className="font-medium text-sm">Mon Profil</p>
+                        <p className="font-medium text-sm">
+                          {t("navigation.profile")}
+                        </p>
                       </div>
                     </div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link to="/dashboard" className="cursor-pointer flex items-center">
+                      <Link
+                        to="/dashboard"
+                        className="cursor-pointer flex items-center"
+                      >
                         <User className="mr-2 h-4 w-4" />
-                        <span>Tableau de bord</span>
+                        <span>{t("navigation.dashboard")}</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600" onClick={handleLogout}>
+                    <DropdownMenuItem
+                      className="cursor-pointer text-red-600 focus:text-red-600"
+                      onClick={handleLogout}
+                    >
                       <LogOut className="mr-2 h-4 w-4" />
-                      <span>Déconnexion</span>
+                      <span>{t("navigation.logout")}</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
                 <div className="flex gap-2">
                   <Link to="/connexion">
-                    <Button variant="outline">Se connecter</Button>
+                    <Button variant="outline">{t("navigation.login")}</Button>
                   </Link>
                   <Link to="/creer-cas">
-                    <Button className="bg-[#C0392B] hover:bg-[#A02E24]">Signaler un cas</Button>
+                    <Button className="bg-[#C0392B] hover:bg-[#A02E24]">
+                      {t("home.report_case")}
+                    </Button>
                   </Link>
                 </div>
               )}
@@ -169,55 +192,72 @@ export function TounesHelpRoot() {
                 className="block text-[#6B6B6B] hover:text-[#C0392B] py-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Accueil
+                {t("navigation.home")}
               </Link>
               <Link
                 to="/cas"
                 className="block text-[#6B6B6B] hover:text-[#C0392B] py-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Les Cas
+                {t("navigation.cases")}
               </Link>
               <Link
                 to="/carte"
                 className="block text-[#6B6B6B] hover:text-[#C0392B] py-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Carte
+                {t("navigation.map")}
               </Link>
               <Link
                 to="/"
                 className="block text-[#6B6B6B] hover:text-[#C0392B] py-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                À propos
+                {t("navigation.about")}
               </Link>
               <div className="pt-4 border-t border-gray-200 space-y-2">
                 {userToken ? (
                   <>
-                    <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="outline" className="w-full justify-start mt-2">
-                        <User className="mr-2 h-4 w-4" /> Mon Tableau de bord
+                    <Link
+                      to="/dashboard"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start mt-2"
+                      >
+                        <User className="mr-2 h-4 w-4" />{" "}
+                        {t("navigation.dashboard")}
                       </Button>
                     </Link>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 mt-2" 
-                      onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 mt-2"
+                      onClick={() => {
+                        handleLogout();
+                        setMobileMenuOpen(false);
+                      }}
                     >
-                      <LogOut className="mr-2 h-4 w-4" /> Déconnexion
+                      <LogOut className="mr-2 h-4 w-4" />{" "}
+                      {t("navigation.logout")}
                     </Button>
                   </>
                 ) : (
                   <>
-                    <Link to="/connexion" onClick={() => setMobileMenuOpen(false)}>
+                    <Link
+                      to="/connexion"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
                       <Button variant="outline" className="w-full">
-                        Se connecter
+                        {t("navigation.login")}
                       </Button>
                     </Link>
-                    <Link to="/inscription" onClick={() => setMobileMenuOpen(false)}>
+                    <Link
+                      to="/inscription"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
                       <Button className="w-full bg-[#C0392B] hover:bg-[#A02E24]">
-                        S'inscrire
+                        {t("navigation.register")}
                       </Button>
                     </Link>
                   </>
@@ -248,7 +288,8 @@ export function TounesHelpRoot() {
                 </span>
               </div>
               <p className="text-gray-400 text-sm">
-                Connecter les communautés en souffrance avec ceux qui peuvent aider.
+                Connecter les communautés en souffrance avec ceux qui peuvent
+                aider.
               </p>
             </div>
 
@@ -256,16 +297,28 @@ export function TounesHelpRoot() {
             <div>
               <h3 className="font-semibold mb-4">Navigation</h3>
               <div className="space-y-2">
-                <Link to="/cas" className="block text-gray-400 hover:text-white text-sm">
+                <Link
+                  to="/cas"
+                  className="block text-gray-400 hover:text-white text-sm"
+                >
                   Les Cas
                 </Link>
-                <Link to="/carte" className="block text-gray-400 hover:text-white text-sm">
+                <Link
+                  to="/carte"
+                  className="block text-gray-400 hover:text-white text-sm"
+                >
                   Carte
                 </Link>
-                <Link to="/" className="block text-gray-400 hover:text-white text-sm">
+                <Link
+                  to="/"
+                  className="block text-gray-400 hover:text-white text-sm"
+                >
                   À propos
                 </Link>
-                <Link to="/" className="block text-gray-400 hover:text-white text-sm">
+                <Link
+                  to="/"
+                  className="block text-gray-400 hover:text-white text-sm"
+                >
                   Contact
                 </Link>
               </div>

@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "../ui/button";
 import { CaseCard } from "./CaseCard";
 import { TunisiaMap } from "./TunisiaMap";
@@ -8,26 +9,30 @@ import type { TunisiaCase } from "../../data/tunisiaData";
 import { fetchCases, fetchStats } from "../../lib/backendApi";
 
 export function HomePage() {
+  const { t } = useTranslation();
   const [cases, setCases] = useState<TunisiaCase[]>([]);
   const [stats, setStats] = useState({
     totalCases: 0,
     resolvedCases: 0,
     helpingCases: 0,
     governorates: 0,
-    sufferingCases: 0,
+    sufferingCases: 0
   });
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [casesData, statsData] = await Promise.all([fetchCases({ limit: 100 }), fetchStats()]);
+        const [casesData, statsData] = await Promise.all([
+          fetchCases({ limit: 100 }),
+          fetchStats()
+        ]);
         setCases(casesData);
         setStats({
           totalCases: statsData.overview.totalCases,
           resolvedCases: statsData.overview.resolvedCases,
           helpingCases: statsData.overview.helpingCases,
           governorates: statsData.casesByGovernorate.length,
-          sufferingCases: statsData.overview.sufferingCases,
+          sufferingCases: statsData.overview.sufferingCases
         });
       } catch (error) {
         console.error("Failed to load homepage data", error);
@@ -45,30 +50,33 @@ export function HomePage() {
         {/* Left Half */}
         <div className="flex flex-col justify-center px-6 lg:px-24 py-12 lg:py-0">
           <div className="uppercase text-[#C0392B] font-bold text-[11px] tracking-[2px] mb-6">
-            ILS ONT BESOIN DE VOUS — MAINTENANT
+            {t("home.hero_subtitle")}
           </div>
 
           <h1 className="text-[42px] md:text-[56px] font-bold text-[#1C1C1E] leading-[1.1] mb-6">
-            De vraies personnes.
+            {t("home.hero_title_line1")}
             <br />
-            Une vraie souffrance.
+            {t("home.hero_title_line2")}
             <br />
-            Une vraie Tunisie.
+            {t("home.hero_title_line3")}
           </h1>
 
           <p className="text-lg text-[#6B6B6B] max-w-[480px] mb-8 leading-relaxed">
-            TounesHelp Map connecte les communautés oubliées de Tunisie avec des bénévoles, des ONG et des donateurs. Chaque cas est réel. Chaque histoire compte.
+            {t("home.hero_description")}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-12">
             <Link to="/cas">
               <Button className="bg-[#C0392B] hover:bg-[#A02E24] text-white rounded-xl h-14 px-8 text-base font-semibold">
-                Voir les cas <ArrowRight className="ml-2" size={20} />
+                {t("home.view_cases")} <ArrowRight className="ml-2" size={20} />
               </Button>
             </Link>
             <Link to="/creer-cas">
-              <Button variant="outline" className="border-2 border-[#1A0A00] text-[#1A0A00] hover:bg-[#1A0A00] hover:text-white rounded-xl h-14 px-8 text-base font-semibold">
-                Signaler un cas
+              <Button
+                variant="outline"
+                className="border-2 border-[#1A0A00] text-[#1A0A00] hover:bg-[#1A0A00] hover:text-white rounded-xl h-14 px-8 text-base font-semibold"
+              >
+                {t("home.report_case")}
               </Button>
             </Link>
           </div>
@@ -76,15 +84,23 @@ export function HomePage() {
           {/* Stats */}
           <div className="flex flex-wrap gap-12">
             <div>
-              <div className="text-[40px] font-bold text-[#C0392B]">{stats.totalCases}</div>
-              <div className="text-sm text-[#6B6B6B]">Cas signalés</div>
+              <div className="text-[40px] font-bold text-[#C0392B]">
+                {stats.totalCases}
+              </div>
+              <div className="text-sm text-[#6B6B6B]">
+                {t("home.cases_reported")}
+              </div>
             </div>
             <div>
-              <div className="text-[40px] font-bold text-[#27AE60]">{stats.resolvedCases}</div>
+              <div className="text-[40px] font-bold text-[#27AE60]">
+                {stats.resolvedCases}
+              </div>
               <div className="text-sm text-[#6B6B6B]">Résolus</div>
             </div>
             <div>
-              <div className="text-[40px] font-bold text-[#E67E22]">{stats.governorates}</div>
+              <div className="text-[40px] font-bold text-[#E67E22]">
+                {stats.governorates}
+              </div>
               <div className="text-sm text-[#6B6B6B]">Gouvernorats</div>
             </div>
           </div>
@@ -119,7 +135,8 @@ export function HomePage() {
                 Signaler un cas
               </h3>
               <p className="text-[#6B6B6B]">
-                Tout citoyen peut signaler une situation de souffrance en quelques clics
+                Tout citoyen peut signaler une situation de souffrance en
+                quelques clics
               </p>
             </div>
 
@@ -161,7 +178,8 @@ export function HomePage() {
                 Aide apportée
               </h3>
               <p className="text-[#6B6B6B]">
-                Les bénévoles, ONG et donateurs se mobilisent pour apporter leur aide
+                Les bénévoles, ONG et donateurs se mobilisent pour apporter leur
+                aide
               </p>
             </div>
           </div>
@@ -175,7 +193,10 @@ export function HomePage() {
             <h2 className="text-[36px] font-bold text-[#1C1C1E]">
               Les derniers cas signalés
             </h2>
-            <Link to="/cas" className="text-[#C0392B] hover:text-[#A02E24] font-semibold flex items-center gap-2">
+            <Link
+              to="/cas"
+              className="text-[#C0392B] hover:text-[#A02E24] font-semibold flex items-center gap-2"
+            >
               Voir tous les cas <ArrowRight size={20} />
             </Link>
           </div>
@@ -193,15 +214,21 @@ export function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
             <div>
-              <div className="text-[72px] font-bold text-[#C0392B] mb-2">{stats.sufferingCases}</div>
+              <div className="text-[72px] font-bold text-[#C0392B] mb-2">
+                {stats.sufferingCases}
+              </div>
               <div className="text-white text-lg">Cas encore en souffrance</div>
             </div>
             <div className="border-l border-r border-gray-700">
-              <div className="text-[72px] font-bold text-[#E67E22] mb-2">{stats.helpingCases}</div>
+              <div className="text-[72px] font-bold text-[#E67E22] mb-2">
+                {stats.helpingCases}
+              </div>
               <div className="text-white text-lg">En cours d'aide</div>
             </div>
             <div>
-              <div className="text-[72px] font-bold text-[#27AE60] mb-2">{stats.resolvedCases}</div>
+              <div className="text-[72px] font-bold text-[#27AE60] mb-2">
+                {stats.resolvedCases}
+              </div>
               <div className="text-white text-lg">Cas résolus</div>
             </div>
           </div>
@@ -215,7 +242,10 @@ export function HomePage() {
             Vous pouvez changer une vie aujourd'hui
           </h2>
           <Link to="/inscription">
-            <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-[#C0392B] rounded-xl h-14 px-12 text-lg font-semibold">
+            <Button
+              variant="outline"
+              className="border-2 border-white text-white hover:bg-white hover:text-[#C0392B] rounded-xl h-14 px-12 text-lg font-semibold"
+            >
               Créer un compte gratuitement
             </Button>
           </Link>

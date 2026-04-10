@@ -28,5 +28,107 @@
     "status_resolved": "تم الحل",
     "admin_label": "مشرف",
     "admin_email": "admin@touneshelp.tn"
+  },
+  "welcome_user": "مرحباً، {{name}}",
+  "home": {
+    "hero_subtitle": "هم بحاجة إليك — الآن",
+    "hero_title_line1": "أشخاص حقيقيون.",
+    "hero_title_line2": "معاناة حقيقية.",
+    "hero_title_line3": "تونس حقيقية.",
+    "hero_description": "خريطة تونس هيلب تربط المجتمعات المنسية في تونس مع المتطوعين والمنظمات غير الحكومية والمانحين. كل قضية حقيقية. كل قصة مهمة.",
+    "view_cases": "عرض القضايا",
+    "report_case": "الإبلاغ عن قضية",
+    "cases_reported": "القضايا المبلغ عنها",
+    "resolved_cases": "القضايا المحلولة",
+    "helping_cases": "قيد المساعدة",
+    "governorates": "الولايات",
+    "suffering_cases": "لا يزالون يعانون"
+  },
+  "navigation": {
+    "home": "الرئيسية",
+    "cases": "القضايا",
+    "map": "الخريطة",
+    "about": "حول",
+    "login": "تسجيل الدخول",
+    "dashboard": "لوحة التحكم",
+    "logout": "تسجيل الخروج",
+    "profile": "ملفي الشخصي",
+    "register": "إنشاء حساب"
+  },
+  "dashboard": {
+    "welcome_back": "مرحباً بعودتك، {{name}} 👋",
+    "cases_status": "إليك حالة الحالات التي أبلغت عنها",
+    "report_new_case": "الإبلاغ عن حالة جديدة",
+    "suffering": "لا يزال يعاني",
+    "helping": "قيد المساعدة",
+    "resolved": "تم حلها",
+    "suffering_cases": "الحالات التي تعاني",
+    "helping_cases": "الحالات قيد المساعدة",
+    "resolved_cases": "الحالات المحلولة",
+    "edit": "تعديل",
+    "view_resolution": "عرض الحل →",
+    "resolved_badge": "تم الحل"
+  },
+  "create_case": {
+    "steps": {
+      "basic_info": "المعلومات الأساسية",
+      "location": "الموقع",
+      "person": "الشخص",
+      "media": "الوسائط",
+      "review": "المراجعة"
+    },
+    "headings": {
+      "basic_info": "المعلومات الأساسية",
+      "location": "الموقع",
+      "person": "الشخص المعني",
+      "media": "الوسائط",
+      "review": "المراجعة"
+    },
+    "labels": {
+      "case_title": "عنوان الحالة *",
+      "case_title_placeholder": "وصف الوضع باختصار",
+      "description": "الوصف *",
+      "description_placeholder": "وصف الوضع بالتفصيل...",
+      "governorate": "الولاية *",
+      "governorate_placeholder": "اختر ولاية",
+      "city": "المدينة/المعتمدية *",
+      "city_placeholder": "مثال: صفاقس المدينة",
+      "map_location": "الموقع الدقيق على الخريطة *",
+      "map_click_hint": "انقر على الخريطة لتحديد موقع الحالة الدقيق",
+      "coordinates": "الإحداثيات:",
+      "victim_name": "اسم الشخص *",
+      "victim_name_placeholder": "الاسم الكامل أو مجهول",
+      "victim_phone": "الهاتف *",
+      "victim_phone_placeholder": "+216",
+      "people_affected": "عدد الأشخاص المتضررين",
+      "files_selected": "الملفات المختارة:",
+      "upload_hint": "اسحب صورك وفيديوهاتك هنا أو انقر للتصفح",
+      "upload_limits": "حد أقصى 10 ملفات · 5 ميغابايت لكل · صور: JPG PNG WebP · فيديوهات: MP4 AVI MOV"
+    },
+    "buttons": {
+      "previous": "السابق",
+      "next": "التالي",
+      "submit": "إرسال",
+      "upload": "رفع",
+      "uploading": "جاري الرفع..."
+    },
+    "messages": {
+      "file_type_error": "نوع الملف غير مدعوم",
+      "file_size_error": "الملف كبير جداً (حد أقصى 5 ميغابايت)",
+      "max_files_error": "الحد الأقصى 10 ملفات مسموح",
+      "upload_success": "تم رفع الملف(الملفات) بنجاح",
+      "upload_error": "خطأ في رفع الملفات",
+      "case_created": "تم إنشاء الحالة بنجاح!",
+      "case_error": "خطأ في إنشاء الحالة",
+      "map_loading": "جاري تحميل الخريطة...",
+      "images_count": "صورة/صور",
+      "video_count": "فيديو واحد"
+    },
+    "review": {
+      "basic_info": "المعلومات الأساسية",
+      "location": "الموقع",
+      "person": "الشخص المعني",
+      "media": "الوسائط"
+    }
   }
 }

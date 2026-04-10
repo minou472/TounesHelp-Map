@@ -28,5 +28,107 @@
     "status_resolved": "Resolved",
     "admin_label": "Admin",
     "admin_email": "admin@touneshelp.tn"
+  },
+  "welcome_user": "Welcome, {{name}}",
+  "home": {
+    "hero_subtitle": "THEY NEED YOU — NOW",
+    "hero_title_line1": "Real people.",
+    "hero_title_line2": "Real suffering.",
+    "hero_title_line3": "A real Tunisia.",
+    "hero_description": "TounesHelp Map connects forgotten communities of Tunisia with volunteers, NGOs, and donors. Each case is real. Each story matters.",
+    "view_cases": "View Cases",
+    "report_case": "Report a Case",
+    "cases_reported": "Cases Reported",
+    "resolved_cases": "Resolved Cases",
+    "helping_cases": "Being Helped",
+    "governorates": "Governorates",
+    "suffering_cases": "Still Suffering"
+  },
+  "navigation": {
+    "home": "Home",
+    "cases": "Cases",
+    "map": "Map",
+    "about": "About",
+    "login": "Sign In",
+    "dashboard": "Dashboard",
+    "logout": "Logout",
+    "profile": "My Profile",
+    "register": "Sign Up"
+  },
+  "dashboard": {
+    "welcome_back": "Welcome back, {{name}} 👋",
+    "cases_status": "Here's the status of your reported cases",
+    "report_new_case": "Report a new case",
+    "suffering": "Still Suffering",
+    "helping": "Being Helped",
+    "resolved": "Resolved",
+    "suffering_cases": "Cases in Suffering",
+    "helping_cases": "Cases Being Helped",
+    "resolved_cases": "Resolved Cases",
+    "edit": "Edit",
+    "view_resolution": "View Resolution →",
+    "resolved_badge": "Resolved"
+  },
+  "create_case": {
+    "steps": {
+      "basic_info": "Basic Info",
+      "location": "Location",
+      "person": "Person",
+      "media": "Media",
+      "review": "Review"
+    },
+    "headings": {
+      "basic_info": "Basic Information",
+      "location": "Location",
+      "person": "Affected Person",
+      "media": "Media",
+      "review": "Review"
+    },
+    "labels": {
+      "case_title": "Case Title *",
+      "case_title_placeholder": "Briefly describe the situation",
+      "description": "Description *",
+      "description_placeholder": "Describe the situation in detail...",
+      "governorate": "Governorate *",
+      "governorate_placeholder": "Select a governorate",
+      "city": "City/Delegation *",
+      "city_placeholder": "Ex: Sfax City",
+      "map_location": "Precise location on the map *",
+      "map_click_hint": "Click on the map to set the exact case location",
+      "coordinates": "Coordinates:",
+      "victim_name": "Person's Name *",
+      "victim_name_placeholder": "Full name or anonymous",
+      "victim_phone": "Phone *",
+      "victim_phone_placeholder": "+216",
+      "people_affected": "Number of affected people",
+      "files_selected": "Selected files:",
+      "upload_hint": "Drag your photos and videos here or click to browse",
+      "upload_limits": "Max 10 files · 5MB each · Images: JPG PNG WebP · Videos: MP4 AVI MOV"
+    },
+    "buttons": {
+      "previous": "Previous",
+      "next": "Next",
+      "submit": "Submit",
+      "upload": "Upload",
+      "uploading": "Uploading..."
+    },
+    "messages": {
+      "file_type_error": "Unsupported file type",
+      "file_size_error": "File too large (max 5MB)",
+      "max_files_error": "Maximum 10 files allowed",
+      "upload_success": "file(s) uploaded successfully",
+      "upload_error": "Error uploading files",
+      "case_created": "Case created successfully!",
+      "case_error": "Error creating case",
+      "map_loading": "Loading map...",
+      "images_count": "image(s)",
+      "video_count": "1 video"
+    },
+    "review": {
+      "basic_info": "Basic Information",
+      "location": "Location",
+      "person": "Affected Person",
+      "media": "Media"
+    }
   }
 }

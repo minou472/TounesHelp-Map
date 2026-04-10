@@ -5,32 +5,45 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Eye, EyeOff, Check } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "../../lib/auth";
 
 export function LoginPage() {
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
-    setTimeout(() => {
-      setLoading(false);
-      
-      if (email === 'admin@touneshelp.tn' && password === 'admin') {
-        localStorage.setItem('adminToken', 'admin_token_' + email);
-        localStorage.setItem('userToken', 'admin_token_' + email);
-        toast.success('Welcome back Admin');
-        navigate('/admin/enhanced');
-      } else {
-        localStorage.setItem('userToken', 'dummy_user_' + email);
-        toast.success('Connexion réussie!');
-        navigate('/dashboard');
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000"}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const payload = await response.json();
+
+      if (!response.ok) {
+        toast.error(payload?.error || "Erreur de connexion");
+        if (response.status === 404) {
+          navigate("/inscription");
+        }
+        return;
       }
-    }, 1000);
+
+      login(payload.data.user, payload.data.token);
+      toast.success("Connexion réussie !");
+      navigate(payload.data.user.role === "ADMIN" ? "/admin/enhanced" : "/dashboard");
+    } catch (error) {
+      console.error(error);
+      toast.error("Impossible de se connecter. Réessayez plus tard.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -131,7 +144,7 @@ export function LoginPage() {
                 </button>
               </div>
               <div className="text-right mt-2">
-                <Link to="/" className="text-sm text-[#C0392B] hover:underline">
+                <Link to="/mot-de-passe-oublie" className="text-sm text-[#C0392B] hover:underline">
                   Mot de passe oublié ?
                 </Link>
               </div>

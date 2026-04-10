@@ -5,6 +5,7 @@ import { CasesPage } from "./components/touneshelp/CasesPage";
 import { CaseDetailPage } from "./components/touneshelp/CaseDetailPage";
 import { LoginPage } from "./components/touneshelp/LoginPage";
 import { RegisterPage } from "./components/touneshelp/RegisterPage";
+import { ForgotPasswordPage } from "./components/touneshelp/ForgotPasswordPage";
 import { UserDashboard } from "./components/touneshelp/UserDashboard";
 import { CreateCasePage } from "./components/touneshelp/CreateCasePage";
 import { MapPage } from "./components/touneshelp/MapPage";
@@ -24,6 +25,7 @@ export const tounesHelpRouter = createBrowserRouter([
       { path: "cas/:id", Component: CaseDetailPage },
       { path: "carte", Component: MapPage },
       { path: "connexion", Component: LoginPage },
+      { path: "mot-de-passe-oublie", Component: ForgotPasswordPage },
       { path: "inscription", Component: RegisterPage },
       { path: "dashboard", Component: UserDashboard },
       { path: "creer-cas", Component: CreateCasePage },

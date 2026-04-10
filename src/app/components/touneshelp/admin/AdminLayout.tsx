@@ -2,7 +2,8 @@ import { Link, useLocation } from "react-router";
 import { Home, FileText, Users, BarChart3, LogOut, ChevronRight, Bell } from "lucide-react";
 import { Button } from "../../ui/button";
 import { Badge } from "../../ui/badge";
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
+import { fetchNotifications, type NotificationsResponse } from "../../../lib/backendApi";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -11,10 +12,28 @@ interface AdminLayoutProps {
 export function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationsResponse | null>(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  useEffect(() => {
+    const loadNotifications = async () => {
+      try {
+        const data = await fetchNotifications();
+        setNotifications(data);
+      } catch (error) {
+        console.error("Failed to load notifications", error);
+      }
+    };
+
+    loadNotifications();
+    // Refresh notifications every 30 seconds
+    const interval = setInterval(loadNotifications, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const navItems = [
     { path: '/admin', icon: Home, label: 'Tableau de bord' },
-    { path: '/admin/moderation', icon: FileText, label: 'Modération', badge: 14 },
+    { path: '/admin/moderation', icon: FileText, label: 'Modération', badge: notifications?.breakdown.pendingCases || 0 },
     { path: '/admin/cas', icon: FileText, label: 'Tous les cas' },
     { path: '/admin/utilisateurs', icon: Users, label: 'Utilisateurs' },
     { path: '/admin/stats', icon: BarChart3, label: 'Statistiques' },
@@ -120,10 +139,87 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           </h1>
           
           <div className="flex items-center gap-4">
-            <button className="relative p-2 hover:bg-gray-100 rounded-lg">
-              <Bell size={20} />
-              <div className="absolute top-1 right-1 w-2 h-2 bg-[#C0392B] rounded-full" />
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <Bell size={20} />
+                {notifications && notifications.total > 0 && (
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#C0392B] rounded-full flex items-center justify-center text-white text-xs font-bold">
+                    {notifications.total > 99 ? '99+' : notifications.total}
+                  </div>
+                )}
+              </button>
+
+              {/* Notifications Dropdown */}
+              {showNotifications && (
+                <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                  <div className="p-4 border-b border-gray-200">
+                    <h3 className="font-semibold text-[#1C1C1E]">Notifications</h3>
+                    <p className="text-sm text-gray-600">{notifications?.total || 0} notification(s)</p>
+                  </div>
+
+                  <div className="max-h-64 overflow-y-auto">
+                    {notifications?.details.pendingCasesMessage && (
+                      <Link
+                        to="/admin/moderation"
+                        className="block p-4 border-b border-gray-100 hover:bg-gray-50"
+                        onClick={() => setShowNotifications(false)}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="w-2 h-2 bg-[#C0392B] rounded-full mt-2"></div>
+                          <div>
+                            <p className="text-sm font-medium text-[#1C1C1E]">Cas en attente</p>
+                            <p className="text-sm text-gray-600">{notifications.details.pendingCasesMessage}</p>
+                          </div>
+                        </div>
+                      </Link>
+                    )}
+
+                    {notifications?.details.recentUsersMessage && (
+                      <Link
+                        to="/admin/utilisateurs"
+                        className="block p-4 border-b border-gray-100 hover:bg-gray-50"
+                        onClick={() => setShowNotifications(false)}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="w-2 h-2 bg-[#27AE60] rounded-full mt-2"></div>
+                          <div>
+                            <p className="text-sm font-medium text-[#1C1C1E]">Nouveaux utilisateurs</p>
+                            <p className="text-sm text-gray-600">{notifications.details.recentUsersMessage}</p>
+                          </div>
+                        </div>
+                      </Link>
+                    )}
+
+                    {notifications?.details.oldCasesMessage && (
+                      <Link
+                        to="/admin/cas"
+                        className="block p-4 hover:bg-gray-50"
+                        onClick={() => setShowNotifications(false)}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="w-2 h-2 bg-[#E67E22] rounded-full mt-2"></div>
+                          <div>
+                            <p className="text-sm font-medium text-[#1C1C1E]">Cas anciens</p>
+                            <p className="text-sm text-gray-600">{notifications.details.oldCasesMessage}</p>
+                          </div>
+                        </div>
+                      </Link>
+                    )}
+
+                    {(!notifications || notifications.total === 0) && (
+                      <div className="p-8 text-center text-gray-500">
+                        <Bell size={32} className="mx-auto mb-2 opacity-50" />
+                        <p>Aucune notification</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="w-10 h-10 rounded-full bg-[#C0392B] flex items-center justify-center text-white font-semibold">
               A
             </div>
