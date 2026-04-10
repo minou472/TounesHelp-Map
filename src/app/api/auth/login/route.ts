@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      return errorResponse("Invalid email or password", 401);
+      return errorResponse("No account found with this email. Please sign up.", 404);
     }
 
     if (user.status === "BLOCKED") {

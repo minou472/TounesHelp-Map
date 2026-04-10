@@ -59,19 +59,18 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const [cases, total] = await Promise.all([
-      prisma.tunisiaCase.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: "desc" },
-        include: {
-          createdBy: { select: { id: true, name: true, avatar: true } },
-          _count: { select: { helpers: true } },
-        },
-      }),
-      prisma.tunisiaCase.count({ where }),
-    ]);
+    const cases = await prisma.tunisiaCase.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { createdAt: "desc" },
+      include: {
+        createdBy: { select: { id: true, name: true, avatar: true } },
+        _count: { select: { helpers: true } },
+      },
+    });
+    
+    const total = await prisma.tunisiaCase.count({ where });
 
     return paginatedResponse(cases, total, page, limit);
   } catch (error) {
@@ -93,11 +92,12 @@ export async function POST(req: NextRequest) {
       return errorResponse(parsed.error.issues.map((e) => e.message).join(", "), 422);
     }
 
-    const caseData = parsed.data;
+    const { images, ...caseDataWithoutImages } = parsed.data;
 
     const newCase = await prisma.tunisiaCase.create({
       data: {
-        ...caseData,
+        ...caseDataWithoutImages,
+        imagesJson: JSON.stringify(images),
         createdById: authUser.userId,
         datePublished: new Date(),
       },

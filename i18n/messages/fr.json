@@ -81,5 +81,24 @@
     "ar": "Arabe",
     "fr": "Français",
     "en": "Anglais"
+  },
+  "chatbot": {
+    "greeting": "Bonjour! 🐰💕 Je suis Espoir, votre assistant TounesHelp! Comment puis-je vous aider aujourd'hui?",
+    "register": {
+      "response": "Pour vous inscrire sur TounesHelp:\n1. Cliquez sur 'S'inscrire'\n2. Remplissez vos informations\n3. Confirmez votre email\n4. Commencez à aider!",
+      "links": ["/register"]
+    },
+    "createCase": {
+      "response": "Pour créer un cas:\n1. Connectez-vous\n2. Cliquez sur 'Signaler un cas'\n3. Remplissez les détails\n4. Ajoutez des photos\n5. Soumettez pour révision",
+      "links": ["/cases/new"]
+    },
+    "activeCases": {
+      "response": "Je peux vous afficher les statistiques des cas actifs en temps réel. Demandez: \"statistiques\" ou \"cas actifs\".",
+      "links": ["/"]
+    },
+    "help": {
+      "response": "Je peux vous aider avec:\n\n💡 Informations sur la plateforme\n📝 Inscription et création de cas\n📊 Statistiques des cas actifs\n🔍 Recherche de cas spécifiques\n📍 Cas par gouvernorat\n🏥 Cas par catégorie\n\nPosez-moi une question!"
+    },
+    "default": "Je suis Espoir 🐰! Je ne comprends pas encore cette question. Essayez: 'inscription', 'créer un cas', 'cas actifs'."
   }
 }

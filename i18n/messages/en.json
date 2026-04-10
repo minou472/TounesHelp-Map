@@ -81,5 +81,24 @@
     "ar": "Arabic",
     "fr": "French",
     "en": "English"
+  },
+  "chatbot": {
+    "greeting": "Hello! 🐰💕 I'm Hope, your TounesHelp assistant! How can I help you today?",
+    "register": {
+      "response": "To register on TounesHelp:\n1. Click 'Sign up'\n2. Fill in your details\n3. Confirm your email\n4. Start helping!",
+      "links": ["/register"]
+    },
+    "createCase": {
+      "response": "To create a case:\n1. Log in\n2. Click 'Report a case'\n3. Fill in the details\n4. Add photos\n5. Submit for review",
+      "links": ["/cases/new"]
+    },
+    "activeCases": {
+      "response": "I can show real-time active case statistics. Ask: \"stats\" or \"active cases\".",
+      "links": ["/"]
+    },
+    "help": {
+      "response": "I can help you with:\n\n💡 Platform information\n📝 Registration and case creation\n📊 Active case statistics\n🔍 Search for specific cases\n📍 Cases by governorate\n🏥 Cases by category\n\nAsk me a question!"
+    },
+    "default": "I'm Hope 🐰! I didn't understand. Try asking about 'registration', 'create a case', or 'active cases'."
   }
 }

@@ -4,21 +4,22 @@ import { verifyToken, extractTokenFromHeader } from "./lib/jwt";
 const PUBLIC_ROUTES = [
   "/api/auth/login",
   "/api/auth/register",
+  "/api/auth/forgot-password",
   "/api/cases",
   "/api/stats",
-  "/api/places",
+  "/api/places"
 ];
 
 const ADMIN_ROUTES = ["/api/users", "/api/admin"];
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new NextResponse(null, {
       status: 200,
-      headers: corsHeaders(),
+      headers: corsHeaders()
     });
   }
 
@@ -29,7 +30,7 @@ export function middleware(req: NextRequest) {
     "http://localhost:5173",
     "http://localhost:5174",
     "http://localhost:3000",
-    process.env.FRONTEND_URL || "",
+    process.env.FRONTEND_URL || ""
   ];
 
   if (allowedOrigins.includes(origin)) {
@@ -45,18 +46,14 @@ export function middleware(req: NextRequest) {
     "Content-Type, Authorization"
   );
 
-  // Skip auth for public routes (GET requests)
-  const isPublicGet =
-    PUBLIC_ROUTES.some((r) => pathname.startsWith(r)) &&
-    req.method === "GET";
-
-  if (isPublicGet) return response;
+  const isPublicRoute = PUBLIC_ROUTES.some((r) => pathname.startsWith(r));
+  if (isPublicRoute) return response;
 
   // Check admin routes
   const isAdminRoute = ADMIN_ROUTES.some((r) => pathname.startsWith(r));
 
   // For protected routes, validate token
-  if (!isPublicGet && pathname.startsWith("/api/")) {
+  if (!isPublicRoute && pathname.startsWith("/api/")) {
     const token = extractTokenFromHeader(req.headers.get("authorization"));
     if (!token) {
       return NextResponse.json(
@@ -88,10 +85,10 @@ function corsHeaders(): HeadersInit {
   return {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization"
   };
 }
 
 export const config = {
-  matcher: "/api/:path*",
+  matcher: "/api/:path*"
 };

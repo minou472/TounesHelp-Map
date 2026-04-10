@@ -5,39 +5,30 @@ import { successResponse, errorResponse } from "@/lib/response";
 // GET /api/stats — dashboard stats
 export async function GET(req: NextRequest) {
   try {
-    const [
-      totalCases,
-      sufferingCases,
-      helpingCases,
-      resolvedCases,
-      totalUsers,
-      totalPlaces,
-      recentCases,
-      casesByGovernorate,
-      casesByCategory,
-    ] = await Promise.all([
-      prisma.tunisiaCase.count(),
-      prisma.tunisiaCase.count({ where: { status: "SUFFERING" } }),
-      prisma.tunisiaCase.count({ where: { status: "HELPING" } }),
-      prisma.tunisiaCase.count({ where: { status: "RESOLVED" } }),
-      prisma.user.count(),
-      prisma.place.count(),
-      prisma.tunisiaCase.findMany({
-        take: 5,
-        orderBy: { createdAt: "desc" },
-        select: { id: true, title: true, status: true, governorate: true, createdAt: true },
-      }),
-      prisma.tunisiaCase.groupBy({
-        by: ["governorate"],
-        _count: { _all: true },
-        orderBy: { _count: { id: "desc" } },
-        take: 10,
-      }),
-      prisma.tunisiaCase.groupBy({
-        by: ["category"],
-        _count: { _all: true },
-      }),
-    ]);
+    const totalCases = await prisma.tunisiaCase.count();
+    const sufferingCases = await prisma.tunisiaCase.count({ where: { status: "SUFFERING" } });
+    const helpingCases = await prisma.tunisiaCase.count({ where: { status: "HELPING" } });
+    const resolvedCases = await prisma.tunisiaCase.count({ where: { status: "RESOLVED" } });
+    const totalUsers = await prisma.user.count();
+    const totalPlaces = await prisma.place.count();
+    
+    const recentCases = await prisma.tunisiaCase.findMany({
+      take: 5,
+      orderBy: { createdAt: "desc" },
+      select: { id: true, title: true, status: true, governorate: true, createdAt: true },
+    });
+    
+    const casesByGovernorate = await prisma.tunisiaCase.groupBy({
+      by: ["governorate"],
+      _count: { _all: true },
+      orderBy: { _count: { id: "desc" } },
+      take: 10,
+    });
+    
+    const casesByCategory = await prisma.tunisiaCase.groupBy({
+      by: ["category"],
+      _count: { _all: true },
+    });
 
     const totalPeopleAffected = await prisma.tunisiaCase.aggregate({
       _sum: { peopleAffected: true },

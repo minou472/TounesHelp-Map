@@ -72,6 +72,11 @@ model TunisiaCase {
   createdById     String?
   helpers         CaseHelper[]
 
+  @@index([status])
+  @@index([category])
+  @@index([governorate])
+  @@index([createdAt])
+
   @@map("tunisia_cases")
 }
 
