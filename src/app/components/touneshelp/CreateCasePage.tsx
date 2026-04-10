@@ -548,6 +548,62 @@ export function CreateCasePage() {
                     4
                   </div>
                   <h2 className="text-2xl font-bold text-[#1C1C1E]">
+                    Informations du Créateur
+                  </h2>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="creatorName">Nom du Créateur</Label>
+                <Input
+                  id="creatorName"
+                  value={formData.creatorName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, creatorName: e.target.value })
+                  }
+                  placeholder="Votre nom complet"
+                  className="mt-2 h-12"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="creatorPhone">Téléphone du Créateur</Label>
+                <Input
+                  id="creatorPhone"
+                  type="tel"
+                  value={formData.creatorPhone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, creatorPhone: e.target.value })
+                  }
+                  placeholder="Votre numéro de téléphone"
+                  className="mt-2 h-12"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="creatorEmail">Email du Créateur (Optionnel)</Label>
+                <Input
+                  id="creatorEmail"
+                  type="email"
+                  value={formData.creatorEmail}
+                  onChange={(e) =>
+                    setFormData({ ...formData, creatorEmail: e.target.value })
+                  }
+                  placeholder="Votre email"
+                  className="mt-2 h-12"
+                />
+              </div>
+            </div>
+          )}
+
+          {step === 5 && (
+            <div className="space-y-6">
+              <div>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-full bg-[#C0392B] flex items-center justify-center text-white font-bold">
+                    5
+                  </div>
+                  <h2 className="text-2xl font-bold text-[#1C1C1E]">
                     {t("create_case.headings.media")}
                   </h2>
                 </div>
@@ -651,12 +707,12 @@ export function CreateCasePage() {
             </div>
           )}
 
-          {step === 5 && (
+          {step === 6 && (
             <div className="space-y-6">
               <div>
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full bg-[#C0392B] flex items-center justify-center text-white font-bold">
-                    5
+                    6
                   </div>
                   <h2 className="text-2xl font-bold text-[#1C1C1E]">
                     {t("create_case.headings.review")}
