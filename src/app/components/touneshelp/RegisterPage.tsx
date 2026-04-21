@@ -45,7 +45,7 @@ export function RegisterPage() {
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000"}/api/auth/register`, {
+      const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -67,7 +67,7 @@ export function RegisterPage() {
 
       login(payload.data.user, payload.data.token);
       toast.success("Compte créé avec succès !");
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       console.error(error);
       toast.error("Impossible de créer le compte. Réessayez plus tard.");

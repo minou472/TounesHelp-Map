@@ -145,12 +145,6 @@ export function CreateCasePage() {
 
   const handleSubmit = async () => {
     try {
-      if (!user) {
-        toast.error("Vous devez être connecté pour créer un cas");
-        navigate("/login");
-        return;
-      }
-
       // Validate required fields
       if (
         !formData.title ||
@@ -191,9 +185,10 @@ export function CreateCasePage() {
       await createCase(caseData);
       toast.success(t("create_case.messages.case_created"));
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Case creation error:", error);
-      toast.error(t("create_case.messages.case_error"));
+      const message = error?.message || t("create_case.messages.case_error");
+      toast.error(message);
     }
   };
 

@@ -66,8 +66,12 @@ export function EnhancedAdminDashboard() {
     const fetchData = async () => {
       try {
         const [resCases, resUsers] = await Promise.all([
-          fetch('http://localhost:3000/api/cases').then(r => r.json().catch(() => ({}))),
-          fetch('http://localhost:3000/api/users').then(r => r.json().catch(() => ({}))),
+          fetch('/api/cases?limit=200').then(r => r.json().catch(() => ({}))),
+          fetch('/api/users?limit=200', {
+            headers: {
+              'Authorization': 'Bearer ' + localStorage.getItem('touneshelp_token')
+            }
+          }).then(r => r.json().catch(() => ({}))),
         ]);
         if (resCases && resCases.success && Array.isArray(resCases.data)) setCases(resCases.data);
         if (resUsers && resUsers.success && Array.isArray(resUsers.data)) setUsers(resUsers.data);
@@ -81,7 +85,8 @@ export function EnhancedAdminDashboard() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("adminToken");
+    localStorage.removeItem("touneshelp_token");
+    localStorage.removeItem("touneshelp_user");
     navigate("/");
   };
 

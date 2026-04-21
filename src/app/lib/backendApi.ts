@@ -1,6 +1,6 @@
 import type { TunisiaCase } from "../data/tunisiaData";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_BASE_URL = "";
 
 export type BackendCase = {
   id: string;
@@ -78,7 +78,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   const payload = await res.json();
   if (!res.ok || payload?.success === false) {
-    throw new Error(payload?.error || "Request failed");
+    throw new Error(payload?.error || `Request failed (${res.status})`);
   }
 
   return payload.data as T;
@@ -154,13 +154,13 @@ export type CreateCaseData = {
   latitude: number;
   longitude: number;
   category?:
-    | "MEDICAL"
-    | "EDUCATION"
-    | "FOOD"
-    | "SHELTER"
-    | "TRANSPORTATION"
-    | "WATER"
-    | "OTHER";
+  | "MEDICAL"
+  | "EDUCATION"
+  | "FOOD"
+  | "SHELTER"
+  | "TRANSPORTATION"
+  | "WATER"
+  | "OTHER";
   victimName: string;
   victimPhone: string;
   victimEmail?: string;
@@ -173,9 +173,16 @@ export type CreateCaseData = {
 };
 
 export function createCase(data: CreateCaseData) {
+  // Clean up empty optional fields before sending
+  const cleanData = {
+    ...data,
+    victimEmail: data.victimEmail || undefined,
+    videoUrl: data.videoUrl || undefined,
+    fullDescription: data.fullDescription || data.description,
+  };
   return request<BackendCase>("/api/cases", {
     method: "POST",
-    body: JSON.stringify(data)
+    body: JSON.stringify(cleanData)
   });
 }
 
@@ -252,7 +259,7 @@ export async function uploadFile(file: File): Promise<UploadResponse> {
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await fetch(`${API_BASE_URL}/api/upload`, {
+  const res = await fetch(`/api/upload`, {
     method: "POST",
     headers: {
       ...(token ? { Authorization: `Bearer ${token}` } : {})

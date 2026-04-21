@@ -13,6 +13,8 @@ import { AdminDashboard } from "./components/touneshelp/admin/AdminDashboard";
 import { EnhancedAdminDashboard } from "./components/admin/EnhancedAdminDashboard";
 import { AdminModeration } from "./components/touneshelp/admin/AdminModeration";
 import { AdminUsers } from "./components/touneshelp/admin/AdminUsers";
+import { AdminCases } from "./components/touneshelp/admin/AdminCases";
+import { AdminStats } from "./components/touneshelp/admin/AdminStats";
 import { NotFound } from "./components/NotFound";
 
 export const tounesHelpRouter = createBrowserRouter([
@@ -33,6 +35,8 @@ export const tounesHelpRouter = createBrowserRouter([
       { path: "admin/enhanced", Component: EnhancedAdminDashboard },
       { path: "admin/moderation", Component: AdminModeration },
       { path: "admin/utilisateurs", Component: AdminUsers },
+      { path: "admin/cas", Component: AdminCases },
+      { path: "admin/stats", Component: AdminStats },
       { path: "*", Component: NotFound },
     ],
   },

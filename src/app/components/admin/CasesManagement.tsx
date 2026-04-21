@@ -43,7 +43,7 @@ export function CasesManagement() {
   const fetchCases = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:3000/api/cases');
+      const res = await fetch('/api/cases?limit=100');
       const data = await res.json();
       if (data && data.success && Array.isArray(data.data)) {
         // Sort cases by creation date (newest first)
@@ -112,11 +112,10 @@ export function CasesManagement() {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce cas ?')) return;
     
     try {
-      const res = await fetch(`http://localhost:3000/api/cases/${id}`, {
+      const res = await fetch(`/api/cases/${id}`, {
         method: 'DELETE',
         headers: {
-          // Token will be required normally, setting dummy for mock
-          'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
+          'Authorization': 'Bearer ' + localStorage.getItem('touneshelp_token')
         }
       });
       if (res.ok) {
@@ -137,8 +136,8 @@ export function CasesManagement() {
     try {
       const isEdit = !!editingCase;
       const url = isEdit 
-        ? `http://localhost:3000/api/cases/${editingCase.id}`
-        : `http://localhost:3000/api/cases`;
+        ? `/api/cases/${editingCase.id}`
+        : `/api/cases`;
         
       const method = isEdit ? 'PUT' : 'POST';
 
@@ -146,7 +145,7 @@ export function CasesManagement() {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
+          'Authorization': 'Bearer ' + localStorage.getItem('touneshelp_token')
         },
         body: JSON.stringify(formData)
       });
