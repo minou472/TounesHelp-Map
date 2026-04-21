@@ -4,419 +4,426 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { fetchAdminUsers, createUser, updateUser, deleteUser, type AdminUser, type CreateUserData, type UpdateUserData } from '../../lib/backendApi';
-import { Search, UserPlus, Edit, Ban, CheckCircle, Trash2 } from 'lucide-react';
+import { Search, UserPlus, Edit, Ban, CheckCircle, Trash2, X, Loader2, AlertTriangle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 type UserRole = 'USER' | 'ADMIN';
 type AccountStatus = 'ACTIVE' | 'BLOCKED';
 
-const roleLabels: Record<UserRole, string> = {
-  USER: 'Utilisateur',
-  ADMIN: 'Administrateur',
-};
-
 const roleColors: Record<UserRole, string> = {
-  USER: 'bg-[#718096] text-white',
-  ADMIN: 'bg-[#9C27B0] text-white',
-};
-
-const statusLabels: Record<AccountStatus, string> = {
-  ACTIVE: 'Actif',
-  BLOCKED: 'Bloqué',
+  USER: 'bg-[#64748B] text-white',
+  ADMIN: 'bg-[#7C3AED] text-white',
 };
 
 const statusColors: Record<AccountStatus, string> = {
-  ACTIVE: 'bg-[#43A047] text-white',
-  BLOCKED: 'bg-[#E53935] text-white',
+  ACTIVE: 'bg-[#16A34A] text-white',
+  BLOCKED: 'bg-[#DC2626] text-white',
 };
 
 export function UsersManagement() {
+  const { t } = useTranslation();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<UserRole | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<AccountStatus | 'all'>('all');
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
-  const [formData, setFormData] = useState<CreateUserData | UpdateUserData>({});
+  const [formData, setFormData] = useState<any>({});
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   useEffect(() => {
     loadUsers();
   }, []);
 
+  useEffect(() => {
+    if (successMsg) {
+      const timer = setTimeout(() => setSuccessMsg(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMsg]);
+
   const loadUsers = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await fetchAdminUsers();
-      setUsers(data);
-    } catch (error) {
-      console.error('Failed to load users:', error);
+      // Handle both { users: [], total } and direct array responses
+      if (Array.isArray(data)) {
+        setUsers(data);
+      } else if (data && Array.isArray((data as any).users)) {
+        setUsers((data as any).users);
+      } else if (data && Array.isArray((data as any))) {
+        setUsers(data as any);
+      } else {
+        setUsers([]);
+      }
+    } catch (err: any) {
+      console.error('Failed to load users:', err);
+      setError(err.message || 'Failed to load users');
     } finally {
       setLoading(false);
     }
   };
 
   const handleCreateUser = async () => {
+    if (!formData.name || !formData.email) {
+      setError('Name and email are required');
+      return;
+    }
     try {
+      setActionLoading('create');
+      setError(null);
       await createUser(formData as CreateUserData);
-      setShowCreateForm(false);
+      setShowCreateModal(false);
       setFormData({});
-      loadUsers();
-    } catch (error) {
-      console.error('Failed to create user:', error);
+      setSuccessMsg(t('admin.user_created_success'));
+      await loadUsers();
+    } catch (err: any) {
+      setError(err.message || 'Failed to create user');
+    } finally {
+      setActionLoading(null);
     }
   };
 
   const handleUpdateUser = async () => {
     if (!editingUser) return;
     try {
+      setActionLoading('update');
+      setError(null);
       await updateUser(editingUser.id, formData as UpdateUserData);
       setEditingUser(null);
       setFormData({});
-      loadUsers();
-    } catch (error) {
-      console.error('Failed to update user:', error);
+      setSuccessMsg(t('admin.user_updated_success'));
+      await loadUsers();
+    } catch (err: any) {
+      setError(err.message || 'Failed to update user');
+    } finally {
+      setActionLoading(null);
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    if (!confirm('Are you sure you want to delete this user?')) return;
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!confirm(`${t('admin.delete_user_confirm')} "${userName}"?`)) return;
     try {
+      setActionLoading(userId);
       await deleteUser(userId);
-      loadUsers();
-    } catch (error) {
-      console.error('Failed to delete user:', error);
+      setSuccessMsg(t('admin.user_deleted_success'));
+      await loadUsers();
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete user');
+    } finally {
+      setActionLoading(null);
     }
   };
 
   const handleBlockUser = async (user: AdminUser) => {
+    const newStatus = user.status === 'ACTIVE' ? 'BLOCKED' : 'ACTIVE';
     try {
-      await updateUser(user.id, { status: user.status === 'ACTIVE' ? 'BLOCKED' : 'ACTIVE' });
-      loadUsers();
-    } catch (error) {
-      console.error('Failed to update user status:', error);
+      setActionLoading(user.id);
+      await updateUser(user.id, { status: newStatus });
+      setSuccessMsg(newStatus === 'BLOCKED' ? t('admin.user_blocked') : t('admin.user_unblocked'));
+      await loadUsers();
+    } catch (err: any) {
+      setError(err.message || 'Failed to update user status');
+    } finally {
+      setActionLoading(null);
     }
   };
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (user.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (user.email || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRole = roleFilter === 'all' || user.role === roleFilter;
     const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
     return matchesSearch && matchesRole && matchesStatus;
   });
 
-  if (loading) {
-    return <div className="flex justify-center p-8">Loading users...</div>;
-  }
+  const formatDate = (dateStr: string) => {
+    try {
+      return new Date(dateStr).toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
+    } catch {
+      return '—';
+    }
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-[#1A202C]">Gestion des utilisateurs</h2>
-          <p className="text-sm text-[#718096] mt-1">Gérer les comptes utilisateurs et leurs permissions</p>
+          <h2 className="text-2xl font-bold text-[#1A202C]">{t('admin.user_management')}</h2>
+          <p className="text-sm text-[#718096] mt-1">{t('admin.user_management_desc')}</p>
         </div>
         <Button
-          onClick={() => setShowCreateForm(true)}
-          className="bg-[#1E88E5] hover:bg-[#1976D2] text-white"
+          onClick={() => {
+            setShowCreateModal(true);
+            setFormData({ role: 'USER' });
+            setError(null);
+          }}
+          className="bg-[#1E88E5] hover:bg-[#1565C0] text-white gap-2"
         >
-          <UserPlus size={18} className="mr-2" />
-          Ajouter un utilisateur
+          <UserPlus size={18} />
+          {t('admin.add_user')}
         </Button>
       </div>
 
-      {/* Create/Edit Form */}
-      {(showCreateForm || editingUser) && (
-        <Card className="p-4 bg-white border border-[#E2E8F0]">
-          <h3 className="text-lg font-semibold mb-4">
-            {showCreateForm ? 'Créer un utilisateur' : 'Modifier l\'utilisateur'}
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              placeholder="Nom"
-              value={formData.name || ''}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            />
-            <Input
-              placeholder="Email"
-              type="email"
-              value={formData.email || ''}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            />
-            <Input
-              placeholder="Téléphone"
-              value={formData.phone || ''}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-            />
-            <select
-              value={formData.role || 'USER'}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
-              className="w-full h-10 px-3 border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88E5]"
+      {/* Success/Error Messages */}
+      {successMsg && (
+        <div className="flex items-center gap-2 bg-[#E8F5E9] border border-[#43A047] text-[#2E7D32] px-4 py-3 rounded-lg text-sm animate-in fade-in">
+          <CheckCircle size={18} />
+          {successMsg}
+        </div>
+      )}
+      {error && (
+        <div className="flex items-center gap-2 bg-[#FFEBEE] border border-[#E53935] text-[#C62828] px-4 py-3 rounded-lg text-sm">
+          <AlertTriangle size={18} />
+          {error}
+          <button onClick={() => setError(null)} className="ml-auto hover:opacity-70"><X size={16} /></button>
+        </div>
+      )}
+
+      {/* Create / Edit Modal */}
+      {(showCreateModal || editingUser) && (
+        <Card className="p-6 bg-white border border-[#E2E8F0] rounded-xl shadow-lg">
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="text-lg font-bold text-[#1A202C]">
+              {showCreateModal ? t('admin.create_user') : t('admin.edit_user')}
+            </h3>
+            <button
+              onClick={() => { setShowCreateModal(false); setEditingUser(null); setFormData({}); setError(null); }}
+              className="text-[#718096] hover:text-[#1A202C] transition-colors"
             >
-              <option value="USER">Utilisateur</option>
-              <option value="ADMIN">Administrateur</option>
-            </select>
-            {!showCreateForm && (
+              <X size={20} />
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-[#4A5568] mb-1">{t('admin.user_name')} *</label>
+              <Input
+                placeholder="Ex: Ahmed Ben Ali"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[#4A5568] mb-1">{t('admin.user_email')} *</label>
+              <Input
+                placeholder="user@example.com"
+                type="email"
+                value={formData.email || ''}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                disabled={!!editingUser}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[#4A5568] mb-1">{t('admin.user_phone')}</label>
+              <Input
+                placeholder="+216 XX XXX XXX"
+                value={formData.phone || ''}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[#4A5568] mb-1">{t('admin.user_role')}</label>
               <select
-                value={formData.status || editingUser?.status || 'ACTIVE'}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as AccountStatus })}
-                className="w-full h-10 px-3 border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88E5]"
+                value={formData.role || 'USER'}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
+                className="w-full h-10 px-3 border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88E5] bg-white"
               >
-                <option value="ACTIVE">Actif</option>
-                <option value="BLOCKED">Bloqué</option>
+                <option value="USER">{t('admin.role_user')}</option>
+                <option value="ADMIN">{t('admin.role_admin')}</option>
               </select>
+            </div>
+            {editingUser && (
+              <div>
+                <label className="block text-sm font-medium text-[#4A5568] mb-1">{t('admin.user_status_label')}</label>
+                <select
+                  value={formData.status || editingUser?.status || 'ACTIVE'}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as AccountStatus })}
+                  className="w-full h-10 px-3 border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88E5] bg-white"
+                >
+                  <option value="ACTIVE">{t('admin.status_active')}</option>
+                  <option value="BLOCKED">{t('admin.status_blocked')}</option>
+                </select>
+              </div>
             )}
           </div>
-          <div className="flex gap-2 mt-4">
+          <div className="flex gap-3 mt-6">
             <Button
-              onClick={showCreateForm ? handleCreateUser : handleUpdateUser}
-              className="bg-[#43A047] hover:bg-[#388E3C] text-white"
+              onClick={showCreateModal ? handleCreateUser : handleUpdateUser}
+              className="bg-[#1E88E5] hover:bg-[#1565C0] text-white gap-2"
+              disabled={actionLoading === 'create' || actionLoading === 'update'}
             >
-              {showCreateForm ? 'Créer' : 'Modifier'}
+              {(actionLoading === 'create' || actionLoading === 'update') && <Loader2 size={16} className="animate-spin" />}
+              {showCreateModal ? t('admin.create_btn') : t('admin.save_btn')}
             </Button>
             <Button
-              onClick={() => {
-                setShowCreateForm(false);
-                setEditingUser(null);
-                setFormData({});
-              }}
+              onClick={() => { setShowCreateModal(false); setEditingUser(null); setFormData({}); setError(null); }}
               variant="outline"
             >
-              Annuler
+              {t('admin.cancel_btn')}
             </Button>
           </div>
         </Card>
       )}
 
       {/* Filters */}
-      <Card className="p-4 bg-white border border-[#E2E8F0]">
+      <Card className="p-4 bg-white border border-[#E2E8F0] rounded-xl">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#718096]" size={18} />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Rechercher par nom ou email..."
+              placeholder={t('admin.search_users')}
               className="w-full pl-10"
             />
           </div>
-
-          {/* Role Filter */}
-          <div>
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value as UserRole | 'all')}
-              className="w-full h-10 px-3 border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88E5]"
-            >
-              <option value="all">Tous les rôles</option>
-              <option value="USER">Utilisateur</option>
-              <option value="ADMIN">Administrateur</option>
-            </select>
-          </div>
-
-          {/* Status Filter */}
-          <div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as AccountStatus | 'all')}
-              className="w-full h-10 px-3 border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88E5]"
-            >
-              <option value="all">Tous les statuts</option>
-              <option value="ACTIVE">Actif</option>
-              <option value="BLOCKED">Bloqué</option>
-            </select>
-          </div>
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value as UserRole | 'all')}
+            className="w-full h-10 px-3 border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88E5] bg-white"
+          >
+            <option value="all">{t('admin.all_roles')}</option>
+            <option value="USER">{t('admin.role_user')}</option>
+            <option value="ADMIN">{t('admin.role_admin')}</option>
+          </select>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as AccountStatus | 'all')}
+            className="w-full h-10 px-3 border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88E5] bg-white"
+          >
+            <option value="all">{t('admin.all_statuses')}</option>
+            <option value="ACTIVE">{t('admin.status_active')}</option>
+            <option value="BLOCKED">{t('admin.status_blocked')}</option>
+          </select>
         </div>
       </Card>
 
-      {/* Users List */}
-      <div className="space-y-4">
-        {filteredUsers.map((user) => (
-          <Card key={user.id} className="p-4 bg-white border border-[#E2E8F0]">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <img
-                  src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=1E88E5&color=fff`}
-                  alt={user.name}
-                  className="w-12 h-12 rounded-full"
-                />
-                <div>
-                  <h3 className="font-semibold text-[#1A202C]">{user.name}</h3>
-                  <p className="text-sm text-[#718096]">{user.email}</p>
-                  <p className="text-sm text-[#718096]">{user.phone}</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Badge className={roleColors[user.role]}>
-                  {roleLabels[user.role]}
-                </Badge>
-                <Badge className={statusColors[user.status]}>
-                  {statusLabels[user.status]}
-                </Badge>
-                <div className="text-sm text-[#718096]">
-                  <div>Cases: {user.casesCreated || 0}</div>
-                  <div>Helped: {user.helpedCount || 0}</div>
-                </div>
-              </div>
-              <div className="flex space-x-2">
-                <Button
-                  onClick={() => {
-                    setEditingUser(user);
-                    setFormData({
-                      name: user.name,
-                      email: user.email,
-                      phone: user.phone,
-                      role: user.role,
-                      status: user.status,
-                    });
-                  }}
-                  variant="outline"
-                  size="sm"
-                >
-                  <Edit size={16} />
-                </Button>
-                <Button
-                  onClick={() => handleBlockUser(user)}
-                  variant="outline"
-                  size="sm"
-                  className={user.status === 'ACTIVE' ? 'text-[#E53935]' : 'text-[#43A047]'}
-                >
-                  {user.status === 'ACTIVE' ? <Ban size={16} /> : <CheckCircle size={16} />}
-                </Button>
-                <Button
-                  onClick={() => handleDeleteUser(user.id)}
-                  variant="outline"
-                  size="sm"
-                  className="text-[#E53935]"
-                >
-                  <Trash2 size={16} />
-                </Button>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-}
-                </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-[#1A202C]">
-                  Date d'inscription
-                </th>
-                <th className="text-right px-6 py-4 text-sm font-semibold text-[#1A202C]">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#E2E8F0]">
-              {filteredUsers.map((user, index) => (
-                <tr
-                  key={user.id}
-                  className={`${index % 2 === 0 ? 'bg-white' : 'bg-[#F5F7FA]/30'} hover:bg-[#E3F2FD] transition-colors`}
-                >
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={user.avatar}
-                        alt={user.name}
-                        className="w-10 h-10 rounded-full"
-                      />
-                      <div>
-                        <div className="font-medium text-[#1A202C]">{user.name}</div>
-                        <div className="text-xs text-[#718096]">ID: {user.id}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-[#1A202C]">{user.email}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <Badge className={roleColors[user.role]}>
-                      {roleLabels[user.role]}
-                    </Badge>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-[#1A202C] font-medium">{user.casesSubmitted}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <Badge className={statusColors[user.status]}>
-                      {statusLabels[user.status]}
-                    </Badge>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-[#718096]">
-                      {user.joinDate.toLocaleDateString('fr-FR')}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button size="sm" variant="outline" className="text-xs">
-                        <Eye size={14} className="mr-1" />
-                        Voir
-                      </Button>
-                      <Button size="sm" variant="outline" className="text-xs">
-                        <Edit size={14} className="mr-1" />
-                        Modifier
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className={`text-xs ${
-                          user.status === 'suspended'
-                            ? 'text-[#43A047] border-[#43A047] hover:bg-[#43A047] hover:text-white'
-                            : 'text-[#E53935] border-[#E53935] hover:bg-[#E53935] hover:text-white'
-                        }`}
-                      >
-                        <Ban size={14} />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {filteredUsers.length === 0 && (
-          <div className="text-center py-12">
-            <svg className="mx-auto text-[#718096] mb-3" width="48" height="48" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-            </svg>
-            <h3 className="text-lg font-medium text-[#1A202C] mb-2">Aucun utilisateur trouvé</h3>
-            <p className="text-sm text-[#718096]">
-              Essayez de modifier vos filtres ou votre recherche
-            </p>
+      {/* Users Table */}
+      <Card className="bg-white border border-[#E2E8F0] rounded-xl overflow-hidden">
+        {loading ? (
+          <div className="flex items-center justify-center py-16 gap-3 text-[#718096]">
+            <Loader2 size={24} className="animate-spin" />
+            <span>{t('admin.loading')}</span>
           </div>
+        ) : filteredUsers.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="w-16 h-16 bg-[#F5F7FA] rounded-full flex items-center justify-center mx-auto mb-4">
+              <Search size={28} className="text-[#718096]" />
+            </div>
+            <h3 className="text-lg font-medium text-[#1A202C] mb-2">{t('admin.no_users_found')}</h3>
+            <p className="text-sm text-[#718096]">{t('admin.try_different_filters')}</p>
+          </div>
+        ) : (
+          <>
+            <div className="px-6 py-4 border-b border-[#E2E8F0] bg-[#F8FAFC]">
+              <p className="text-sm text-[#718096]">
+                {t('admin.showing_users', { count: filteredUsers.length, total: users.length })}
+              </p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC]">
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_name')}</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_email')}</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_phone')}</th>
+                    <th className="text-center px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_role')}</th>
+                    <th className="text-center px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_status_label')}</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_joined')}</th>
+                    <th className="text-right px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.actions')}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E2E8F0]">
+                  {filteredUsers.map((user, idx) => (
+                    <tr
+                      key={user.id}
+                      className={`${idx % 2 === 0 ? 'bg-white' : 'bg-[#FAFBFC]'} hover:bg-[#E3F2FD]/40 transition-colors`}
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1E88E5] to-[#7C3AED] text-white flex items-center justify-center text-sm font-bold shrink-0">
+                            {(user.name || '?')[0].toUpperCase()}
+                          </div>
+                          <span className="font-medium text-[#1A202C] text-sm">{user.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-[#4A5568]">{user.email}</td>
+                      <td className="px-6 py-4 text-sm text-[#4A5568]">{user.phone || '—'}</td>
+                      <td className="px-6 py-4 text-center">
+                        <Badge className={`${roleColors[user.role]} text-xs`}>
+                          {user.role === 'ADMIN' ? t('admin.role_admin') : t('admin.role_user')}
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Badge className={`${statusColors[user.status]} text-xs`}>
+                          {user.status === 'ACTIVE' ? t('admin.status_active') : t('admin.status_blocked')}
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-[#718096]">{formatDate(user.createdAt)}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => {
+                              setEditingUser(user);
+                              setFormData({
+                                name: user.name,
+                                email: user.email,
+                                phone: user.phone || '',
+                                role: user.role,
+                                status: user.status,
+                              });
+                              setError(null);
+                            }}
+                            className="p-2 rounded-md text-[#718096] hover:text-[#1E88E5] hover:bg-[#E3F2FD] transition-colors"
+                            title={t('admin.edit_user')}
+                          >
+                            <Edit size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleBlockUser(user)}
+                            disabled={actionLoading === user.id}
+                            className={`p-2 rounded-md transition-colors ${
+                              user.status === 'ACTIVE'
+                                ? 'text-[#718096] hover:text-[#E53935] hover:bg-[#FFEBEE]'
+                                : 'text-[#718096] hover:text-[#43A047] hover:bg-[#E8F5E9]'
+                            }`}
+                            title={user.status === 'ACTIVE' ? t('admin.block_user') : t('admin.unblock_user')}
+                          >
+                            {actionLoading === user.id ? (
+                              <Loader2 size={16} className="animate-spin" />
+                            ) : user.status === 'ACTIVE' ? (
+                              <Ban size={16} />
+                            ) : (
+                              <CheckCircle size={16} />
+                            )}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(user.id, user.name)}
+                            disabled={actionLoading === user.id}
+                            className="p-2 rounded-md text-[#718096] hover:text-[#E53935] hover:bg-[#FFEBEE] transition-colors"
+                            title={t('admin.delete_user')}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </Card>
-
-      {/* Pagination */}
-      {filteredUsers.length > 0 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-[#718096]">
-            Affichage de {filteredUsers.length} utilisateur(s)
-          </p>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" disabled>
-              Précédent
-            </Button>
-            <Button variant="outline" size="sm" className="bg-[#1E88E5] text-white border-[#1E88E5]">
-              1
-            </Button>
-            <Button variant="outline" size="sm">
-              2
-            </Button>
-            <Button variant="outline" size="sm">
-              3
-            </Button>
-            <Button variant="outline" size="sm">
-              Suivant
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

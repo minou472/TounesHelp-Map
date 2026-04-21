@@ -187,8 +187,13 @@ export function CreateCasePage() {
       navigate("/dashboard");
     } catch (error: any) {
       console.error("Case creation error:", error);
-      const message = error?.message || t("create_case.messages.case_error");
-      toast.error(message);
+      toast.error(
+        typeof error === "string"
+          ? error
+          : (error as any)?.response?.data?.message ||
+              error?.message ||
+              t("create_case.messages.case_error")
+      );
     }
   };
 
@@ -406,8 +411,8 @@ export function CreateCasePage() {
                         if (e.latLng) {
                           setFormData({
                             ...formData,
-                            latitude: e.latLng.lat(),
-                            longitude: e.latLng.lng()
+                            latitude: e.latLng!.lat(),
+                            longitude: e.latLng!.lng()
                           });
                         }
                       }}
@@ -576,7 +581,9 @@ export function CreateCasePage() {
               </div>
 
               <div>
-                <Label htmlFor="creatorEmail">Email du Créateur (Optionnel)</Label>
+                <Label htmlFor="creatorEmail">
+                  Email du Créateur (Optionnel)
+                </Label>
                 <Input
                   id="creatorEmail"
                   type="email"

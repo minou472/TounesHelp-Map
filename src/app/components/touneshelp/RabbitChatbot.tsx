@@ -4,7 +4,8 @@ import { Card } from "../ui/card";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Send, X, Minimize2, Heart, Globe } from "lucide-react";
-import { sendChatbotMessage } from "../../lib/backendApi";
+import { sendChatbotMessage, fetchCases } from "../../lib/backendApi";
+import type { TunisiaCase } from "../../data/tunisiaData";
 
 type Message = {
   id: number;

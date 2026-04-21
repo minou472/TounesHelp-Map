@@ -89,7 +89,7 @@ export function RegisterPage() {
           <h2 className="text-[36px] font-bold mb-6">
             Rejoignez TounesHelp Map
           </h2>
-          
+
           <p className="text-white/70 text-lg leading-relaxed">
             Devenez membre d'une communauté solidaire qui change des vies à travers toute la Tunisie.
           </p>
@@ -106,7 +106,7 @@ export function RegisterPage() {
           <h2 className="text-[28px] font-bold text-[#1C1C1E] text-center mb-2">
             Créer un compte
           </h2>
-          
+
           <p className="text-center text-[#6B6B6B] mb-8">
             Déjà membre ?{' '}
             <Link to="/connexion" className="text-[#C0392B] hover:underline font-semibold">
@@ -120,7 +120,7 @@ export function RegisterPage() {
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="h-12 rounded-lg mt-2"
                 required
               />
@@ -132,7 +132,7 @@ export function RegisterPage() {
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="h-12 rounded-lg mt-2"
                 required
               />
@@ -145,7 +145,7 @@ export function RegisterPage() {
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="h-12 rounded-lg pr-10"
                   required
                 />
@@ -163,9 +163,8 @@ export function RegisterPage() {
                     {[1, 2, 3, 4].map((i) => (
                       <div
                         key={i}
-                        className={`h-1 flex-1 rounded ${
-                          i <= strength ? strengthColors[strength] : 'bg-gray-200'
-                        }`}
+                        className={`h-1 flex-1 rounded ${i <= strength ? strengthColors[strength] : 'bg-gray-200'
+                          }`}
                       />
                     ))}
                   </div>
@@ -180,7 +179,7 @@ export function RegisterPage() {
                 id="confirmPassword"
                 type="password"
                 value={formData.confirmPassword}
-                onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 className="h-12 rounded-lg mt-2"
                 required
               />
@@ -197,7 +196,7 @@ export function RegisterPage() {
                 id="phone"
                 type="tel"
                 value={formData.phone}
-                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="+216"
                 className="h-12 rounded-lg mt-2"
                 required
@@ -208,7 +207,7 @@ export function RegisterPage() {
               <Checkbox
                 id="terms"
                 checked={formData.terms}
-                onCheckedChange={(checked) => setFormData({...formData, terms: checked as boolean})}
+                onCheckedChange={(checked) => setFormData({ ...formData, terms: checked as boolean })}
               />
               <Label htmlFor="terms" className="text-sm leading-relaxed cursor-pointer">
                 J'accepte les <Link to="/" className="text-[#C0392B] hover:underline">conditions d'utilisation</Link> et la <Link to="/" className="text-[#C0392B] hover:underline">politique de confidentialité</Link>

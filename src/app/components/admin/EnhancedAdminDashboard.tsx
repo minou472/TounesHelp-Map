@@ -6,25 +6,26 @@ import {
   Home,
   Briefcase,
   Users,
-  MapPin,
-  Shield,
   Bell,
-  Settings,
-  MessageCircle,
   Search,
   TrendingUp,
   TrendingDown,
-  Menu,
-  X,
   LogOut,
-  User,
   ChevronRight,
+  AlertCircle,
+  Clock,
+  UserPlus,
+  FileWarning,
+  Loader2,
+  RefreshCw,
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { Badge } from '../ui/badge';
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import { CasesManagement } from './CasesManagement';
+import { UsersManagement } from './UsersManagement';
+import { fetchNotifications, type NotificationsResponse } from '../../lib/backendApi';
 
 type NavigationItem = {
   id: string;
@@ -38,11 +39,7 @@ const navigationItems: NavigationItem[] = [
   { id: 'dashboard', key: 'dashboard', icon: Home, path: '/admin/enhanced' },
   { id: 'cases', key: 'case_management', icon: Briefcase, path: '/admin/enhanced/cases' },
   { id: 'users', key: 'users', icon: Users, path: '/admin/enhanced/users' },
-  { id: 'places', key: 'places_locations', icon: MapPin, path: '/admin/enhanced/places' },
-  { id: 'moderation', key: 'moderation_queue', icon: Shield, path: '/admin/enhanced/moderation', badge: 12 },
-  { id: 'notifications', key: 'notifications', icon: Bell, path: '/admin/enhanced/notifications', badge: 5 },
-  { id: 'settings', key: 'settings', icon: Settings, path: '/admin/enhanced/settings' },
-  { id: 'chatbot', key: 'chatbot', icon: MessageCircle, path: '/admin/enhanced/chatbot' },
+  { id: 'notifications', key: 'notifications', icon: Bell, path: '/admin/enhanced/notifications' },
 ];
 
 const GOVERNORATES = [
@@ -61,6 +58,22 @@ export function EnhancedAdminDashboard() {
   const [cases, setCases] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [notifications, setNotifications] = useState<NotificationsResponse | null>(null);
+  const [notifLoading, setNotifLoading] = useState(false);
+  const [notifBadge, setNotifBadge] = useState(0);
+
+  const loadNotifications = async () => {
+    try {
+      setNotifLoading(true);
+      const data = await fetchNotifications();
+      setNotifications(data);
+      setNotifBadge(data?.total || 0);
+    } catch (e) {
+      console.error('Failed to fetch notifications', e);
+    } finally {
+      setNotifLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -82,6 +95,7 @@ export function EnhancedAdminDashboard() {
       }
     };
     fetchData();
+    loadNotifications();
   }, []);
 
   const handleLogout = () => {
@@ -155,6 +169,7 @@ export function EnhancedAdminDashboard() {
         <nav className="flex-1 py-6 overflow-y-auto">
           {navigationItems.map((item) => {
             const Icon = item.icon;
+            const badgeCount = item.id === 'notifications' ? notifBadge : item.badge;
             return (
               <button
                 key={item.id}
@@ -168,9 +183,9 @@ export function EnhancedAdminDashboard() {
                 {!sidebarCollapsed && (
                   <>
                     <span className="text-sm font-medium whitespace-nowrap text-left flex-1">{t(`admin.${item.key}`)}</span>
-                    {item.badge && (
-                      <Badge className="ml-auto bg-[#E53935] text-white shrink-0">{item.badge}</Badge>
-                    )}
+                    {badgeCount ? (
+                      <Badge className="ml-auto bg-[#E53935] text-white shrink-0">{badgeCount}</Badge>
+                    ) : null}
                   </>
                 )}
                 {activeNav === item.id && (
@@ -257,7 +272,119 @@ export function EnhancedAdminDashboard() {
         ) : (
           <div className="p-8 space-y-8">
             {activeNav === 'cases' && <CasesManagement />}
-            
+            {activeNav === 'users' && <UsersManagement />}
+            {activeNav === 'notifications' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-[#1A202C]">{t('admin.notifications')}</h2>
+                    <p className="text-sm text-[#718096] mt-1">{t('admin.notifications_desc')}</p>
+                  </div>
+                  <Button
+                    onClick={loadNotifications}
+                    variant="outline"
+                    className="gap-2"
+                    disabled={notifLoading}
+                  >
+                    <RefreshCw size={16} className={notifLoading ? 'animate-spin' : ''} />
+                    {t('admin.refresh')}
+                  </Button>
+                </div>
+
+                {notifLoading && !notifications ? (
+                  <div className="flex items-center justify-center py-16 gap-3 text-[#718096]">
+                    <Loader2 size={24} className="animate-spin" />
+                    <span>{t('admin.loading')}</span>
+                  </div>
+                ) : notifications ? (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Pending Cases Notification */}
+                    <Card className={`p-6 border rounded-xl transition-all ${
+                      notifications.breakdown.pendingCases > 0
+                        ? 'bg-[#FFF3E0] border-[#FF9800]'
+                        : 'bg-white border-[#E2E8F0]'
+                    }`}>
+                      <div className="flex items-start gap-4">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${
+                          notifications.breakdown.pendingCases > 0 ? 'bg-[#FF9800]/20' : 'bg-[#F5F7FA]'
+                        }`}>
+                          <AlertCircle size={24} className={notifications.breakdown.pendingCases > 0 ? 'text-[#E65100]' : 'text-[#718096]'} />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-[#1A202C] text-lg">{notifications.breakdown.pendingCases}</h3>
+                          <p className="text-sm font-medium text-[#4A5568]">{t('admin.notif_pending_cases')}</p>
+                          {notifications.details.pendingCasesMessage && (
+                            <p className="text-xs text-[#718096] mt-1">{notifications.details.pendingCasesMessage}</p>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Recent Users Notification */}
+                    <Card className={`p-6 border rounded-xl transition-all ${
+                      notifications.breakdown.recentUsers > 0
+                        ? 'bg-[#E3F2FD] border-[#1E88E5]'
+                        : 'bg-white border-[#E2E8F0]'
+                    }`}>
+                      <div className="flex items-start gap-4">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${
+                          notifications.breakdown.recentUsers > 0 ? 'bg-[#1E88E5]/20' : 'bg-[#F5F7FA]'
+                        }`}>
+                          <UserPlus size={24} className={notifications.breakdown.recentUsers > 0 ? 'text-[#1565C0]' : 'text-[#718096]'} />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-[#1A202C] text-lg">{notifications.breakdown.recentUsers}</h3>
+                          <p className="text-sm font-medium text-[#4A5568]">{t('admin.notif_recent_users')}</p>
+                          {notifications.details.recentUsersMessage && (
+                            <p className="text-xs text-[#718096] mt-1">{notifications.details.recentUsersMessage}</p>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Old Unresolved Cases Notification */}
+                    <Card className={`p-6 border rounded-xl transition-all ${
+                      notifications.breakdown.oldUnresolvedCases > 0
+                        ? 'bg-[#FFEBEE] border-[#E53935]'
+                        : 'bg-white border-[#E2E8F0]'
+                    }`}>
+                      <div className="flex items-start gap-4">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${
+                          notifications.breakdown.oldUnresolvedCases > 0 ? 'bg-[#E53935]/20' : 'bg-[#F5F7FA]'
+                        }`}>
+                          <FileWarning size={24} className={notifications.breakdown.oldUnresolvedCases > 0 ? 'text-[#C62828]' : 'text-[#718096]'} />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-[#1A202C] text-lg">{notifications.breakdown.oldUnresolvedCases}</h3>
+                          <p className="text-sm font-medium text-[#4A5568]">{t('admin.notif_old_cases')}</p>
+                          {notifications.details.oldCasesMessage && (
+                            <p className="text-xs text-[#718096] mt-1">{notifications.details.oldCasesMessage}</p>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+                ) : (
+                  <Card className="p-8 bg-white border border-[#E2E8F0] rounded-xl text-center">
+                    <Bell size={40} className="mx-auto text-[#718096] mb-3" />
+                    <p className="text-[#718096]">{t('admin.no_notifications')}</p>
+                  </Card>
+                )}
+
+                {/* Total summary */}
+                {notifications && (
+                  <Card className="p-4 bg-white border border-[#E2E8F0] rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <Clock size={18} className="text-[#718096]" />
+                      <span className="text-sm text-[#718096]">
+                        {t('admin.notif_total', { count: notifications.total })}
+                      </span>
+                    </div>
+                  </Card>
+                )}
+              </div>
+            )}
+
             {activeNav === 'dashboard' && (
               <>
             {/* Metrics Cards */}
@@ -289,7 +416,7 @@ export function EnhancedAdminDashboard() {
                     </div>
                   </div>
                   <div className="w-12 h-12 rounded-full bg-[#FFF3E0] flex items-center justify-center">
-                    <Shield className="text-[#FF9800]" size={24} />
+                    <AlertCircle className="text-[#FF9800]" size={24} />
                   </div>
                 </div>
               </Card>

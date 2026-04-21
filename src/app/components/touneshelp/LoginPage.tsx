@@ -3,11 +3,13 @@ import { Link, useNavigate } from "react-router";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { useTranslation } from "react-i18next";
 import { Eye, EyeOff, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../../lib/auth";
 
 export function LoginPage() {
+  const { t } = useTranslation();
   const { login } = useAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +25,7 @@ export function LoginPage() {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password })
       });
       const payload = await response.json();
 
@@ -59,25 +61,31 @@ export function LoginPage() {
           </div>
 
           <h2 className="text-[36px] font-bold mb-6">
-            Ensemble, aidons la Tunisie
+            {t("login.together_help")}
           </h2>
-          
+
           <p className="text-white/70 text-lg mb-12 leading-relaxed">
-            Connectez-vous pour signaler des cas, suivre leur évolution et agir.
+            {t("login.connect_report_cases")}
           </p>
 
           <div className="space-y-4 mb-12">
             <div className="flex items-center gap-3">
               <Check className="text-[#27AE60] flex-shrink-0" size={20} />
-              <span className="text-white/90">Signalez des cas en quelques minutes</span>
+              <span className="text-white/90">
+                {t("login.report_cases_minutes")}
+              </span>
             </div>
             <div className="flex items-center gap-3">
               <Check className="text-[#27AE60] flex-shrink-0" size={20} />
-              <span className="text-white/90">Suivez la progression en temps réel</span>
+              <span className="text-white/90">
+                {t("login.track_progress_realtime")}
+              </span>
             </div>
             <div className="flex items-center gap-3">
               <Check className="text-[#27AE60] flex-shrink-0" size={20} />
-              <span className="text-white/90">Rejoignez une communauté solidaire</span>
+              <span className="text-white/90">
+                {t("login.join_supportive_community")}
+              </span>
             </div>
           </div>
 
@@ -97,10 +105,13 @@ export function LoginPage() {
           <h2 className="text-[28px] font-bold text-[#1C1C1E] text-center mb-2">
             Se connecter
           </h2>
-          
+
           <p className="text-center text-[#6B6B6B] mb-8">
-            Pas encore de compte ?{' '}
-            <Link to="/inscription" className="text-[#C0392B] hover:underline font-semibold">
+            Pas encore de compte ?{" "}
+            <Link
+              to="/inscription"
+              className="text-[#C0392B] hover:underline font-semibold"
+            >
               S'inscrire →
             </Link>
           </p>
@@ -128,7 +139,7 @@ export function LoginPage() {
               <div className="relative">
                 <Input
                   id="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-12 rounded-lg bg-white border-gray-300 pr-10"
@@ -144,7 +155,10 @@ export function LoginPage() {
                 </button>
               </div>
               <div className="text-right mt-2">
-                <Link to="/mot-de-passe-oublie" className="text-sm text-[#C0392B] hover:underline">
+                <Link
+                  to="/mot-de-passe-oublie"
+                  className="text-sm text-[#C0392B] hover:underline"
+                >
                   Mot de passe oublié ?
                 </Link>
               </div>
@@ -155,7 +169,7 @@ export function LoginPage() {
               className="w-full bg-[#C0392B] hover:bg-[#A02E24] text-white h-[52px] rounded-xl text-base font-semibold"
               disabled={loading}
             >
-              {loading ? 'Connexion...' : 'Se connecter'}
+              {loading ? "Connexion..." : "Se connecter"}
             </Button>
           </form>
         </div>

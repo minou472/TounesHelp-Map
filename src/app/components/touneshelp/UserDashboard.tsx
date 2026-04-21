@@ -3,6 +3,16 @@ import { Link } from "react-router";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from "../ui/dialog";
 import {
   Accordion,
   AccordionContent,
@@ -19,49 +29,167 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../lib/auth";
 import type { TunisiaCase } from "../../data/tunisiaData";
-import { fetchCases } from "../../lib/backendApi";
+import { fetchCases, updateCase, deleteCase } from "../../lib/backendApi";
+import { toast } from "sonner";
 
 export function UserDashboard() {
   const { user } = useAuth();
   const [allCases, setAllCases] = useState<TunisiaCase[]>([]);
   const [userName, setUserName] = useState(user?.name || "Utilisateur");
 
-  useEffect(() => {
+  // Edit dialog state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingCase, setEditingCase] = useState<TunisiaCase | null>(null);
+  const [editForm, setEditForm] = useState({
+    title: "",
+    description: "",
+    fullDescription: ""
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const loadCases = async () => {
     const rawUser = localStorage.getItem("touneshelp_user");
     let userEmail = user?.email || "";
+
+    if (!userEmail && rawUser) {
+      try {
+        const parsed = JSON.parse(rawUser) as { email?: string };
+        userEmail = parsed.email || "";
+      } catch {
+        // ignore
+      }
+    }
+
+    try {
+      const cases = await fetchCases({ limit: 300 });
+      setAllCases(
+        userEmail ? cases.filter((c) => c.creatorEmail === userEmail) : []
+      );
+    } catch (error) {
+      console.error("Failed to load dashboard cases", error);
+      setAllCases([]);
+    }
+  };
+
+  useEffect(() => {
+    const rawUser = localStorage.getItem("touneshelp_user");
 
     if (user?.name) {
       setUserName(user.name);
     } else if (rawUser) {
       try {
-        const parsed = JSON.parse(rawUser) as { name?: string; email?: string };
+        const parsed = JSON.parse(rawUser) as { name?: string };
         if (parsed.name) {
           setUserName(parsed.name);
         }
-        userEmail = userEmail || parsed.email || "";
       } catch {
         // ignore parsing issues
       }
     }
 
-    const load = async () => {
-      try {
-        const cases = await fetchCases({ limit: 300 });
-        setAllCases(
-          userEmail ? cases.filter((c) => c.creatorEmail === userEmail) : []
-        );
-      } catch (error) {
-        console.error("Failed to load dashboard cases", error);
-        setAllCases([]);
-      }
-    };
-    void load();
+    void loadCases();
   }, []);
 
   const userCases = useMemo(() => allCases.slice(0, 20), [allCases]);
   const sufferingCases = userCases.filter((c) => c.status === "suffering");
   const helpingCases = userCases.filter((c) => c.status === "helping");
   const resolvedCases = userCases.filter((c) => c.status === "resolved");
+
+  // --- Edit handler ---
+  const handleOpenEdit = (c: TunisiaCase) => {
+    setEditingCase(c);
+    setEditForm({
+      title: c.title || "",
+      description: c.description || "",
+      fullDescription: c.fullDescription || ""
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingCase) return;
+    setIsSubmitting(true);
+    try {
+      await updateCase(editingCase.id, {
+        title: editForm.title,
+        description: editForm.description,
+        fullDescription: editForm.fullDescription || editForm.description
+      });
+      toast.success("Cas modifié avec succès");
+      setEditDialogOpen(false);
+      setEditingCase(null);
+      void loadCases();
+    } catch (error: any) {
+      toast.error(error?.message || "Erreur lors de la modification");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // --- Delete handler ---
+  const handleDelete = async (id: string) => {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer ce cas ?")) return;
+    try {
+      await deleteCase(id);
+      toast.success("Cas supprimé avec succès");
+      setAllCases((prev) => prev.filter((c) => c.id !== id));
+    } catch (error: any) {
+      toast.error(error?.message || "Erreur lors de la suppression");
+    }
+  };
+
+  const renderCaseCard = (
+    c: TunisiaCase,
+    borderColor: string,
+    badgeColor: string,
+    badgeText: string,
+    showEditDelete = true
+  ) => (
+    <Card key={c.id} className={`p-4 border-l-4 ${borderColor} bg-white`}>
+      <div className="flex justify-between items-start gap-4">
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-2 text-sm text-[#6B6B6B]">
+            <Badge className={`${badgeColor} text-white`}>{badgeText}</Badge>
+            <span>📍 {c.governorate}</span>
+            <span>
+              📅{" "}
+              {new Date(c.dateSubmitted).toLocaleDateString("fr-FR", {
+                day: "numeric",
+                month: "short"
+              })}
+            </span>
+          </div>
+          <Link
+            to={`/cas/${c.id}`}
+            className="font-semibold text-[#1C1C1E] hover:text-[#C0392B]"
+          >
+            {c.title}
+          </Link>
+        </div>
+        {showEditDelete && (
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-[#C0392B]"
+              onClick={() => handleOpenEdit(c)}
+            >
+              <Edit size={16} className="mr-1" />
+              Modifier
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-red-600 hover:text-red-700"
+              onClick={() => handleDelete(c.id)}
+            >
+              <Trash size={16} />
+            </Button>
+          </div>
+        )}
+      </div>
+    </Card>
+  );
 
   return (
     <div className="min-h-screen bg-[#FDF6EC]">
@@ -143,53 +271,19 @@ export function UserDashboard() {
               </div>
             </AccordionTrigger>
             <AccordionContent className="pt-4 space-y-3">
-              {sufferingCases.map((c) => (
-                <Card
-                  key={c.id}
-                  className="p-4 border-l-4 border-[#C0392B] bg-white"
-                >
-                  <div className="flex justify-between items-start gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2 text-sm text-[#6B6B6B]">
-                        <Badge className="bg-[#C0392B] text-white">
-                          Souffre encore
-                        </Badge>
-                        <span>📍 {c.governorate}</span>
-                        <span>
-                          📅{" "}
-                          {new Date(c.dateSubmitted).toLocaleDateString(
-                            "fr-FR",
-                            { day: "numeric", month: "short" }
-                          )}
-                        </span>
-                      </div>
-                      <Link
-                        to={`/cas/${c.id}`}
-                        className="font-semibold text-[#1C1C1E] hover:text-[#C0392B]"
-                      >
-                        {c.title}
-                      </Link>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-[#C0392B]"
-                      >
-                        <Edit size={16} className="mr-1" />
-                        Modifier
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash size={16} />
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
+              {sufferingCases.map((c) =>
+                renderCaseCard(
+                  c,
+                  "border-[#C0392B]",
+                  "bg-[#C0392B]",
+                  "Souffre encore"
+                )
+              )}
+              {sufferingCases.length === 0 && (
+                <p className="text-center text-gray-500 py-4">
+                  Aucun cas en souffrance
+                </p>
+              )}
             </AccordionContent>
           </AccordionItem>
 
@@ -207,53 +301,19 @@ export function UserDashboard() {
               </div>
             </AccordionTrigger>
             <AccordionContent className="pt-4 space-y-3">
-              {helpingCases.map((c) => (
-                <Card
-                  key={c.id}
-                  className="p-4 border-l-4 border-[#E67E22] bg-white"
-                >
-                  <div className="flex justify-between items-start gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2 text-sm text-[#6B6B6B]">
-                        <Badge className="bg-[#E67E22] text-white">
-                          En cours d'aide
-                        </Badge>
-                        <span>📍 {c.governorate}</span>
-                        <span>
-                          📅{" "}
-                          {new Date(c.dateSubmitted).toLocaleDateString(
-                            "fr-FR",
-                            { day: "numeric", month: "short" }
-                          )}
-                        </span>
-                      </div>
-                      <Link
-                        to={`/cas/${c.id}`}
-                        className="font-semibold text-[#1C1C1E] hover:text-[#C0392B]"
-                      >
-                        {c.title}
-                      </Link>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-[#C0392B]"
-                      >
-                        <Edit size={16} className="mr-1" />
-                        Modifier
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash size={16} />
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
+              {helpingCases.map((c) =>
+                renderCaseCard(
+                  c,
+                  "border-[#E67E22]",
+                  "bg-[#E67E22]",
+                  "En cours d'aide"
+                )
+              )}
+              {helpingCases.length === 0 && (
+                <p className="text-center text-gray-500 py-4">
+                  Aucun cas en cours d'aide
+                </p>
+              )}
             </AccordionContent>
           </AccordionItem>
 
@@ -308,10 +368,79 @@ export function UserDashboard() {
                   </div>
                 </Card>
               ))}
+              {resolvedCases.length === 0 && (
+                <p className="text-center text-gray-500 py-4">
+                  Aucun cas résolu
+                </p>
+              )}
             </AccordionContent>
           </AccordionItem>
         </Accordion>
       </section>
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Modifier le cas</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-title">Titre</Label>
+              <Input
+                id="edit-title"
+                value={editForm.title}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, title: e.target.value })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-description">Description courte</Label>
+              <Textarea
+                id="edit-description"
+                value={editForm.description}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, description: e.target.value })
+                }
+                className="min-h-[100px]"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-fullDescription">
+                Description complète (optionnel)
+              </Label>
+              <Textarea
+                id="edit-fullDescription"
+                value={editForm.fullDescription}
+                onChange={(e) =>
+                  setEditForm({
+                    ...editForm,
+                    fullDescription: e.target.value
+                  })
+                }
+                className="min-h-[120px]"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEditDialogOpen(false)}
+              disabled={isSubmitting}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={handleSaveEdit}
+              disabled={isSubmitting}
+              className="bg-[#C0392B] hover:bg-[#A02E24] text-white"
+            >
+              {isSubmitting ? "Sauvegarde..." : "Sauvegarder"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

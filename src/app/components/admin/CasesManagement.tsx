@@ -10,6 +10,7 @@ import { Search, Plus, Edit2, Trash2, AlertCircle, Clock, CheckCircle } from 'lu
 import { toast } from 'sonner';
 import { tunisiaGovernorates } from '../../data/tunisiaData';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { updateCase, deleteCase, createCase } from '../../lib/backendApi';
 
 export function CasesManagement() {
   const [cases, setCases] = useState<any[]>([]);
@@ -112,20 +113,11 @@ export function CasesManagement() {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce cas ?')) return;
     
     try {
-      const res = await fetch(`/api/cases/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('touneshelp_token')
-        }
-      });
-      if (res.ok) {
-        toast.success('Cas supprimé avec succès');
-        setCases(cases.filter(c => c.id !== id));
-      } else {
-        toast.error('Erreur lors de la suppression');
-      }
-    } catch (e) {
-      toast.error('Erreur réseau');
+      await deleteCase(id);
+      toast.success('Cas supprimé avec succès');
+      setCases(cases.filter(c => c.id !== id));
+    } catch (error: any) {
+      toast.error(error?.message || 'Erreur lors de la suppression');
     }
   };
 
@@ -135,32 +127,22 @@ export function CasesManagement() {
 
     try {
       const isEdit = !!editingCase;
-      const url = isEdit 
-        ? `/api/cases/${editingCase.id}`
-        : `/api/cases`;
-        
-      const method = isEdit ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.getItem('touneshelp_token')
-        },
-        body: JSON.stringify(formData)
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        toast.success(isEdit ? 'Cas modifié avec succès' : 'Cas créé avec succès');
-        setIsDialogOpen(false);
-        fetchCases();
+      if (isEdit) {
+        await updateCase(editingCase.id, formData);
       } else {
-        toast.error(data.error || 'Erreur lors de la sauvegarde');
+        await createCase({
+          ...formData,
+          images: [],
+          fullDescription: formData.fullDescription || formData.description
+        });
       }
-    } catch (error) {
-      toast.error('Erreur de connexion');
+
+      toast.success(isEdit ? 'Cas modifié avec succès' : 'Cas créé avec succès');
+      setIsDialogOpen(false);
+      fetchCases();
+    } catch (error: any) {
+      toast.error(error?.message || 'Erreur lors de la sauvegarde');
     } finally {
       setIsSubmitting(false);
     }

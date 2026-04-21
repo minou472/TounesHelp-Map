@@ -67,21 +67,39 @@ function getToken() {
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const token = getToken();
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(init?.headers || {})
-    }
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE_URL}${path}`, {
+      ...init,
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(init?.headers || {})
+      }
+    });
+  } catch (networkError) {
+    throw new Error(
+      "Cannot connect to the server. Please make sure the backend is running on port 3001."
+    );
+  }
 
-  const payload = await res.json();
+  // Safely parse JSON — handle empty or non-JSON responses
+  const text = await res.text();
+  let payload: any;
+  try {
+    payload = text ? JSON.parse(text) : null;
+  } catch {
+    console.error(`[API ${path}] Non-JSON response:`, text.slice(0, 200));
+    throw new Error(
+      `Server returned an invalid response (${res.status}). The backend may not be running.`
+    );
+  }
+
   if (!res.ok || payload?.success === false) {
     throw new Error(payload?.error || `Request failed (${res.status})`);
   }
 
-  return payload.data as T;
+  return payload?.data as T;
 }
 
 export function mapCaseStatus(
@@ -154,13 +172,13 @@ export type CreateCaseData = {
   latitude: number;
   longitude: number;
   category?:
-  | "MEDICAL"
-  | "EDUCATION"
-  | "FOOD"
-  | "SHELTER"
-  | "TRANSPORTATION"
-  | "WATER"
-  | "OTHER";
+    | "MEDICAL"
+    | "EDUCATION"
+    | "FOOD"
+    | "SHELTER"
+    | "TRANSPORTATION"
+    | "WATER"
+    | "OTHER";
   victimName: string;
   victimPhone: string;
   victimEmail?: string;
@@ -178,11 +196,41 @@ export function createCase(data: CreateCaseData) {
     ...data,
     victimEmail: data.victimEmail || undefined,
     videoUrl: data.videoUrl || undefined,
-    fullDescription: data.fullDescription || data.description,
+    fullDescription: data.fullDescription || data.description
   };
   return request<BackendCase>("/api/cases", {
     method: "POST",
     body: JSON.stringify(cleanData)
+  });
+}
+
+export type UpdateCaseData = {
+  title?: string;
+  description?: string;
+  fullDescription?: string;
+  governorate?: string;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
+  status?: "SUFFERING" | "HELPING" | "RESOLVED";
+  victimName?: string;
+  victimPhone?: string;
+  victimEmail?: string;
+  peopleAffected?: number;
+  images?: string[];
+  videoUrl?: string;
+};
+
+export function updateCase(id: string, data: UpdateCaseData) {
+  return request<BackendCase>(`/api/cases/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data)
+  });
+}
+
+export function deleteCase(id: string) {
+  return request<{ message: string }>(`/api/cases/${id}`, {
+    method: "DELETE"
   });
 }
 
@@ -191,7 +239,7 @@ export function fetchStats() {
 }
 
 export function fetchAdminUsers() {
-  return request<AdminUser[]>("/api/users?limit=200");
+  return request<{ users: AdminUser[]; total: number }>("/api/users");
 }
 
 export type CreateUserData = {
@@ -259,15 +307,33 @@ export async function uploadFile(file: File): Promise<UploadResponse> {
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await fetch(`/api/upload`, {
-    method: "POST",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
-    },
-    body: formData
-  });
+  let res: Response;
+  try {
+    res = await fetch(`/api/upload`, {
+      method: "POST",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: formData
+    });
+  } catch (networkError) {
+    throw new Error(
+      "Cannot connect to the server. Please make sure the backend is running on port 3001."
+    );
+  }
 
-  const payload = await res.json();
+  // Safely parse JSON — handle empty or non-JSON responses
+  const text = await res.text();
+  let payload: any;
+  try {
+    payload = text ? JSON.parse(text) : null;
+  } catch {
+    console.error("[Upload] Non-JSON response:", text.slice(0, 200));
+    throw new Error(
+      `Upload failed: server returned an invalid response (${res.status}). The backend may not be running.`
+    );
+  }
+
   if (!res.ok || payload?.success === false) {
     throw new Error(payload?.error || "Upload failed");
   }

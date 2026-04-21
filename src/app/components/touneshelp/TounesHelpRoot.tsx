@@ -14,22 +14,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "../ui/dropdown-menu";
+import { useAuth } from "../../lib/auth";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 
 export function TounesHelpRoot() {
   const location = useLocation();
   const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userToken, setUserToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    setUserToken(localStorage.getItem("userToken"));
-  }, [location.pathname]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("userToken");
-    setUserToken(null);
-  };
+  const { user, logout } = useAuth();
+  const handleLogout = logout;
 
   // Check if we're on an admin page
   const isAdminPage = location.pathname.startsWith("/admin");
@@ -116,13 +109,13 @@ export function TounesHelpRoot() {
               {/* Language Translator */}
               <LanguageTranslator />
 
-              {userToken ? (
+              {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="flex items-center gap-2 outline-none">
                       <Avatar className="h-9 w-9 border border-gray-200">
                         <AvatarFallback className="bg-orange-100 text-[#C0392B]">
-                          U
+                          {user.name[0]?.toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                     </button>
@@ -148,7 +141,7 @@ export function TounesHelpRoot() {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       className="cursor-pointer text-red-600 focus:text-red-600"
-                      onClick={handleLogout}
+                      onClick={logout}
                     >
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>{t("navigation.logout")}</span>
@@ -216,7 +209,7 @@ export function TounesHelpRoot() {
                 {t("navigation.about")}
               </Link>
               <div className="pt-4 border-t border-gray-200 space-y-2">
-                {userToken ? (
+                {user ? (
                   <>
                     <Link
                       to="/dashboard"
@@ -234,7 +227,7 @@ export function TounesHelpRoot() {
                       variant="ghost"
                       className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 mt-2"
                       onClick={() => {
-                        handleLogout();
+                        logout();
                         setMobileMenuOpen(false);
                       }}
                     >
