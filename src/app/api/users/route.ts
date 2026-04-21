@@ -9,15 +9,19 @@ import {
 } from "@/lib/response";
 import { z } from "zod";
 import { Role, UserStatus } from "@/lib/enums";
+import bcrypt  from "bcryptjs";
 
+// Validation schema for creating new users - checks all required fields
 const createUserSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
+  password: z.string().min(6),
   phone: z.string().optional(),
   role: z.nativeEnum(Role).default(Role.USER),
   status: z.nativeEnum(UserStatus).default(UserStatus.ACTIVE)
 });
 
+// Schema for updating user info (partial updates OK)
 const updateUserSchema = z.object({
   name: z.string().min(2).optional(),
   phone: z.string().optional(),
@@ -26,7 +30,7 @@ const updateUserSchema = z.object({
   status: z.nativeEnum(UserStatus).optional()
 });
 
-// GET /api/users — admin only
+// GET /api/users - Admin only: list all users with filters/pagination
 export async function GET(req: NextRequest) {
   try {
     const adminUser = await requireAdmin(req);
@@ -42,10 +46,11 @@ export async function GET(req: NextRequest) {
     if (role) where.role = role;
     if (status) where.status = status;
     if (search) {
+      // SQLite does not support mode: "insensitive"; use `contains` only
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } },
-        { phone: { contains: search, mode: "insensitive" } }
+        { name: { contains: search } },
+        { email: { contains: search } },
+        { phone: { contains: search } }
       ];
     }
 
@@ -72,14 +77,14 @@ export async function GET(req: NextRequest) {
       prisma.user.count({ where })
     ]);
 
-    return paginatedResponse(users, total, page, limit);
+    return successResponse({ users, total });
   } catch (error) {
     console.error("[GET /users]", error);
     return errorResponse("Internal server error", 500);
   }
 }
 
-// POST /api/users — admin only
+// POST /api/users - Admin creates new user account
 export async function POST(req: NextRequest) {
   try {
     const adminUser = await requireAdmin(req);
@@ -94,7 +99,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, email, phone, role, status } = parsed.data;
+    const { name, email, password, phone, role, status } = parsed.data;
 
     // Check if email already exists
     const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -102,10 +107,13 @@ export async function POST(req: NextRequest) {
       return errorResponse("Email already registered", 409);
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = await prisma.user.create({
       data: {
         name,
         email,
+        passwordHash: hashedPassword,
         phone,
         role,
         status

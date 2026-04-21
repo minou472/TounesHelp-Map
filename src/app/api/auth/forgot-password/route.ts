@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       return errorResponse("No account found with this email. Please sign up.", 404);
     }
 
-    const resetToken = signToken({ userId: user.id, email: user.email, type: "password-reset" }, { expiresIn: "1h" });
+    const resetToken = signToken({ userId: user.id, email: user.email, type: "password-reset" }, "1h");
     const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/connexion?resetToken=${resetToken}`;
 
     console.info(

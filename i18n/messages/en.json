@@ -10,7 +10,14 @@
     "edit": "Edit",
     "back": "Back",
     "next": "Next",
-    "previous": "Previous"
+    "previous": "Previous",
+    "together_help_tunisia": "Together, let's help Tunisia",
+    "connect_report_cases": "Sign in to report cases, track their progress, and take action",
+    "report_cases_minutes": "Report cases in minutes",
+    "track_progress_realtime": "Track progress in real time",
+    "join_supportive_community": "Join a supportive community",
+    "every_action_counts": "\"Every action counts. Every life matters.\"",
+    "logo_alt": "T"
   },
   "auth": {
     "signIn": "Sign In",
@@ -97,7 +104,8 @@
       "links": ["/"]
     },
     "help": {
-      "response": "I can help you with:\n\n💡 Platform information\n📝 Registration and case creation\n📊 Active case statistics\n🔍 Search for specific cases\n📍 Cases by governorate\n🏥 Cases by category\n\nAsk me a question!"
+      "response": "I can help you with:\n\n💡 Platform information\n📝 Registration and case creation\n📊 Active case statistics\n🔍 Search for specific cases\n📍 Cases by governorate\n🏥 Cases by category\n\nAsk me a question!",
+      "links": []
     },
     "default": "I'm Hope 🐰! I didn't understand. Try asking about 'registration', 'create a case', or 'active cases'."
   }

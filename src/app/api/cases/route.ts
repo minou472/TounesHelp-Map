@@ -1,14 +1,20 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthUser } from "@/lib/auth";
-import { successResponse, errorResponse, paginatedResponse, getPagination } from "@/lib/response";
+import {
+  successResponse,
+  errorResponse,
+  paginatedResponse,
+  getPagination
+} from "@/lib/response";
 import { z } from "zod";
 import { CaseStatus, CaseCategory } from "@/lib/enums";
 
+// Schema to validate new case data from frontend
 const createCaseSchema = z.object({
-  title: z.string().min(5, "Title must be at least 5 characters"),
-  description: z.string().min(20, "Description must be at least 20 characters"),
-  fullDescription: z.string().min(50, "Full description must be at least 50 characters"),
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  fullDescription: z.string().optional(),
   governorate: z.string().min(1, "Governorate is required"),
   city: z.string().min(1, "City is required"),
   latitude: z.number(),
@@ -21,21 +27,21 @@ const createCaseSchema = z.object({
       CaseCategory.SHELTER,
       CaseCategory.TRANSPORTATION,
       CaseCategory.WATER,
-      CaseCategory.OTHER,
+      CaseCategory.OTHER
     ])
     .default(CaseCategory.OTHER),
   victimName: z.string().min(2, "Victim name is required"),
-  victimPhone: z.string().min(8, "Victim phone is required"),
-  victimEmail: z.string().email().optional(),
+  victimPhone: z.string().min(4, "Victim phone is required"),
+  victimEmail: z.string().email().optional().or(z.literal("")),
   creatorName: z.string().min(2, "Creator name is required"),
-  creatorPhone: z.string().min(8, "Creator phone is required"),
+  creatorPhone: z.string().min(4, "Creator phone is required"),
   creatorEmail: z.string().email("Creator email is required"),
   peopleAffected: z.number().min(1).default(1),
   images: z.array(z.string()).default([]),
-  videoUrl: z.string().optional(),
+  videoUrl: z.string().optional()
 });
 
-// GET /api/cases — list all cases with filters
+// GET /api/cases - Get list of cases with search/filter/pagination
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = req.nextUrl;
@@ -46,16 +52,18 @@ export async function GET(req: NextRequest) {
     const category = searchParams.get("category") as CaseCategory | null;
     const search = searchParams.get("search");
 
+    // Build search conditions for Prisma query
     const where: Record<string, unknown> = {};
     if (status) where.status = status;
     if (governorate) where.governorate = governorate;
     if (category) where.category = category;
     if (search) {
+      // Search in multiple fields (SQLite simple contains search)
       where.OR = [
-        { title: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
-        { city: { contains: search, mode: "insensitive" } },
-        { victimName: { contains: search, mode: "insensitive" } },
+        { title: { contains: search } },
+        { description: { contains: search } },
+        { city: { contains: search } },
+        { victimName: { contains: search } }
       ];
     }
 
@@ -66,10 +74,10 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "desc" },
       include: {
         createdBy: { select: { id: true, name: true, avatar: true } },
-        _count: { select: { helpers: true } },
-      },
+        _count: { select: { helpers: true } }
+      }
     });
-    
+
     const total = await prisma.tunisiaCase.count({ where });
 
     return paginatedResponse(cases, total, page, limit);
@@ -79,35 +87,39 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST /api/cases — create new case (auth required)
+// POST /api/cases - Create new case (anyone can create, optional login)
 export async function POST(req: NextRequest) {
   try {
     const authUser = await getAuthUser(req);
-    if (!authUser) return errorResponse("Authentication required", 401);
 
     const body = await req.json();
     const parsed = createCaseSchema.safeParse(body);
 
     if (!parsed.success) {
-      return errorResponse(parsed.error.issues.map((e) => e.message).join(", "), 422);
+      const messages = parsed.error.issues.map((e) => e.message).join(", ");
+      console.error("[POST /cases] Validation error:", messages);
+      return errorResponse(messages, 422);
     }
 
-    const { images, ...caseDataWithoutImages } = parsed.data;
+    const { images, fullDescription, ...caseDataWithoutImages } = parsed.data;
 
     const newCase = await prisma.tunisiaCase.create({
       data: {
         ...caseDataWithoutImages,
+        fullDescription: fullDescription || caseDataWithoutImages.description,
         imagesJson: JSON.stringify(images),
-        createdById: authUser.userId,
-        datePublished: new Date(),
-      },
+        createdById: authUser?.userId || null,
+        datePublished: new Date()
+      }
     });
 
-    // Increment user's casesCreated count
-    await prisma.user.update({
-      where: { id: authUser.userId },
-      data: { casesCreated: { increment: 1 } },
-    });
+    // Increment user's casesCreated count if authenticated
+    if (authUser?.userId) {
+      await prisma.user.update({
+        where: { id: authUser.userId },
+        data: { casesCreated: { increment: 1 } }
+      });
+    }
 
     return successResponse(newCase, 201);
   } catch (error) {

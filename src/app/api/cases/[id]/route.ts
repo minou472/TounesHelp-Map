@@ -72,10 +72,13 @@ export async function PUT(
       return errorResponse(parsed.error.issues.map((e) => e.message).join(", "), 422);
     }
 
+    const { images, ...caseDataWithoutImages } = parsed.data;
+
     const updatedCase = await prisma.tunisiaCase.update({
       where: { id },
       data: {
-        ...parsed.data,
+        ...caseDataWithoutImages,
+        ...(images ? { imagesJson: JSON.stringify(images) } : {}),
         ...(parsed.data.status === "RESOLVED" ? { dateResolved: new Date() } : {}),
       },
     });

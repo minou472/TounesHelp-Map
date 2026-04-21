@@ -10,7 +10,14 @@
     "edit": "Modifier",
     "back": "Retour",
     "next": "Suivant",
-    "previous": "Précédent"
+    "previous": "Précédent",
+    "together_help_tunisia": "Ensemble, aidons la Tunisie",
+    "connect_report_cases": "Connectez-vous pour signaler des cas, suivre leur évolution et agir",
+    "report_cases_minutes": "Signalez des cas en quelques minutes",
+    "track_progress_realtime": "Suivez la progression en temps réel",
+    "join_supportive_community": "Rejoignez une communauté solidaire",
+    "every_action_counts": "\"Chaque action compte. Chaque vie vaut.\"",
+    "logo_alt": "T"
   },
   "auth": {
     "signIn": "Connexion",
@@ -97,7 +104,8 @@
       "links": ["/"]
     },
     "help": {
-      "response": "Je peux vous aider avec:\n\n💡 Informations sur la plateforme\n📝 Inscription et création de cas\n📊 Statistiques des cas actifs\n🔍 Recherche de cas spécifiques\n📍 Cas par gouvernorat\n🏥 Cas par catégorie\n\nPosez-moi une question!"
+      "response": "Je peux vous aider avec:\n\n💡 Informations sur la plateforme\n📝 Inscription et création de cas\n📊 Statistiques des cas actifs\n🔍 Recherche de cas spécifiques\n📍 Cas par gouvernorat\n🏥 Cas par catégorie\n\nPosez-moi une question!",
+      "links": []
     },
     "default": "Je suis Espoir 🐰! Je ne comprends pas encore cette question. Essayez: 'inscription', 'créer un cas', 'cas actifs'."
   }
