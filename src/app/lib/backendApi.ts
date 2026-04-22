@@ -96,6 +96,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   if (!res.ok || payload?.success === false) {
+    if (res.status === 401) {
+      localStorage.removeItem("touneshelp_token");
+      localStorage.removeItem("touneshelp_user");
+      window.location.href = "/connexion";
+    }
     throw new Error(payload?.error || `Request failed (${res.status})`);
   }
 
@@ -335,6 +340,11 @@ export async function uploadFile(file: File): Promise<UploadResponse> {
   }
 
   if (!res.ok || payload?.success === false) {
+    if (res.status === 401) {
+      localStorage.removeItem("touneshelp_token");
+      localStorage.removeItem("touneshelp_user");
+      window.location.href = "/connexion";
+    }
     throw new Error(payload?.error || "Upload failed");
   }
 
