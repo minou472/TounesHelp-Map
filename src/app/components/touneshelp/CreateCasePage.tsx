@@ -77,14 +77,14 @@ export function CreateCasePage() {
     const validFiles = files.filter((file) => {
       const isImage = file.type.startsWith("image/");
       const isVideo = file.type.startsWith("video/");
-      const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB
+      const isValidSize = file.size <= 50 * 1024 * 1024; // 50MB
 
       if (!isImage && !isVideo) {
         toast.error(t("create_case.messages.file_type_error"));
         return false;
       }
       if (!isValidSize) {
-        toast.error(t("create_case.messages.file_size_error"));
+        toast.error("Le fichier est trop volumineux. La taille maximale est de 50MB.");
         return false;
       }
       return true;

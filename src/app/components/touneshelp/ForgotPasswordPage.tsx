@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -9,7 +9,8 @@ const API_BASE_URL = "";
 
 export function ForgotPasswordPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const location = useLocation();
+  const [email, setEmail] = useState(location.state?.email || "");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {

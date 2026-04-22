@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -10,10 +10,11 @@ import { useAuth } from "../../lib/auth";
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
+    email: location.state?.email || '',
     password: '',
     confirmPassword: '',
     phone: '',

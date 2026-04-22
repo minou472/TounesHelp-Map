@@ -243,8 +243,14 @@ export function fetchStats() {
   return request<StatsResponse>("/api/stats");
 }
 
-export function fetchAdminUsers() {
-  return request<{ users: AdminUser[]; total: number }>("/api/users");
+export async function fetchAdminUsers(): Promise<{ users: AdminUser[]; total: number }> {
+  // Backend returns successResponse({ users, total }) → request() gives us { users, total } directly
+  const data = await request<{ users: AdminUser[]; total: number }>("/api/users?limit=200");
+  // Normalize: if backend returned array directly (old format), wrap it
+  if (Array.isArray(data)) {
+    return { users: data as AdminUser[], total: (data as AdminUser[]).length };
+  }
+  return data;
 }
 
 export type CreateUserData = {
@@ -253,6 +259,7 @@ export type CreateUserData = {
   phone?: string;
   role?: "USER" | "ADMIN";
   status?: "ACTIVE" | "BLOCKED";
+  password?: string;
 };
 
 export type UpdateUserData = {
