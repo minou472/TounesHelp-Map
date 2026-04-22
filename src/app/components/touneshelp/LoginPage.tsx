@@ -30,10 +30,17 @@ export function LoginPage() {
       const payload = await response.json();
 
       if (!response.ok) {
-        toast.error(payload?.error || "Erreur de connexion");
         if (response.status === 404) {
-          navigate("/inscription");
+          toast.error("Compte introuvable, veuillez vous inscrire.");
+          navigate("/inscription", { state: { email } });
+          return;
         }
+        if (response.status === 401 && payload?.error === "Invalid password") {
+          toast.error("Mot de passe incorrect. Redirection vers la page de récupération...");
+          setTimeout(() => navigate("/mot-de-passe-oublie", { state: { email } }), 2000);
+          return;
+        }
+        toast.error(payload?.error || "Erreur de connexion");
         return;
       }
 
