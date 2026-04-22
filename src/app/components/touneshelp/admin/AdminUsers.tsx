@@ -3,24 +3,31 @@ import { AdminLayout } from "./AdminLayout";
 import { Card } from "../../ui/card";
 import { Badge } from "../../ui/badge";
 import { Input } from "../../ui/input";
-import { Search, MoreVertical } from "lucide-react";
-import { fetchAdminUsers, type AdminUser } from "../../../lib/backendApi";
+import { Search, MoreVertical, ShieldAlert, Trash2, ShieldCheck } from "lucide-react";
+import { fetchAdminUsers, updateUser, deleteUser, type AdminUser } from "../../../lib/backendApi";
 
 export function AdminUsers() {
   const [usersData, setUsersData] = useState<{
     users: AdminUser[];
     total: number;
   }>({ users: [], total: 0 });
+  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+
+  const load = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchAdminUsers();
+      setUsersData(data);
+    } catch (error) {
+      console.error("Failed to load admin users", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const data = await fetchAdminUsers();
-        setUsersData(data);
-      } catch (error) {
-        console.error("Failed to load admin users", error);
-      }
-    };
     void load();
   }, []);
 
@@ -33,6 +40,35 @@ export function AdminUsers() {
     () =>
       usersData.users.filter((u: AdminUser) => u.status === "BLOCKED").length,
     [usersData.users]
+  );
+
+  const handleUpdateStatus = async (id: string, currentStatus: "ACTIVE" | "BLOCKED") => {
+    try {
+      const newStatus = currentStatus === "ACTIVE" ? "BLOCKED" : "ACTIVE";
+      await updateUser(id, { status: newStatus });
+      await load();
+      setOpenMenuId(null);
+    } catch (error) {
+      console.error("Failed to update status", error);
+      alert("Failed to update user status");
+    }
+  };
+
+  const handleDeleteUser = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    try {
+      await deleteUser(id);
+      await load();
+      setOpenMenuId(null);
+    } catch (error) {
+      console.error("Failed to delete user", error);
+      alert("Failed to delete user. You cannot delete yourself or there might be server error.");
+    }
+  };
+
+  const filteredUsers = usersData.users.filter((u) =>
+    u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -66,14 +102,16 @@ export function AdminUsers() {
             <Input
               placeholder="Rechercher un utilisateur..."
               className="pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </div>
       </div>
 
       <Card className="overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto min-h-[400px]">
+          <table className="w-full relative">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -97,7 +135,7 @@ export function AdminUsers() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {usersData.users.map((user: AdminUser) => (
+              {filteredUsers.map((user: AdminUser) => (
                 <tr
                   key={user.id}
                   className="hover:bg-gray-50 transition-colors"
@@ -145,16 +183,40 @@ export function AdminUsers() {
                   <td className="px-6 py-4 text-sm text-gray-600">
                     {new Date(user.createdAt).toLocaleDateString("fr-FR")}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 relative">
                     <button
                       className="p-2 hover:bg-gray-100 rounded"
                       title="Actions utilisateur"
+                      onClick={() => setOpenMenuId(openMenuId === user.id ? null : user.id)}
                     >
                       <MoreVertical size={18} className="text-gray-600" />
                     </button>
+                    {openMenuId === user.id && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                        <button
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                          onClick={() => handleUpdateStatus(user.id, user.status)}
+                        >
+                          {user.status === "ACTIVE" ? <><ShieldAlert size={16} /> Bloquer</> : <><ShieldCheck size={16} /> Débloquer</>}
+                        </button>
+                        <button
+                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                          onClick={() => handleDeleteUser(user.id)}
+                        >
+                          <Trash2 size={16} /> Supprimer
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
+              {filteredUsers.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                    {loading ? "Chargement en cours..." : "Aucun utilisateur trouvé."}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

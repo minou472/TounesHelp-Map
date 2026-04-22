@@ -50,13 +50,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const navItems = [
     { path: "/admin", icon: Home, label: "Tableau de bord" },
     { path: "/admin/utilisateurs", icon: Users, label: "Utilisateurs" },
-    { path: "/admin/lieux", icon: MapPin, label: "Lieux & Locations" },
-    { path: "/admin/moderation", icon: FileText, label: "File de modération" },
     { path: "/admin/cas", icon: FileText, label: "Tous les cas" },
     { path: "/admin/notifications", icon: Bell, label: "Notifications" },
     { path: "/admin/stats", icon: BarChart3, label: "Statistiques" },
-    { path: "/admin/chatbot", icon: MessageSquare, label: "Chatbot" },
-    { path: "/admin/parametres", icon: Settings, label: "Paramètres" }
   ];
 
   const isActive = (path: string) => {
@@ -190,7 +186,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <div className="max-h-64 overflow-y-auto">
                     {notifications?.details.pendingCasesMessage && (
                       <Link
-                        to="/admin/moderation"
+                        to="/admin/cas"
                         className="block p-4 border-b border-gray-100 hover:bg-gray-50"
                         onClick={() => setShowNotifications(false)}
                       >

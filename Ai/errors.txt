@@ -1,0 +1,10 @@
+src/app/api/cases/route.ts(16,48): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(def: CaseCategory): ZodDefault<ZodEnum<typeof CaseCategory>>', gave the following error.
+    Argument of type '"OTHER"' is not assignable to parameter of type 'CaseCategory'.
+  Overload 2 of 2, '(def: () => CaseCategory): ZodDefault<ZodEnum<typeof CaseCategory>>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '() => CaseCategory'.
+src/app/api/help-requests/route.ts(13,42): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(def: Urgency): ZodDefault<ZodEnum<typeof Urgency>>', gave the following error.
+    Argument of type '"MEDIUM"' is not assignable to parameter of type 'Urgency'.
+  Overload 2 of 2, '(def: () => Urgency): ZodDefault<ZodEnum<typeof Urgency>>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '() => Urgency'.
