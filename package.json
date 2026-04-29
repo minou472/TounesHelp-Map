@@ -1,10 +1,17 @@
 {
-  "name": "@figma/my-make-file",
-  "private": true,
+  "name": "@minou472/touneshelp-map",
+  "private": false,
   "version": "0.0.1",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/minou472/TounesHelp-Map.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && cd backend && npm run build",
     "dev:frontend": "vite",
     "dev:backend": "cd backend && npm run dev",
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\""
