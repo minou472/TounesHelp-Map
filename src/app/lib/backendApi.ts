@@ -99,7 +99,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     if (res.status === 401) {
       localStorage.removeItem("touneshelp_token");
       localStorage.removeItem("touneshelp_user");
-      window.location.href = "/connexion";
+      // Only redirect if not already on the login page to avoid infinite loops
+      if (!window.location.pathname.includes("/connexion")) {
+        window.location.href = "/connexion";
+      }
     }
     throw new Error(payload?.error || `Request failed (${res.status})`);
   }
@@ -350,7 +353,10 @@ export async function uploadFile(file: File): Promise<UploadResponse> {
     if (res.status === 401) {
       localStorage.removeItem("touneshelp_token");
       localStorage.removeItem("touneshelp_user");
-      window.location.href = "/connexion";
+      // Only redirect if not already on the login page to avoid infinite loops
+      if (!window.location.pathname.includes("/connexion")) {
+        window.location.href = "/connexion";
+      }
     }
     throw new Error(payload?.error || "Upload failed");
   }

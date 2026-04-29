@@ -15,6 +15,10 @@ import { AdminModeration } from "./components/touneshelp/admin/AdminModeration";
 import { AdminUsers } from "./components/touneshelp/admin/AdminUsers";
 import { AdminCases } from "./components/touneshelp/admin/AdminCases";
 import { AdminStats } from "./components/touneshelp/admin/AdminStats";
+import { AdminLieux } from "./components/touneshelp/admin/AdminLieux";
+import { AdminNotifications } from "./components/touneshelp/admin/AdminNotifications";
+import { AdminChatbot } from "./components/touneshelp/admin/AdminChatbot";
+import { AdminSettings } from "./components/touneshelp/admin/AdminSettings";
 import { NotFound } from "./components/NotFound";
 
 export const tounesHelpRouter = createBrowserRouter([
@@ -35,8 +39,12 @@ export const tounesHelpRouter = createBrowserRouter([
       { path: "admin/enhanced", Component: EnhancedAdminDashboard },
       { path: "admin/moderation", Component: AdminModeration },
       { path: "admin/utilisateurs", Component: AdminUsers },
+      { path: "admin/lieux", Component: AdminLieux },
       { path: "admin/cas", Component: AdminCases },
+      { path: "admin/notifications", Component: AdminNotifications },
       { path: "admin/stats", Component: AdminStats },
+      { path: "admin/chatbot", Component: AdminChatbot },
+      { path: "admin/parametres", Component: AdminSettings },
       { path: "*", Component: NotFound },
     ],
   },
