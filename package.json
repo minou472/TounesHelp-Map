@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "vite build && cd backend && npm run build",
+    "build": "vite build",
     "dev:frontend": "vite",
     "dev:backend": "cd backend && npm run dev",
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\""
