@@ -147,7 +147,9 @@
     "resolved_cases": "Cas résolus",
     "helping_cases": "En cours d'aide",
     "governorates": "Gouvernorats",
-    "suffering_cases": "Souffrent encore"
+    "suffering_cases": "Souffrent encore",
+    "cta_title": "Vous pouvez changer une vie aujourd'hui",
+    "cta_button": "Créer un compte gratuitement"
   },
   "navigation": {
     "home": "Accueil",

@@ -145,7 +145,9 @@
     "resolved_cases": "الحالات المحلولة",
     "helping_cases": "قيد المساعدة",
     "governorates": "الولايات",
-    "suffering_cases": "لا يزالون يعانون"
+    "suffering_cases": "لا يزالون يعانون",
+    "cta_title": "يمكنك تغيير حياة اليوم",
+    "cta_button": "أنشئ حساباً مجانياً"
   },
   "navigation": {
     "home": "الرئيسية",

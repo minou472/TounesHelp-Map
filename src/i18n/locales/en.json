@@ -143,7 +143,9 @@
     "resolved_cases": "Resolved Cases",
     "helping_cases": "Being Helped",
     "governorates": "Governorates",
-    "suffering_cases": "Still Suffering"
+    "suffering_cases": "Still Suffering",
+    "cta_title": "You can change a life today",
+    "cta_button": "Create an account for free"
   },
   "navigation": {
     "home": "Home",
