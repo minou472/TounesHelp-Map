@@ -1,3 +1,5 @@
+export type CaseStatus = "suffering" | "helping" | "resolved";
+
 export type TunisiaCase = {
   id: string;
   title: string;

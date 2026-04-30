@@ -101,7 +101,7 @@ export function HomePage() {
               <div className="text-[40px] font-bold text-[#E67E22]">
                 {stats.governorates}
               </div>
-              <div className="text-sm text-[#6B6B6B]">Gouvernorats</div>
+              <div className="text-sm text-[#6B6B6B]">{t("home.governorates", "Gouvernorats")}</div>
             </div>
           </div>
         </div>
@@ -116,10 +116,10 @@ export function HomePage() {
       <section className="bg-white py-24 px-6">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-[36px] font-bold text-[#1C1C1E] text-center mb-4">
-            Comment ça fonctionne ?
+            {t("how_it_works.title", "Comment ça fonctionne ?")}
           </h2>
           <p className="text-center text-[#6B6B6B] text-lg mb-16">
-            Simple, rapide et transparent
+            {t("how_it_works.subtitle", "Simple, rapide et transparent")}
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
@@ -132,11 +132,10 @@ export function HomePage() {
                 <Megaphone size={64} className="text-[#C0392B]" />
               </div>
               <h3 className="font-bold text-xl text-[#1C1C1E] mb-3">
-                Signaler un cas
+                {t("how_it_works.step1_title", "Signaler un cas")}
               </h3>
               <p className="text-[#6B6B6B]">
-                Tout citoyen peut signaler une situation de souffrance en
-                quelques clics
+                {t("how_it_works.step1_desc", "Tout citoyen peut signaler une situation de souffrance en quelques clics")}
               </p>
             </div>
 
@@ -154,10 +153,10 @@ export function HomePage() {
                 <ShieldCheck size={64} className="text-[#E67E22]" />
               </div>
               <h3 className="font-bold text-xl text-[#1C1C1E] mb-3">
-                Vérification
+                {t("how_it_works.step2_title", "Vérification")}
               </h3>
               <p className="text-[#6B6B6B]">
-                Notre équipe vérifie chaque cas pour garantir son authenticité
+                {t("how_it_works.step2_desc", "Notre équipe vérifie chaque cas pour garantir son authenticité")}
               </p>
             </div>
 
@@ -175,11 +174,10 @@ export function HomePage() {
                 <Heart size={64} className="text-[#27AE60]" fill="#27AE60" />
               </div>
               <h3 className="font-bold text-xl text-[#1C1C1E] mb-3">
-                Aide apportée
+                {t("how_it_works.step3_title", "Aide apportée")}
               </h3>
               <p className="text-[#6B6B6B]">
-                Les bénévoles, ONG et donateurs se mobilisent pour apporter leur
-                aide
+                {t("how_it_works.step3_desc", "Les bénévoles, ONG et donateurs se mobilisent pour apporter leur aide")}
               </p>
             </div>
           </div>
@@ -191,13 +189,13 @@ export function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-[36px] font-bold text-[#1C1C1E]">
-              Les derniers cas signalés
+              {t("cases_list.latest_cases", "Les derniers cas signalés")}
             </h2>
             <Link
               to="/cas"
               className="text-[#C0392B] hover:text-[#A02E24] font-semibold flex items-center gap-2"
             >
-              Voir tous les cas <ArrowRight size={20} />
+              {t("cases_list.view_all", "Voir tous les cas")} <ArrowRight size={20} />
             </Link>
           </div>
 
@@ -217,19 +215,19 @@ export function HomePage() {
               <div className="text-[72px] font-bold text-[#C0392B] mb-2">
                 {stats.sufferingCases}
               </div>
-              <div className="text-white text-lg">Cas encore en souffrance</div>
+              <div className="text-white text-lg">{t("home.suffering_cases", "Cas encore en souffrance")}</div>
             </div>
             <div className="border-l border-r border-gray-700">
               <div className="text-[72px] font-bold text-[#E67E22] mb-2">
                 {stats.helpingCases}
               </div>
-              <div className="text-white text-lg">En cours d'aide</div>
+              <div className="text-white text-lg">{t("home.helping_cases", "En cours d'aide")}</div>
             </div>
             <div>
               <div className="text-[72px] font-bold text-[#27AE60] mb-2">
                 {stats.resolvedCases}
               </div>
-              <div className="text-white text-lg">Cas résolus</div>
+              <div className="text-white text-lg">{t("home.resolved_cases", "Cas résolus")}</div>
             </div>
           </div>
         </div>
@@ -239,14 +237,14 @@ export function HomePage() {
       <section className="bg-[#C0392B] py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-[36px] md:text-[42px] font-bold text-white mb-8">
-            Vous pouvez changer une vie aujourd'hui
+            {t("home.cta_title", "Vous pouvez changer une vie aujourd'hui")}
           </h2>
           <Link to="/inscription">
             <Button
               variant="outline"
               className="border-2 border-white text-white hover:bg-white hover:text-[#C0392B] rounded-xl h-14 px-12 text-lg font-semibold"
             >
-              Créer un compte gratuitement
+              {t("home.cta_button", "Créer un compte gratuitement")}
             </Button>
           </Link>
         </div>

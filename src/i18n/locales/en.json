@@ -231,5 +231,40 @@
       "person": "Affected Person",
       "media": "Media"
     }
+  },
+  "footer": {
+    "tagline": "Connecting suffering communities with those who can help.",
+    "navigation": "Navigation",
+    "contact": "Contact",
+    "follow_us": "Follow Us",
+    "rights": "© 2026 TounesHelp Map. All rights reserved."
+  },
+  "how_it_works": {
+    "title": "How does it work?",
+    "subtitle": "Simple, fast and transparent",
+    "step1_title": "01 Report a case",
+    "step1_desc": "Any citizen can report a suffering situation in a few clicks",
+    "step2_title": "02 Verification",
+    "step2_desc": "Our team verifies each case to ensure authenticity",
+    "step3_title": "03 Help provided",
+    "step3_desc": "Volunteers, NGOs and donors mobilize to help"
+  },
+  "cases_list": {
+    "latest_cases": "Latest reported cases",
+    "view_all": "View all cases",
+    "read_more": "Read more →",
+    "affected_person": "Affected person",
+    "i_want_to_help": "I WANT TO HELP",
+    "each_card_desc": "Each card represents a real person waiting for your help",
+    "search_placeholder": "Search by title, location, situation...",
+    "all": "All",
+    "all_governorates": "All governorates",
+    "most_recent": "Most recent",
+    "featured": "Featured"
+  },
+  "map_page": {
+    "search_case": "Search for a case on the map...",
+    "legend": "Legend",
+    "all_cases": "All cases"
   }
 }

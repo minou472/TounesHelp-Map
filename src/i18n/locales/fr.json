@@ -230,5 +230,40 @@
       "person": "Personne concernée",
       "media": "Médias"
     }
+  },
+  "footer": {
+    "tagline": "Connecter les communautés en souffrance avec ceux qui peuvent aider.",
+    "navigation": "Navigation",
+    "contact": "Contact",
+    "follow_us": "Suivez-nous",
+    "rights": "© 2026 TounesHelp Map. Tous droits réservés."
+  },
+  "how_it_works": {
+    "title": "Comment ça fonctionne ?",
+    "subtitle": "Simple, rapide et transparent",
+    "step1_title": "01 Signaler un cas",
+    "step1_desc": "Tout citoyen peut signaler une situation de souffrance en quelques clics",
+    "step2_title": "02 Vérification",
+    "step2_desc": "Notre équipe vérifie chaque cas pour garantir son authenticité",
+    "step3_title": "03 Aide apportée",
+    "step3_desc": "Les bénévoles, ONG et donateurs se mobilisent pour apporter leur aide"
+  },
+  "cases_list": {
+    "latest_cases": "Les derniers cas signalés",
+    "view_all": "Voir tous les cas",
+    "read_more": "Lire plus →",
+    "affected_person": "Personne concernée",
+    "i_want_to_help": "JE VEUX AIDER",
+    "each_card_desc": "Chaque carte représente une vraie personne qui attend votre aide",
+    "search_placeholder": "Rechercher par titre, lieu, situation...",
+    "all": "Tous",
+    "all_governorates": "Tous les gouvernorats",
+    "most_recent": "Plus récent",
+    "featured": "À la une"
+  },
+  "map_page": {
+    "search_case": "Rechercher un cas sur la carte...",
+    "legend": "Légende",
+    "all_cases": "Tous les cas"
   }
 }

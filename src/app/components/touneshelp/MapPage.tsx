@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card } from "../ui/card";
 import { Input } from "../ui/input";
 import { Search } from "lucide-react";
@@ -7,6 +8,7 @@ import type { CaseStatus, TunisiaCase } from "../../data/tunisiaData";
 import { fetchCases } from "../../lib/backendApi";
 
 export function MapPage() {
+  const { t } = useTranslation();
   const [cases, setCases] = useState<TunisiaCase[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<CaseStatus | 'all'>('all');
@@ -25,7 +27,7 @@ export function MapPage() {
   const filteredCases = useMemo(() => cases.filter((c) => {
     if (selectedStatus !== 'all' && c.status !== selectedStatus) return false;
     if (searchQuery && !c.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !c.governorate.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      !c.governorate.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     return true;
   }), [cases, selectedStatus, searchQuery]);
 
@@ -43,7 +45,7 @@ export function MapPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Rechercher un cas sur la carte..."
+            placeholder={t("map_page.search_case", "Rechercher un cas sur la carte...")}
             className="w-full h-12 pl-12 pr-4 rounded-full bg-white shadow-lg border-0"
           />
         </div>
@@ -55,46 +57,42 @@ export function MapPage() {
           <div className="space-y-2">
             <button
               onClick={() => setSelectedStatus('all')}
-              className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                selectedStatus === 'all'
+              className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-all ${selectedStatus === 'all'
                   ? 'bg-gray-800 text-white'
                   : 'bg-white text-gray-700 hover:bg-gray-100'
-              }`}
+                }`}
             >
-              Tous les cas
+              {t("map_page.all_cases", "Tous les cas")}
             </button>
             <button
               onClick={() => setSelectedStatus('suffering')}
-              className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
-                selectedStatus === 'suffering'
+              className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${selectedStatus === 'suffering'
                   ? 'bg-[#C0392B] text-white'
                   : 'bg-white text-gray-700 hover:bg-red-50'
-              }`}
+                }`}
             >
               <div className="w-3 h-3 rounded-full bg-[#C0392B]" />
-              Souffre encore
+              {t("home.suffering_cases", "Souffre encore")}
             </button>
             <button
               onClick={() => setSelectedStatus('helping')}
-              className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
-                selectedStatus === 'helping'
+              className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${selectedStatus === 'helping'
                   ? 'bg-[#E67E22] text-white'
                   : 'bg-white text-gray-700 hover:bg-orange-50'
-              }`}
+                }`}
             >
               <div className="w-3 h-3 rounded-full bg-[#E67E22]" />
-              En cours d'aide
+              {t("home.helping_cases", "En cours d'aide")}
             </button>
             <button
               onClick={() => setSelectedStatus('resolved')}
-              className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
-                selectedStatus === 'resolved'
+              className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${selectedStatus === 'resolved'
                   ? 'bg-[#27AE60] text-white'
                   : 'bg-white text-gray-700 hover:bg-green-50'
-              }`}
+                }`}
             >
               <div className="w-3 h-3 rounded-full bg-[#27AE60]" />
-              Résolu
+              {t("admin.resolved", "Résolu")}
             </button>
           </div>
         </Card>
@@ -105,19 +103,19 @@ export function MapPage() {
 
       {/* Legend - Floating */}
       <Card className="absolute bottom-6 right-6 p-4 bg-white shadow-lg rounded-xl">
-        <h4 className="font-bold text-[#1C1C1E] mb-3">Légende</h4>
+        <h4 className="font-bold text-[#1C1C1E] mb-3">{t("map_page.legend", "Légende")}</h4>
         <div className="space-y-2 text-sm">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-[#C0392B]" />
-            <span className="text-[#6B6B6B]">Souffre encore ({sufferingCount})</span>
+            <span className="text-[#6B6B6B]">{t("home.suffering_cases", "Souffre encore")} ({sufferingCount})</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-[#E67E22]" />
-            <span className="text-[#6B6B6B]">En cours d'aide ({helpingCount})</span>
+            <span className="text-[#6B6B6B]">{t("home.helping_cases", "En cours d'aide")} ({helpingCount})</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-[#27AE60]" />
-            <span className="text-[#6B6B6B]">Résolu ({resolvedCount})</span>
+            <span className="text-[#6B6B6B]">{t("admin.resolved", "Résolu")} ({resolvedCount})</span>
           </div>
         </div>
       </Card>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -141,13 +141,67 @@ export function EnhancedAdminDashboard() {
     };
   });
 
-  const recentActivity = [
-    { id: 1, type: 'case', title: 'Nouveau cas soumis', description: 'Urgence médicale à Tunis', time: 'Il y a 5 min', icon: '📋' },
-    { id: 2, type: 'user', title: 'Nouvel utilisateur', description: 'Admin Ben Ali a rejoint', time: 'Il y a 12 min', icon: '👤' },
-    { id: 3, type: 'status', title: 'Changement de statut', description: 'Cas #2847 résolu', time: 'Il y a 23 min', icon: '✅' },
-    { id: 4, type: 'case', title: 'Nouveau cas soumis', description: 'Aide éducative à Sfax', time: 'Il y a 1 h', icon: '📋' },
-    { id: 5, type: 'user', title: 'Nouvel utilisateur', description: 'Fatma Bouazizi a rejoint', time: 'Il y a 2 h', icon: '👤' },
-  ];
+  const recentActivity = useMemo(() => {
+    const activities: any[] = [];
+    
+    cases.forEach(c => {
+      if (c.createdAt) {
+        activities.push({
+          id: `case-${c.id}`,
+          type: 'case',
+          title: c.status === 'RESOLVED' ? 'Cas résolu' : 'Nouveau cas soumis',
+          description: `${c.title || 'Cas'} à ${c.governorate || 'Tunisie'}`,
+          timeMs: new Date(c.dateResolved || c.createdAt).getTime(),
+          timeDisplay: new Date(c.dateResolved || c.createdAt).toLocaleDateString(i18n.language || 'fr-FR'),
+          icon: c.status === 'RESOLVED' ? '✅' : '📋'
+        });
+      }
+    });
+
+    users.forEach(u => {
+      if (u.createdAt) {
+        activities.push({
+          id: `user-${u.id}`,
+          type: 'user',
+          title: 'Nouvel utilisateur',
+          description: `${u.name || 'Utilisateur'} a rejoint`,
+          timeMs: new Date(u.createdAt).getTime(),
+          timeDisplay: new Date(u.createdAt).toLocaleDateString(i18n.language || 'fr-FR'),
+          icon: '👤'
+        });
+      }
+    });
+
+    return activities
+      .sort((a, b) => b.timeMs - a.timeMs)
+      .slice(0, 5)
+      .map(item => {
+        const diffMs = Date.now() - item.timeMs;
+        const diffMins = Math.max(0, Math.floor(diffMs / 60000));
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
+        
+        let timeStr = item.timeDisplay;
+        if (diffMins < 1) {
+          timeStr = "À l'instant";
+        } else if (diffMins < 60) {
+          timeStr = `Il y a ${diffMins} min`;
+        } else if (diffHours < 24) {
+          timeStr = `Il y a ${diffHours} h`;
+        } else if (diffDays < 7) {
+          timeStr = `Il y a ${diffDays} j`;
+        }
+
+        return {
+          id: item.id,
+          type: item.type,
+          title: item.title,
+          description: item.description,
+          time: timeStr,
+          icon: item.icon
+        };
+      });
+  }, [cases, users, i18n.language]);
 
   return (
     <div className="flex h-screen bg-[#F5F7FA]" dir={i18n.dir()}>
@@ -545,8 +599,15 @@ export function EnhancedAdminDashboard() {
                       </div>
                     </div>
                   ))}
+                  {recentActivity.length === 0 && (
+                    <p className="text-sm text-[#718096] text-center py-4">{t('admin.no_activity', 'Aucune activité récente')}</p>
+                  )}
                 </div>
-                <Button variant="outline" className="w-full mt-4 text-[#1E88E5] border-[#1E88E5]">
+                <Button 
+                  variant="outline" 
+                  className="w-full mt-4 text-[#1E88E5] border-[#1E88E5]"
+                  onClick={() => setActiveNav('notifications')}
+                >
                   {t('admin.view_all')}
                 </Button>
               </Card>

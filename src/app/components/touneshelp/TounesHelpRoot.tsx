@@ -281,45 +281,44 @@ export function TounesHelpRoot() {
                 </span>
               </div>
               <p className="text-gray-400 text-sm">
-                Connecter les communautés en souffrance avec ceux qui peuvent
-                aider.
+                {t("footer.tagline", "Connecter les communautés en souffrance avec ceux qui peuvent aider.")}
               </p>
             </div>
 
             {/* Links */}
             <div>
-              <h3 className="font-semibold mb-4">Navigation</h3>
+              <h3 className="font-semibold mb-4">{t("footer.navigation", "Navigation")}</h3>
               <div className="space-y-2">
                 <Link
                   to="/cas"
                   className="block text-gray-400 hover:text-white text-sm"
                 >
-                  Les Cas
+                  {t("navigation.cases", "Les Cas")}
                 </Link>
                 <Link
                   to="/carte"
                   className="block text-gray-400 hover:text-white text-sm"
                 >
-                  Carte
+                  {t("navigation.map", "Carte")}
                 </Link>
                 <Link
                   to="/"
                   className="block text-gray-400 hover:text-white text-sm"
                 >
-                  À propos
+                  {t("navigation.about", "À propos")}
                 </Link>
                 <Link
                   to="/"
                   className="block text-gray-400 hover:text-white text-sm"
                 >
-                  Contact
+                  {t("footer.contact", "Contact")}
                 </Link>
               </div>
             </div>
 
             {/* Social */}
             <div>
-              <h3 className="font-semibold mb-4">Suivez-nous</h3>
+              <h3 className="font-semibold mb-4">{t("footer.follow_us", "Suivez-nous")}</h3>
               <div className="flex gap-4">
                 <a href="#" className="text-gray-400 hover:text-white">
                   Facebook
@@ -335,7 +334,7 @@ export function TounesHelpRoot() {
           </div>
 
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-            © 2026 TounesHelp Map. Tous droits réservés.
+            {t("footer.rights", "© 2026 TounesHelp Map. Tous droits réservés.")}
           </div>
         </div>
       </footer>

@@ -97,7 +97,7 @@ export function LoginPage() {
           </div>
 
           <blockquote className="text-[#C0392B] italic text-lg border-l-4 border-[#C0392B] pl-4">
-            "Chaque action compte. Chaque vie vaut."
+            {t("login.quote", "\"Chaque action compte. Chaque vie vaut.\"")}
           </blockquote>
         </div>
       </div>
@@ -110,23 +110,23 @@ export function LoginPage() {
           </div>
 
           <h2 className="text-[28px] font-bold text-[#1C1C1E] text-center mb-2">
-            Se connecter
+            {t("login.sign_in", "Se connecter")}
           </h2>
 
           <p className="text-center text-[#6B6B6B] mb-8">
-            Pas encore de compte ?{" "}
+            {t("login.no_account", "Pas encore de compte ?")}{" "}
             <Link
               to="/inscription"
               className="text-[#C0392B] hover:underline font-semibold"
             >
-              S'inscrire →
+              {t("login.sign_up", "S'inscrire →")}
             </Link>
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="email" className="text-[#1C1C1E] mb-2 block">
-                Adresse e-mail
+                {t("login.email", "Adresse e-mail")}
               </Label>
               <Input
                 id="email"
@@ -141,7 +141,7 @@ export function LoginPage() {
 
             <div>
               <Label htmlFor="password" className="text-[#1C1C1E] mb-2 block">
-                Mot de passe
+                {t("login.password", "Mot de passe")}
               </Label>
               <div className="relative">
                 <Input
@@ -166,7 +166,7 @@ export function LoginPage() {
                   to="/mot-de-passe-oublie"
                   className="text-sm text-[#C0392B] hover:underline"
                 >
-                  Mot de passe oublié ?
+                  {t("login.forgot_password", "Mot de passe oublié ?")}
                 </Link>
               </div>
             </div>
@@ -176,7 +176,7 @@ export function LoginPage() {
               className="w-full bg-[#C0392B] hover:bg-[#A02E24] text-white h-[52px] rounded-xl text-base font-semibold"
               disabled={loading}
             >
-              {loading ? "Connexion..." : "Se connecter"}
+              {loading ? t("admin.loading", "Connexion...") : t("login.sign_in", "Se connecter")}
             </Button>
           </form>
         </div>

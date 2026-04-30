@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { useTranslation } from "react-i18next";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -10,17 +11,19 @@ interface CaseCardProps {
 }
 
 export function CaseCard({ case: caseData }: CaseCardProps) {
+  const { t } = useTranslation();
+  
   const statusConfig = {
     suffering: {
-      label: 'Souffre encore',
+      label: t("home.suffering_cases", "Souffre encore"),
       className: 'bg-[#C0392B] text-white',
     },
     helping: {
-      label: 'En cours d\'aide',
+      label: t("home.helping_cases", "En cours d'aide"),
       className: 'bg-[#E67E22] text-white',
     },
     resolved: {
-      label: 'Résolu',
+      label: t("admin.resolved", "Résolu"),
       className: 'bg-[#27AE60] text-white',
     },
   };
@@ -62,7 +65,7 @@ export function CaseCard({ case: caseData }: CaseCardProps) {
           to={`/cas/${caseData.id}`}
           className="text-sm text-[#C0392B] hover:text-[#A02E24] font-medium"
         >
-          Lire plus →
+          {t("cases_list.read_more", "Lire plus →")}
         </Link>
 
         {/* Divider */}
@@ -73,7 +76,7 @@ export function CaseCard({ case: caseData }: CaseCardProps) {
           <div className="flex items-start gap-2">
             <span className="text-2xl">👤</span>
             <div className="flex-1">
-              <p className="text-xs text-[#6B6B6B] mb-0.5">Personne concernée</p>
+              <p className="text-xs text-[#6B6B6B] mb-0.5">{t("cases_list.affected_person", "Personne concernée")}</p>
               <p className="text-sm font-medium text-[#1C1C1E]">{caseData.victimName}</p>
             </div>
           </div>
@@ -97,7 +100,7 @@ export function CaseCard({ case: caseData }: CaseCardProps) {
         {/* Action Button */}
         <Link to={`/cas/${caseData.id}`}>
           <Button className="w-full bg-[#C0392B] hover:bg-[#A02E24] text-white rounded-xl h-12 font-semibold">
-            JE VEUX AIDER
+            {t("cases_list.i_want_to_help", "JE VEUX AIDER")}
           </Button>
         </Link>
       </div>
