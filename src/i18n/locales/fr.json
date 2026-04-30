@@ -97,6 +97,11 @@
   },
   "login": {
     "together_help": "Ensemble, aidons la Tunisie",
+    "connect_report_cases": "Connectez-vous pour signaler des cas, suivre leur progression et agir.",
+    "report_cases_minutes": "Signaler des cas en quelques minutes",
+    "track_progress_realtime": "Suivre les progrès en temps réel",
+    "join_supportive_community": "Rejoindre une communauté solidaire",
+    "quote": "\"Chaque action compte. Chaque vie vaut.\"",
     "sign_in": "Se connecter",
     "no_account": "Pas encore de compte ? ",
     "sign_up": "S'inscrire",
