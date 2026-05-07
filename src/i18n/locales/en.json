@@ -337,6 +337,15 @@
   "map_page": {
     "search_case": "Search for a case on the map...",
     "legend": "Legend",
-    "all_cases": "All cases"
+    "all_cases": "All cases",
+    "interactive_map": "Interactive Map of Tunisia",
+    "map_config_info": "To view the interactive map with precise locations, configure a Google Maps API key",
+    "loading_map": "Loading map...",
+    "cases_on_map": "{{count}} cases currently on the map",
+    "view_case": "View case",
+    "directions": "Directions",
+    "status_suffering": "Still Suffering",
+    "status_helping": "Being Helped",
+    "status_resolved": "Resolved"
   }
 }

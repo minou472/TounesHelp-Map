@@ -3,6 +3,7 @@ import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-map
 import { Link } from 'react-router';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
+import { useTranslation } from 'react-i18next';
 import type { TunisiaCase } from '../../data/tunisiaData';
 
 interface TunisiaMapProps {
@@ -32,13 +33,14 @@ const hasValidApiKey = GOOGLE_MAPS_API_KEY && GOOGLE_MAPS_API_KEY !== 'YOUR_GOOG
 
 // Fallback component when no API key is configured
 function MapFallback({ cases, height }: { cases: TunisiaCase[], height: string }) {
+  const { t } = useTranslation();
   return (
     <div style={{ height }} className="w-full bg-gradient-to-br from-green-100 via-yellow-50 to-orange-100 flex items-center justify-center rounded-2xl border-2 border-dashed border-gray-300">
       <div className="text-center max-w-2xl px-6">
         <div className="text-6xl mb-4">🗺️</div>
-        <h3 className="text-2xl font-bold text-[#1C1C1E] mb-2">Carte Interactive de la Tunisie</h3>
+        <h3 className="text-2xl font-bold text-[#1C1C1E] mb-2">{t("map_page.interactive_map", "Carte Interactive de la Tunisie")}</h3>
         <p className="text-[#6B6B6B] mb-6">
-          Pour afficher la carte interactive avec les emplacements précis, configurez une clé API Google Maps
+          {t("map_page.map_config_info", "Pour afficher la carte interactive avec les emplacements précis, configurez une clé API Google Maps")}
         </p>
         
         <div className="bg-white/80 backdrop-blur rounded-xl p-6 text-left mb-6">
@@ -54,20 +56,20 @@ function MapFallback({ cases, height }: { cases: TunisiaCase[], height: string }
         <div className="flex gap-4 justify-center items-center text-sm">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-[#C0392B]" />
-            <span>🔴 Souffre encore</span>
+            <span>🔴 {t("map_page.status_suffering", "Souffre encore")}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-[#E67E22]" />
-            <span>🟠 En cours d'aide</span>
+            <span>🟠 {t("map_page.status_helping", "En cours d'aide")}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-[#27AE60]" />
-            <span>🟢 Résolu</span>
+            <span>🟢 {t("map_page.status_resolved", "Résolu")}</span>
           </div>
         </div>
 
         <p className="text-sm text-[#6B6B6B] mt-6">
-          {cases.length} cas actuellement sur la carte
+          {t("map_page.cases_on_map", { count: cases.length })}
         </p>
       </div>
     </div>
@@ -76,6 +78,7 @@ function MapFallback({ cases, height }: { cases: TunisiaCase[], height: string }
 
 // Main map component - only used when API key is valid
 function TunisiaMapInner({ cases, height = '600px', zoom = 7, center = tunisiaCenter }: TunisiaMapProps) {
+  const { t } = useTranslation();
   const [selectedCase, setSelectedCase] = useState<TunisiaCase | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
@@ -110,9 +113,9 @@ function TunisiaMapInner({ cases, height = '600px', zoom = 7, center = tunisiaCe
   };
 
   const statusConfig = {
-    suffering: { label: 'Souffre encore', className: 'bg-[#C0392B] text-white' },
-    helping: { label: "En cours d'aide", className: 'bg-[#E67E22] text-white' },
-    resolved: { label: 'Résolu', className: 'bg-[#27AE60] text-white' },
+    suffering: { label: t("map_page.status_suffering", 'Souffre encore'), className: 'bg-[#C0392B] text-white' },
+    helping: { label: t("map_page.status_helping", "En cours d'aide"), className: 'bg-[#E67E22] text-white' },
+    resolved: { label: t("map_page.status_resolved", 'Résolu'), className: 'bg-[#27AE60] text-white' },
   };
 
   if (loadError) {
@@ -124,7 +127,7 @@ function TunisiaMapInner({ cases, height = '600px', zoom = 7, center = tunisiaCe
       <div style={{ height }} className="w-full bg-gradient-to-br from-green-100 via-yellow-50 to-orange-100 flex items-center justify-center rounded-2xl">
         <div className="text-center">
           <div className="animate-spin text-6xl mb-4">⚙️</div>
-          <p className="text-[#6B6B6B]">Chargement de la carte...</p>
+          <p className="text-[#6B6B6B]">{t("map_page.loading_map", "Chargement de la carte...")}</p>
         </div>
       </div>
     );
@@ -176,7 +179,7 @@ function TunisiaMapInner({ cases, height = '600px', zoom = 7, center = tunisiaCe
               <div className="flex gap-2">
                 <Link to={`/cas/${selectedCase.id}`}>
                   <Button size="sm" className="bg-[#C0392B] hover:bg-[#A02E24] text-white text-xs h-8">
-                    Voir le cas
+                    {t("map_page.view_case", "Voir le cas")}
                   </Button>
                 </Link>
                 <a
@@ -185,7 +188,7 @@ function TunisiaMapInner({ cases, height = '600px', zoom = 7, center = tunisiaCe
                   rel="noopener noreferrer"
                 >
                   <Button size="sm" variant="outline" className="text-xs h-8">
-                    Itinéraire
+                    {t("map_page.directions", "Itinéraire")}
                   </Button>
                 </a>
               </div>

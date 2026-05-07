@@ -336,6 +336,15 @@
   "map_page": {
     "search_case": "ابحث عن حالة على الخريطة...",
     "legend": "مفتاح الخريطة",
-    "all_cases": "كل الحالات"
+    "all_cases": "كل الحالات",
+    "interactive_map": "الخريطة التفاعلية لتونس",
+    "map_config_info": "لعرض الخريطة التفاعلية مع المواقع الدقيقة، قم بتهيئة مفتاح API لخرائط جوجل",
+    "loading_map": "جاري تحميل الخريطة...",
+    "cases_on_map": "{{count}} حالة حالياً على الخريطة",
+    "view_case": "عرض الحالة",
+    "directions": "الاتجاهات",
+    "status_suffering": "لا يزال يعاني",
+    "status_helping": "قيد المساعدة",
+    "status_resolved": "تم الحل"
   }
 }
