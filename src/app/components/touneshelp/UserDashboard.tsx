@@ -28,14 +28,18 @@ import {
   Trash
 } from "lucide-react";
 import { useAuth } from "../../lib/auth";
+import { useTranslation } from "react-i18next";
 import type { TunisiaCase } from "../../data/tunisiaData";
 import { fetchCases, updateCase, deleteCase } from "../../lib/backendApi";
 import { toast } from "sonner";
 
 export function UserDashboard() {
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const [allCases, setAllCases] = useState<TunisiaCase[]>([]);
-  const [userName, setUserName] = useState(user?.name || "Utilisateur");
+  const [userName, setUserName] = useState(user?.name || "");
+
+  const dateLocale = i18n.language === 'ar' ? 'ar-TN' : i18n.language === 'en' ? 'en-US' : 'fr-FR';
 
   // Edit dialog state
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -115,12 +119,12 @@ export function UserDashboard() {
         description: editForm.description,
         fullDescription: editForm.fullDescription || editForm.description
       });
-      toast.success("Cas modifié avec succès");
+      toast.success(t("dashboard.case_updated_success"));
       setEditDialogOpen(false);
       setEditingCase(null);
       void loadCases();
     } catch (error: any) {
-      toast.error(error?.message || "Erreur lors de la modification");
+      toast.error(error?.message || t("dashboard.case_update_error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -128,13 +132,13 @@ export function UserDashboard() {
 
   // --- Delete handler ---
   const handleDelete = async (id: string) => {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer ce cas ?")) return;
+    if (!confirm(t("dashboard.delete_confirm"))) return;
     try {
       await deleteCase(id);
-      toast.success("Cas supprimé avec succès");
+      toast.success(t("dashboard.case_deleted_success"));
       setAllCases((prev) => prev.filter((c) => c.id !== id));
     } catch (error: any) {
-      toast.error(error?.message || "Erreur lors de la suppression");
+      toast.error(error?.message || t("dashboard.case_delete_error"));
     }
   };
 
@@ -153,7 +157,7 @@ export function UserDashboard() {
             <span>📍 {c.governorate}</span>
             <span>
               📅{" "}
-              {new Date(c.dateSubmitted).toLocaleDateString("fr-FR", {
+              {new Date(c.dateSubmitted).toLocaleDateString(dateLocale, {
                 day: "numeric",
                 month: "short"
               })}
@@ -175,7 +179,7 @@ export function UserDashboard() {
               onClick={() => handleOpenEdit(c)}
             >
               <Edit size={16} className="mr-1" />
-              Modifier
+              {t("dashboard.edit")}
             </Button>
             <Button
               size="sm"
@@ -199,14 +203,14 @@ export function UserDashboard() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <h1 className="text-[36px] font-bold text-[#1C1C1E] mb-2">
-                Bon retour, {userName} 👋
+                {t("dashboard.welcome_back", { name: userName })}
               </h1>
-              <p className="text-[#6B6B6B]">Voici l'état de vos cas signalés</p>
+              <p className="text-[#6B6B6B]">{t("dashboard.cases_status")}</p>
             </div>
             <Link to="/creer-cas">
               <Button className="bg-[#C0392B] hover:bg-[#A02E24] text-white rounded-xl h-12 px-6 font-semibold">
                 <Plus className="mr-2" size={20} />
-                Signaler un nouveau cas
+                {t("dashboard.report_new_case")}
               </Button>
             </Link>
           </div>
@@ -223,7 +227,7 @@ export function UserDashboard() {
                 <div className="text-[36px] font-bold text-[#C0392B]">
                   {sufferingCases.length}
                 </div>
-                <div className="text-[#6B6B6B]">Souffre encore</div>
+                <div className="text-[#6B6B6B]">{t("dashboard.suffering")}</div>
               </div>
             </div>
           </Card>
@@ -235,7 +239,7 @@ export function UserDashboard() {
                 <div className="text-[36px] font-bold text-[#E67E22]">
                   {helpingCases.length}
                 </div>
-                <div className="text-[#6B6B6B]">En cours d'aide</div>
+                <div className="text-[#6B6B6B]">{t("dashboard.helping")}</div>
               </div>
             </div>
           </Card>
@@ -247,7 +251,7 @@ export function UserDashboard() {
                 <div className="text-[36px] font-bold text-[#27AE60]">
                   {resolvedCases.length}
                 </div>
-                <div className="text-[#6B6B6B]">Résolus</div>
+                <div className="text-[#6B6B6B]">{t("dashboard.resolved")}</div>
               </div>
             </div>
           </Card>
@@ -263,7 +267,7 @@ export function UserDashboard() {
               <div className="flex items-center gap-3">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#C0392B]" />
                 <span className="font-bold text-[#1C1C1E]">
-                  Cas en souffrance
+                  {t("dashboard.suffering_cases")}
                 </span>
                 <Badge className="bg-[#C0392B] text-white ml-2">
                   {sufferingCases.length}
@@ -276,12 +280,12 @@ export function UserDashboard() {
                   c,
                   "border-[#C0392B]",
                   "bg-[#C0392B]",
-                  "Souffre encore"
+                  t("dashboard.suffering")
                 )
               )}
               {sufferingCases.length === 0 && (
                 <p className="text-center text-gray-500 py-4">
-                  Aucun cas en souffrance
+                  {t("dashboard.no_suffering_cases")}
                 </p>
               )}
             </AccordionContent>
@@ -293,7 +297,7 @@ export function UserDashboard() {
               <div className="flex items-center gap-3">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#E67E22]" />
                 <span className="font-bold text-[#1C1C1E]">
-                  En cours d'aide
+                  {t("dashboard.helping_cases")}
                 </span>
                 <Badge className="bg-[#E67E22] text-white ml-2">
                   {helpingCases.length}
@@ -306,12 +310,12 @@ export function UserDashboard() {
                   c,
                   "border-[#E67E22]",
                   "bg-[#E67E22]",
-                  "En cours d'aide"
+                  t("dashboard.helping")
                 )
               )}
               {helpingCases.length === 0 && (
                 <p className="text-center text-gray-500 py-4">
-                  Aucun cas en cours d'aide
+                  {t("dashboard.no_helping_cases")}
                 </p>
               )}
             </AccordionContent>
@@ -322,7 +326,7 @@ export function UserDashboard() {
             <AccordionTrigger className="bg-[#F0FFF4] hover:bg-[#E5FFE9] px-6 py-5 rounded-xl transition-colors">
               <div className="flex items-center gap-3">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#27AE60]" />
-                <span className="font-bold text-[#1C1C1E]">Cas résolus</span>
+                <span className="font-bold text-[#1C1C1E]">{t("dashboard.resolved_cases")}</span>
                 <Badge className="bg-[#27AE60] text-white ml-2">
                   {resolvedCases.length}
                 </Badge>
@@ -338,13 +342,13 @@ export function UserDashboard() {
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2 text-sm text-[#6B6B6B]">
                         <Badge className="bg-[#27AE60] text-white">
-                          Résolu
+                          {t("dashboard.resolved_badge")}
                         </Badge>
                         <span>📍 {c.governorate}</span>
                         <span>
                           📅{" "}
                           {new Date(c.dateSubmitted).toLocaleDateString(
-                            "fr-FR",
+                            dateLocale,
                             { day: "numeric", month: "short" }
                           )}
                         </span>
@@ -362,7 +366,7 @@ export function UserDashboard() {
                         variant="outline"
                         className="text-[#27AE60]"
                       >
-                        Voir la résolution →
+                        {t("dashboard.view_resolution")}
                       </Button>
                     </Link>
                   </div>
@@ -370,7 +374,7 @@ export function UserDashboard() {
               ))}
               {resolvedCases.length === 0 && (
                 <p className="text-center text-gray-500 py-4">
-                  Aucun cas résolu
+                  {t("dashboard.no_resolved_cases")}
                 </p>
               )}
             </AccordionContent>
@@ -382,11 +386,11 @@ export function UserDashboard() {
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Modifier le cas</DialogTitle>
+            <DialogTitle>{t("dashboard.edit_case_title")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-title">Titre</Label>
+              <Label htmlFor="edit-title">{t("dashboard.edit_title_label")}</Label>
               <Input
                 id="edit-title"
                 value={editForm.title}
@@ -396,7 +400,7 @@ export function UserDashboard() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-description">Description courte</Label>
+              <Label htmlFor="edit-description">{t("dashboard.edit_description_label")}</Label>
               <Textarea
                 id="edit-description"
                 value={editForm.description}
@@ -408,7 +412,7 @@ export function UserDashboard() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-fullDescription">
-                Description complète (optionnel)
+                {t("dashboard.edit_full_description_label")}
               </Label>
               <Textarea
                 id="edit-fullDescription"
@@ -429,14 +433,14 @@ export function UserDashboard() {
               onClick={() => setEditDialogOpen(false)}
               disabled={isSubmitting}
             >
-              Annuler
+              {t("dashboard.cancel")}
             </Button>
             <Button
               onClick={handleSaveEdit}
               disabled={isSubmitting}
               className="bg-[#C0392B] hover:bg-[#A02E24] text-white"
             >
-              {isSubmitting ? "Sauvegarde..." : "Sauvegarder"}
+              {isSubmitting ? t("dashboard.saving") : t("dashboard.save")}
             </Button>
           </DialogFooter>
         </DialogContent>

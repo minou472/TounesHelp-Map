@@ -4,14 +4,18 @@ import { ArrowLeft, MapPin, Calendar, Phone, Mail, Users } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
+import { useTranslation } from "react-i18next";
 import type { TunisiaCase } from "../../data/tunisiaData";
 import { fetchCaseById } from "../../lib/backendApi";
 
 export function CaseDetailPage() {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [caseData, setCaseData] = useState<TunisiaCase | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const dateLocale = i18n.language === 'ar' ? 'ar-TN' : i18n.language === 'en' ? 'en-US' : 'fr-FR';
 
   useEffect(() => {
     const load = async () => {
@@ -32,7 +36,7 @@ export function CaseDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FDF6EC] flex items-center justify-center">
-        <p className="text-[#6B6B6B]">Chargement du cas...</p>
+        <p className="text-[#6B6B6B]">{t("case_detail.loading")}</p>
       </div>
     );
   }
@@ -41,17 +45,17 @@ export function CaseDetailPage() {
     return (
       <div className="min-h-screen bg-[#FDF6EC] flex items-center justify-center">
         <div className="text-center">
-          <p className="text-[#6B6B6B] mb-4">Cas non trouvé</p>
-          <Button onClick={() => navigate('/cas')}>Retour aux cas</Button>
+          <p className="text-[#6B6B6B] mb-4">{t("case_detail.not_found")}</p>
+          <Button onClick={() => navigate('/cas')}>{t("case_detail.back_to_cases")}</Button>
         </div>
       </div>
     );
   }
 
   const statusConfig = {
-    suffering: { label: 'Souffre encore', className: 'bg-[#C0392B] text-white' },
-    helping: { label: 'En cours d\'aide', className: 'bg-[#E67E22] text-white' },
-    resolved: { label: 'Résolu', className: 'bg-[#27AE60] text-white' },
+    suffering: { label: t("case_detail.status_suffering"), className: 'bg-[#C0392B] text-white' },
+    helping: { label: t("case_detail.status_helping"), className: 'bg-[#E67E22] text-white' },
+    resolved: { label: t("case_detail.status_resolved"), className: 'bg-[#27AE60] text-white' },
   };
 
   const config = statusConfig[caseData.status];
@@ -67,7 +71,7 @@ export function CaseDetailPage() {
             className="text-[#C0392B] hover:text-[#A02E24] hover:bg-red-50 -ml-2"
           >
             <ArrowLeft className="mr-2" size={20} />
-            Retour aux cas
+            {t("case_detail.back_to_cases")}
           </Button>
         </div>
       </div>
@@ -99,11 +103,15 @@ export function CaseDetailPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar size={18} />
-                  <span>Signalé le {new Date(caseData.dateSubmitted).toLocaleDateString('fr-FR')}</span>
+                  <span>{t("case_detail.reported_on")} {new Date(caseData.dateSubmitted).toLocaleDateString(dateLocale)}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Users size={18} />
-                  <span>{caseData.peopleAffected} personne{caseData.peopleAffected > 1 ? 's' : ''} affectée{caseData.peopleAffected > 1 ? 's' : ''}</span>
+                  <span>
+                    {caseData.peopleAffected > 1
+                      ? t("case_detail.people_affected_plural", { count: caseData.peopleAffected })
+                      : t("case_detail.people_affected", { count: caseData.peopleAffected })}
+                  </span>
                 </div>
               </div>
 
@@ -117,7 +125,7 @@ export function CaseDetailPage() {
             {/* Photo Gallery */}
             {caseData.images.length > 1 && (
               <div>
-                <h3 className="font-bold text-xl text-[#1C1C1E] mb-4">Photos</h3>
+                <h3 className="font-bold text-xl text-[#1C1C1E] mb-4">{t("case_detail.photos")}</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {caseData.images.map((img, index) => (
                     <div key={index} className="aspect-square rounded-xl overflow-hidden">
@@ -133,14 +141,14 @@ export function CaseDetailPage() {
           <div className="space-y-6">
             {/* Victim Info Card */}
             <Card className="p-6 bg-white rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.10)]">
-              <h3 className="font-bold text-lg text-[#1C1C1E] mb-4">Personne concernée</h3>
+              <h3 className="font-bold text-lg text-[#1C1C1E] mb-4">{t("case_detail.affected_person")}</h3>
               <div className="space-y-3">
                 <div>
-                  <p className="text-xs text-[#6B6B6B] mb-1">Nom</p>
+                  <p className="text-xs text-[#6B6B6B] mb-1">{t("case_detail.name")}</p>
                   <p className="font-semibold text-[#1C1C1E]">{caseData.victimName}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#6B6B6B] mb-1">Téléphone</p>
+                  <p className="text-xs text-[#6B6B6B] mb-1">{t("case_detail.phone")}</p>
                   <a href={`tel:${caseData.victimPhone}`} className="text-[#C0392B] hover:underline flex items-center gap-2">
                     <Phone size={16} />
                     {caseData.victimPhone}
@@ -148,7 +156,7 @@ export function CaseDetailPage() {
                 </div>
                 {caseData.victimEmail && (
                   <div>
-                    <p className="text-xs text-[#6B6B6B] mb-1">Email</p>
+                    <p className="text-xs text-[#6B6B6B] mb-1">{t("case_detail.email")}</p>
                     <a href={`mailto:${caseData.victimEmail}`} className="text-[#C0392B] hover:underline flex items-center gap-2 break-all">
                       <Mail size={16} />
                       {caseData.victimEmail}
@@ -160,33 +168,33 @@ export function CaseDetailPage() {
 
             {/* Contact Card */}
             <Card className="p-6 bg-white rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.10)] border-t-4 border-[#C0392B]">
-              <h3 className="font-bold text-lg text-[#1C1C1E] mb-4">Contacter le responsable du cas</h3>
+              <h3 className="font-bold text-lg text-[#1C1C1E] mb-4">{t("case_detail.contact_responsible")}</h3>
               <div className="space-y-3 mb-6">
                 <div>
-                  <p className="text-xs text-[#6B6B6B] mb-1">Créé par</p>
+                  <p className="text-xs text-[#6B6B6B] mb-1">{t("case_detail.created_by")}</p>
                   <p className="font-semibold text-[#1C1C1E]">{caseData.creatorName}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#6B6B6B] mb-1">Téléphone</p>
+                  <p className="text-xs text-[#6B6B6B] mb-1">{t("case_detail.phone")}</p>
                   <a href={`tel:${caseData.creatorPhone}`} className="text-[#C0392B] hover:underline">
                     {caseData.creatorPhone}
                   </a>
                 </div>
                 <div>
-                  <p className="text-xs text-[#6B6B6B] mb-1">Email</p>
+                  <p className="text-xs text-[#6B6B6B] mb-1">{t("case_detail.email")}</p>
                   <a href={`mailto:${caseData.creatorEmail}`} className="text-[#C0392B] hover:underline break-all">
                     {caseData.creatorEmail}
                   </a>
                 </div>
               </div>
               <Button className="w-full bg-[#C0392B] hover:bg-[#A02E24] text-white rounded-xl h-12 font-semibold">
-                Contacter maintenant
+                {t("case_detail.contact_now")}
               </Button>
             </Card>
 
             {/* Status Timeline Card */}
             <Card className="p-6 bg-white rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.10)]">
-              <h3 className="font-bold text-lg text-[#1C1C1E] mb-4">Statut du cas</h3>
+              <h3 className="font-bold text-lg text-[#1C1C1E] mb-4">{t("case_detail.case_status")}</h3>
               <div className="space-y-4">
                 <div className="flex gap-3">
                   <div className="flex flex-col items-center">
@@ -194,8 +202,8 @@ export function CaseDetailPage() {
                     <div className="w-0.5 h-full bg-gray-200" />
                   </div>
                   <div className="flex-1 pb-4">
-                    <p className="font-medium text-[#1C1C1E]">Soumis</p>
-                    <p className="text-xs text-[#6B6B6B]">{new Date(caseData.dateSubmitted).toLocaleDateString('fr-FR')}</p>
+                    <p className="font-medium text-[#1C1C1E]">{t("case_detail.submitted")}</p>
+                    <p className="text-xs text-[#6B6B6B]">{new Date(caseData.dateSubmitted).toLocaleDateString(dateLocale)}</p>
                   </div>
                 </div>
                 {caseData.datePublished && (
@@ -207,8 +215,8 @@ export function CaseDetailPage() {
                       )}
                     </div>
                     <div className="flex-1 pb-4">
-                      <p className="font-medium text-[#1C1C1E]">Publié</p>
-                      <p className="text-xs text-[#6B6B6B]">{new Date(caseData.datePublished).toLocaleDateString('fr-FR')}</p>
+                      <p className="font-medium text-[#1C1C1E]">{t("case_detail.published")}</p>
+                      <p className="text-xs text-[#6B6B6B]">{new Date(caseData.datePublished).toLocaleDateString(dateLocale)}</p>
                     </div>
                   </div>
                 )}
@@ -218,8 +226,8 @@ export function CaseDetailPage() {
                       <div className="w-3 h-3 rounded-full bg-[#E67E22]" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium text-[#1C1C1E]">En cours d'aide</p>
-                      <p className="text-xs text-[#6B6B6B]">En cours...</p>
+                      <p className="font-medium text-[#1C1C1E]">{t("case_detail.being_helped")}</p>
+                      <p className="text-xs text-[#6B6B6B]">{t("case_detail.in_progress")}</p>
                     </div>
                   </div>
                 )}
@@ -229,8 +237,8 @@ export function CaseDetailPage() {
                       <div className="w-3 h-3 rounded-full bg-[#27AE60]" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium text-[#1C1C1E]">Résolu</p>
-                      <p className="text-xs text-[#6B6B6B]">{new Date(caseData.dateResolved).toLocaleDateString('fr-FR')}</p>
+                      <p className="font-medium text-[#1C1C1E]">{t("case_detail.resolved")}</p>
+                      <p className="text-xs text-[#6B6B6B]">{new Date(caseData.dateResolved).toLocaleDateString(dateLocale)}</p>
                     </div>
                   </div>
                 )}

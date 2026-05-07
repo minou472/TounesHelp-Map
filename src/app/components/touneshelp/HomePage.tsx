@@ -95,7 +95,7 @@ export function HomePage() {
               <div className="text-[40px] font-bold text-[#27AE60]">
                 {stats.resolvedCases}
               </div>
-              <div className="text-sm text-[#6B6B6B]">Résolus</div>
+              <div className="text-sm text-[#6B6B6B]">{t("home.resolved_cases")}</div>
             </div>
             <div>
               <div className="text-[40px] font-bold text-[#E67E22]">

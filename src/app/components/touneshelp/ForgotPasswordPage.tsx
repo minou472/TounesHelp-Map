@@ -4,10 +4,12 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const API_BASE_URL = "";
 
 export function ForgotPasswordPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState(location.state?.email || "");
@@ -28,18 +30,18 @@ export function ForgotPasswordPage() {
 
       const payload = await response.json();
       if (!response.ok) {
-        toast.error(payload?.error || "Une erreur est survenue.");
+        toast.error(payload?.error || t("forgot_password.error_msg"));
         if (response.status === 404) {
           navigate("/inscription");
         }
         return;
       }
 
-      toast.success("Instructions de réinitialisation envoyées par e-mail.");
+      toast.success(t("forgot_password.success_msg"));
       navigate("/connexion");
     } catch (error) {
       console.error(error);
-      toast.error("Impossible d'envoyer l'email. Réessayez plus tard.");
+      toast.error(t("forgot_password.network_error"));
     } finally {
       setLoading(false);
     }
@@ -56,9 +58,9 @@ export function ForgotPasswordPage() {
             <span className="text-white font-bold text-xl">TounesHelp Map</span>
           </div>
 
-          <h2 className="text-[36px] font-bold mb-6">Mot de passe oublié</h2>
+          <h2 className="text-[36px] font-bold mb-6">{t("forgot_password.title")}</h2>
           <p className="text-white/70 text-lg leading-relaxed">
-            Entrez votre adresse e-mail pour recevoir des instructions de réinitialisation du mot de passe.
+            {t("forgot_password.description")}
           </p>
         </div>
       </div>
@@ -69,18 +71,18 @@ export function ForgotPasswordPage() {
             <span className="text-white font-bold text-xl">T</span>
           </div>
 
-          <h2 className="text-[28px] font-bold text-[#1C1C1E] text-center mb-2">Récupération du mot de passe</h2>
+          <h2 className="text-[28px] font-bold text-[#1C1C1E] text-center mb-2">{t("forgot_password.form_title")}</h2>
           <p className="text-center text-[#6B6B6B] mb-8">
-            Vous voulez retourner à la connexion ?{' '}
+            {t("forgot_password.back_to_login")}{' '}
             <Link to="/connexion" className="text-[#C0392B] hover:underline font-semibold">
-              Se connecter
+              {t("forgot_password.sign_in_link")}
             </Link>
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="email" className="text-[#1C1C1E] mb-2 block">
-                Adresse e-mail
+                {t("forgot_password.email_label")}
               </Label>
               <Input
                 id="email"
@@ -88,7 +90,7 @@ export function ForgotPasswordPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-12 rounded-lg bg-white border-gray-300"
-                placeholder="votre@email.com"
+                placeholder={t("forgot_password.email_placeholder")}
                 required
               />
             </div>
@@ -98,12 +100,12 @@ export function ForgotPasswordPage() {
               className="w-full bg-[#C0392B] hover:bg-[#A02E24] text-white h-[52px] rounded-xl text-base font-semibold"
               disabled={loading}
             >
-              {loading ? "Envoi en cours..." : "Envoyer le lien"}
+              {loading ? t("forgot_password.sending") : t("forgot_password.submit_btn")}
             </Button>
           </form>
 
           <p className="mt-6 text-sm text-[#6B6B6B]">
-            Si aucun compte n'est trouvé, vous serez redirigé vers la page d'inscription.
+            {t("forgot_password.redirect_notice")}
           </p>
         </div>
       </div>

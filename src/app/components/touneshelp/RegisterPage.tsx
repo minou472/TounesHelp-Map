@@ -7,8 +7,10 @@ import { Checkbox } from "../ui/checkbox";
 import { Eye, EyeOff, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../../lib/auth";
+import { useTranslation } from "react-i18next";
 
 export function RegisterPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
@@ -30,18 +32,18 @@ export function RegisterPage() {
   };
 
   const strength = getPasswordStrength(formData.password);
-  const strengthLabels = ['', 'Faible', 'Moyen', 'Bien', 'Fort'];
+  const strengthLabels = ['', t("register.password_strength"), t("register.medium"), t("register.good"), t("register.strong")];
   const strengthColors = ['', 'bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500'];
 
   const { login } = useAuth();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Les mots de passe ne correspondent pas");
+      toast.error(t("register.passwords_mismatch"));
       return;
     }
     if (!formData.terms) {
-      toast.error("Veuillez accepter les conditions");
+      toast.error(t("register.accept_terms"));
       return;
     }
 
@@ -59,7 +61,7 @@ export function RegisterPage() {
 
       const payload = await response.json();
       if (!response.ok) {
-        toast.error(payload?.error || "Erreur lors de la création du compte");
+        toast.error(payload?.error || t("register.register_error"));
         if (response.status === 409) {
           navigate("/connexion");
         }
@@ -67,11 +69,11 @@ export function RegisterPage() {
       }
 
       login(payload.data.user, payload.data.token);
-      toast.success("Compte créé avec succès !");
+      toast.success(t("register.account_created"));
       navigate("/");
     } catch (error) {
       console.error(error);
-      toast.error("Impossible de créer le compte. Réessayez plus tard.");
+      toast.error(t("register.register_failed"));
     }
   };
 
@@ -88,11 +90,11 @@ export function RegisterPage() {
           </div>
 
           <h2 className="text-[36px] font-bold mb-6">
-            Rejoignez TounesHelp Map
+            {t("register.join_us")}
           </h2>
 
           <p className="text-white/70 text-lg leading-relaxed">
-            Devenez membre d'une communauté solidaire qui change des vies à travers toute la Tunisie.
+            {t("register.join_us_desc")}
           </p>
         </div>
       </div>
@@ -105,19 +107,19 @@ export function RegisterPage() {
           </div>
 
           <h2 className="text-[28px] font-bold text-[#1C1C1E] text-center mb-2">
-            Créer un compte
+            {t("register.create_account")}
           </h2>
 
           <p className="text-center text-[#6B6B6B] mb-8">
-            Déjà membre ?{' '}
+            {t("register.have_account")}{' '}
             <Link to="/connexion" className="text-[#C0392B] hover:underline font-semibold">
-              Se connecter →
+              {t("register.sign_in_link")}
             </Link>
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <Label htmlFor="name">Nom complet</Label>
+              <Label htmlFor="name">{t("register.full_name")}</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -128,7 +130,7 @@ export function RegisterPage() {
             </div>
 
             <div>
-              <Label htmlFor="email">Adresse e-mail</Label>
+              <Label htmlFor="email">{t("register.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -140,7 +142,7 @@ export function RegisterPage() {
             </div>
 
             <div>
-              <Label htmlFor="password">Mot de passe</Label>
+              <Label htmlFor="password">{t("register.password")}</Label>
               <div className="relative mt-2">
                 <Input
                   id="password"
@@ -175,7 +177,7 @@ export function RegisterPage() {
             </div>
 
             <div>
-              <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+              <Label htmlFor="confirmPassword">{t("register.confirm_password")}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -186,13 +188,13 @@ export function RegisterPage() {
               />
               {formData.confirmPassword && formData.password !== formData.confirmPassword && (
                 <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
-                  <X size={14} /> Les mots de passe ne correspondent pas
+                  <X size={14} /> {t("register.passwords_mismatch")}
                 </p>
               )}
             </div>
 
             <div>
-              <Label htmlFor="phone">Numéro de téléphone</Label>
+              <Label htmlFor="phone">{t("register.phone")}</Label>
               <Input
                 id="phone"
                 type="tel"
@@ -211,7 +213,7 @@ export function RegisterPage() {
                 onCheckedChange={(checked) => setFormData({ ...formData, terms: checked as boolean })}
               />
               <Label htmlFor="terms" className="text-sm leading-relaxed cursor-pointer">
-                J'accepte les <Link to="/" className="text-[#C0392B] hover:underline">conditions d'utilisation</Link> et la <Link to="/" className="text-[#C0392B] hover:underline">politique de confidentialité</Link>
+                {t("register.terms")}<Link to="/" className="text-[#C0392B] hover:underline">{t("register.terms_link")}</Link> {t("register.privacy_link")}
               </Label>
             </div>
 
@@ -219,7 +221,7 @@ export function RegisterPage() {
               type="submit"
               className="w-full bg-[#C0392B] hover:bg-[#A02E24] text-white h-[52px] rounded-xl text-base font-semibold"
             >
-              Créer mon compte
+              {t("register.create_account_btn")}
             </Button>
           </form>
         </div>

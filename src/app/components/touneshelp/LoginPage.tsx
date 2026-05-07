@@ -31,25 +31,25 @@ export function LoginPage() {
 
       if (!response.ok) {
         if (response.status === 404) {
-          toast.error("Compte introuvable, veuillez vous inscrire.");
+          toast.error(t("login.account_not_found"));
           navigate("/inscription", { state: { email } });
           return;
         }
         if (response.status === 401 && payload?.error === "Invalid password") {
-          toast.error("Mot de passe incorrect. Redirection vers la page de récupération...");
+          toast.error(t("login.wrong_password"));
           setTimeout(() => navigate("/mot-de-passe-oublie", { state: { email } }), 2000);
           return;
         }
-        toast.error(payload?.error || "Erreur de connexion");
+        toast.error(payload?.error || t("login.login_error"));
         return;
       }
 
       login(payload.data.user, payload.data.token);
-      toast.success("Connexion réussie !");
+      toast.success(t("login.sign_in_success"));
       navigate(payload.data.user.role === "ADMIN" ? "/admin/enhanced" : "/");
     } catch (error) {
       console.error(error);
-      toast.error("Impossible de se connecter. Réessayez plus tard.");
+      toast.error(t("login.login_failed"));
     } finally {
       setLoading(false);
     }
@@ -97,7 +97,7 @@ export function LoginPage() {
           </div>
 
           <blockquote className="text-[#C0392B] italic text-lg border-l-4 border-[#C0392B] pl-4">
-            {t("login.quote", "\"Chaque action compte. Chaque vie vaut.\"")}
+            {t("login.quote")}
           </blockquote>
         </div>
       </div>
@@ -110,23 +110,23 @@ export function LoginPage() {
           </div>
 
           <h2 className="text-[28px] font-bold text-[#1C1C1E] text-center mb-2">
-            {t("login.sign_in", "Se connecter")}
+            {t("login.sign_in")}
           </h2>
 
           <p className="text-center text-[#6B6B6B] mb-8">
-            {t("login.no_account", "Pas encore de compte ?")}{" "}
+            {t("login.no_account")}{" "}
             <Link
               to="/inscription"
               className="text-[#C0392B] hover:underline font-semibold"
             >
-              {t("login.sign_up", "S'inscrire →")}
+              {t("login.sign_up")}
             </Link>
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="email" className="text-[#1C1C1E] mb-2 block">
-                {t("login.email", "Adresse e-mail")}
+                {t("login.email")}
               </Label>
               <Input
                 id="email"
@@ -141,7 +141,7 @@ export function LoginPage() {
 
             <div>
               <Label htmlFor="password" className="text-[#1C1C1E] mb-2 block">
-                {t("login.password", "Mot de passe")}
+                {t("login.password")}
               </Label>
               <div className="relative">
                 <Input
@@ -166,7 +166,7 @@ export function LoginPage() {
                   to="/mot-de-passe-oublie"
                   className="text-sm text-[#C0392B] hover:underline"
                 >
-                  {t("login.forgot_password", "Mot de passe oublié ?")}
+                  {t("login.forgot_password")}
                 </Link>
               </div>
             </div>
@@ -176,7 +176,7 @@ export function LoginPage() {
               className="w-full bg-[#C0392B] hover:bg-[#A02E24] text-white h-[52px] rounded-xl text-base font-semibold"
               disabled={loading}
             >
-              {loading ? t("admin.loading", "Connexion...") : t("login.sign_in", "Se connecter")}
+              {loading ? t("login.connecting") : t("login.sign_in")}
             </Button>
           </form>
         </div>

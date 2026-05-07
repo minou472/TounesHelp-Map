@@ -130,9 +130,9 @@ export function CasesPage() {
                   <SelectValue placeholder="Trier par" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="recent">{t("cases_list.most_recent", "Plus récent")}</SelectItem>
-                  <SelectItem value="oldest">Plus ancien</SelectItem>
-                  <SelectItem value="governorate">Par gouvernorat</SelectItem>
+                  <SelectItem value="recent">{t("cases_list.most_recent")}</SelectItem>
+                  <SelectItem value="oldest">{t("cases_list.oldest")}</SelectItem>
+                  <SelectItem value="governorate">{t("cases_list.by_governorate")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -169,7 +169,7 @@ export function CasesPage() {
           
           {filteredCases.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-[#6B6B6B] text-lg mb-4">Aucun cas trouvé</p>
+              <p className="text-[#6B6B6B] text-lg mb-4">{t("cases_list.no_cases_found")}</p>
               <Button
                 onClick={() => {
                   setSelectedStatus('all');
@@ -178,7 +178,7 @@ export function CasesPage() {
                 }}
                 className="bg-[#C0392B] hover:bg-[#A02E24]"
               >
-                Réinitialiser les filtres
+                {t("cases_list.reset_filters")}
               </Button>
             </div>
           ) : (
