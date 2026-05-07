@@ -378,14 +378,14 @@ export function RabbitChatbot() {
         {/* Rabbit holding heart */}
         <div className="relative">
           {/* Pulsing heart effect */}
-          <div className="absolute inset-0 bg-pink-300 rounded-full blur-xl opacity-50 animate-pulse" />
+          <div className="absolute inset-0 bg-gray-300 rounded-full blur-xl opacity-50 animate-pulse" />
 
           {/* Rabbit container */}
-          <div className="relative bg-gradient-to-br from-pink-300 to-pink-400 rounded-full w-20 h-20 flex items-center justify-center shadow-2xl transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
+          <div className="relative bg-gradient-to-br from-white to-gray-100 rounded-full w-20 h-20 flex items-center justify-center shadow-2xl transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 border-2 border-gray-200">
             {/* Rabbit ears */}
             <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex gap-2">
-              <div className="w-3 h-10 bg-pink-300 rounded-full transform -rotate-12 shadow-lg" />
-              <div className="w-3 h-10 bg-pink-300 rounded-full transform rotate-12 shadow-lg" />
+              <div className="w-3 h-10 bg-gray-200 rounded-full transform -rotate-12 shadow-lg" />
+              <div className="w-3 h-10 bg-gray-200 rounded-full transform rotate-12 shadow-lg" />
             </div>
 
             {/* Rabbit face */}
@@ -418,7 +418,7 @@ export function RabbitChatbot() {
     return (
       <button
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-6 right-6 bg-gradient-to-r from-pink-400 to-pink-500 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 z-50 hover:scale-105 transition-transform"
+        className="fixed bottom-6 right-6 bg-gradient-to-r from-gray-700 to-gray-800 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 z-50 hover:scale-105 transition-transform"
       >
         <span className="text-2xl">🐰</span>
         <span className="font-medium">Espoir</span>
@@ -428,9 +428,9 @@ export function RabbitChatbot() {
   }
 
   return (
-    <Card className="fixed bottom-6 right-6 w-[400px] h-[600px] shadow-2xl rounded-3xl z-50 bg-white border-4 border-pink-200 flex flex-col overflow-hidden">
+    <Card className="fixed bottom-6 right-6 w-[400px] h-[600px] shadow-2xl rounded-3xl z-50 bg-white border-4 border-gray-200 flex flex-col overflow-hidden">
       {/* Header with rabbit theme */}
-      <div className="bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 text-white p-4 flex items-center justify-between relative overflow-hidden">
+      <div className="bg-gradient-to-r from-gray-700 via-gray-800 to-gray-900 text-white p-4 flex items-center justify-between relative overflow-hidden">
         {/* Decorative hearts background */}
         <div className="absolute inset-0 opacity-20">
           <Heart className="absolute top-1 left-4 w-4 h-4 fill-white" />
@@ -440,7 +440,7 @@ export function RabbitChatbot() {
 
         <div className="flex items-center gap-3 relative z-10">
           <div className="relative">
-            <div className="w-12 h-12 bg-pink-300 rounded-full flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center shadow-lg">
               <span className="text-2xl">🐰</span>
             </div>
             <Heart className="absolute -bottom-1 -right-1 w-5 h-5 fill-red-500 text-red-500" />
@@ -463,19 +463,19 @@ export function RabbitChatbot() {
             <div className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col gap-1 min-w-[100px]">
               <button
                 onClick={() => i18n.changeLanguage("fr")}
-                className={`px-3 py-2 rounded text-sm text-left ${language === "fr" ? "bg-pink-100 text-pink-700" : "text-gray-700 hover:bg-gray-100"}`}
+                className={`px-3 py-2 rounded text-sm text-left ${language === "fr" ? "bg-gray-100 text-gray-800 font-medium" : "text-gray-700 hover:bg-gray-100"}`}
               >
                 🇫🇷 Français
               </button>
               <button
                 onClick={() => i18n.changeLanguage("ar")}
-                className={`px-3 py-2 rounded text-sm text-left ${language === "ar" ? "bg-pink-100 text-pink-700" : "text-gray-700 hover:bg-gray-100"}`}
+                className={`px-3 py-2 rounded text-sm text-left ${language === "ar" ? "bg-gray-100 text-gray-800 font-medium" : "text-gray-700 hover:bg-gray-100"}`}
               >
                 🇹🇳 العربية
               </button>
               <button
                 onClick={() => i18n.changeLanguage("en")}
-                className={`px-3 py-2 rounded text-sm text-left ${language === "en" ? "bg-pink-100 text-pink-700" : "text-gray-700 hover:bg-gray-100"}`}
+                className={`px-3 py-2 rounded text-sm text-left ${language === "en" ? "bg-gray-100 text-gray-800 font-medium" : "text-gray-700 hover:bg-gray-100"}`}
               >
                 🇬🇧 English
               </button>
@@ -501,8 +501,8 @@ export function RabbitChatbot() {
 
       {/* Quick Questions */}
       {messages.length === 1 && (
-        <div className="p-4 bg-pink-50 border-b border-pink-100">
-          <p className="text-xs text-pink-700 mb-2 font-medium">
+        <div className="p-4 bg-gray-50 border-b border-gray-100">
+          <p className="text-xs text-gray-600 mb-2 font-medium">
             {t.suggestionsTitle}
           </p>
           <div className="flex flex-wrap gap-2">
@@ -510,7 +510,7 @@ export function RabbitChatbot() {
               <button
                 key={idx}
                 onClick={() => handleQuickQuestion(question)}
-                className="px-3 py-1.5 bg-white border-2 border-pink-200 rounded-full text-xs text-pink-700 hover:bg-pink-100 hover:border-pink-300 transition-colors shadow-sm"
+                className="px-3 py-1.5 bg-white border-2 border-gray-200 rounded-full text-xs text-gray-700 hover:bg-gray-100 hover:border-gray-300 transition-colors shadow-sm"
               >
                 {question}
               </button>
@@ -521,7 +521,7 @@ export function RabbitChatbot() {
 
       {/* Messages Area */}
       <div
-        className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-pink-50/30 to-white"
+        className="flex-1 overflow-y-auto p-4 space-y-4 bg-white"
         dir={language === "ar" ? "rtl" : "ltr"}
       >
         {messages.map((message) => (
@@ -531,7 +531,7 @@ export function RabbitChatbot() {
           >
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                message.sender === "user" ? "bg-[#C0392B]" : "bg-pink-300"
+                message.sender === "user" ? "bg-[#C0392B]" : "bg-gray-200"
               }`}
             >
               {message.sender === "user" ? (
@@ -549,7 +549,7 @@ export function RabbitChatbot() {
                 className={`px-4 py-2 rounded-2xl ${
                   message.sender === "user"
                     ? "bg-[#C0392B] text-white rounded-tr-none"
-                    : "bg-pink-100 text-gray-800 rounded-tl-none border-2 border-pink-200"
+                    : "bg-gray-100 text-gray-800 rounded-tl-none border-2 border-gray-200"
                 }`}
               >
                 <p className="text-sm leading-relaxed whitespace-pre-line">
@@ -562,7 +562,7 @@ export function RabbitChatbot() {
                     <a
                       key={idx}
                       href={link.url}
-                      className="text-xs text-pink-600 underline hover:text-pink-700 font-medium"
+                      className="text-xs text-blue-600 underline hover:text-blue-700 font-medium"
                     >
                       → {link.text}
                     </a>
@@ -583,21 +583,21 @@ export function RabbitChatbot() {
           <div
             className={`flex gap-3 ${language === "ar" ? "flex-row-reverse" : "flex-row"}`}
           >
-            <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-pink-300">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-200">
               <span className="text-lg">🐰</span>
             </div>
-            <div className="bg-pink-100 px-4 py-3 rounded-2xl rounded-tl-none border-2 border-pink-200">
+            <div className="bg-gray-100 px-4 py-3 rounded-2xl rounded-tl-none border-2 border-gray-200">
               <div className="flex gap-1">
                 <div
-                  className="w-2 h-2 bg-pink-400 rounded-full animate-bounce"
+                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
                   style={{ animationDelay: "0ms" }}
                 />
                 <div
-                  className="w-2 h-2 bg-pink-400 rounded-full animate-bounce"
+                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
                   style={{ animationDelay: "150ms" }}
                 />
                 <div
-                  className="w-2 h-2 bg-pink-400 rounded-full animate-bounce"
+                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
                   style={{ animationDelay: "300ms" }}
                 />
               </div>
@@ -609,20 +609,20 @@ export function RabbitChatbot() {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 border-t-2 border-pink-200 bg-white">
+      <div className="p-4 border-t-2 border-gray-200 bg-white">
         <div className="flex gap-2">
           <Input
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
             placeholder={t.placeholder}
-            className="flex-1 border-2 border-pink-200 focus:border-pink-400 rounded-full"
+            className="flex-1 border-2 border-gray-200 focus:border-gray-400 rounded-full"
             dir={language === "ar" ? "rtl" : "ltr"}
           />
           <Button
             onClick={handleSendMessage}
             disabled={!inputValue.trim()}
-            className="bg-gradient-to-r from-pink-400 to-pink-500 hover:from-pink-500 hover:to-pink-600 text-white rounded-full w-12 h-12 p-0 shadow-lg disabled:opacity-50"
+            className="bg-gradient-to-r from-[#C0392B] to-[#E74C3C] hover:from-[#A93226] hover:to-[#C0392B] text-white rounded-full w-12 h-12 p-0 shadow-lg disabled:opacity-50"
           >
             <Send size={18} />
           </Button>
@@ -631,10 +631,10 @@ export function RabbitChatbot() {
 
       {/* Decorative hearts at bottom */}
       <div className="absolute bottom-20 left-4 pointer-events-none">
-        <Heart className="w-3 h-3 fill-pink-200 text-pink-200 opacity-50" />
+        <Heart className="w-3 h-3 fill-gray-200 text-gray-200 opacity-50" />
       </div>
       <div className="absolute bottom-24 right-8 pointer-events-none">
-        <Heart className="w-4 h-4 fill-pink-200 text-pink-200 opacity-50" />
+        <Heart className="w-4 h-4 fill-gray-200 text-gray-200 opacity-50" />
       </div>
     </Card>
   );
