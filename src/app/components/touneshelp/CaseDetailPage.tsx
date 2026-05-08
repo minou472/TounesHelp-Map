@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router";
-import { ArrowLeft, MapPin, Calendar, Phone, Mail, Users } from "lucide-react";
+import { useParams, useNavigate } from "react-router";
+import { ArrowLeft, MapPin, Calendar, Phone, Mail, Users, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
@@ -14,6 +14,8 @@ export function CaseDetailPage() {
   const navigate = useNavigate();
   const [caseData, setCaseData] = useState<TunisiaCase | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showAllMedia, setShowAllMedia] = useState(false);
+  const MEDIA_PREVIEW_COUNT = 3;
 
   const dateLocale = i18n.language === 'ar' ? 'ar-TN' : i18n.language === 'en' ? 'en-US' : 'fr-FR';
 
@@ -122,17 +124,43 @@ export function CaseDetailPage() {
               </div>
             </div>
 
-            {/* Photo Gallery */}
-            {caseData.images.length > 1 && (
+            {/* Media Gallery */}
+            {(caseData.images.length > 0 || caseData.videoUrl) && (
               <div>
-                <h3 className="font-bold text-xl text-[#1C1C1E] mb-4">{t("case_detail.photos")}</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {caseData.images.map((img, index) => (
-                    <div key={index} className="aspect-square rounded-xl overflow-hidden">
-                      <img src={img} alt={`Photo ${index + 1}`} className="w-full h-full object-cover" />
+                <h3 className="font-bold text-xl text-[#1C1C1E] mb-4">{t("case_detail.media_section")}</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {caseData.images
+                    .slice(0, showAllMedia ? undefined : MEDIA_PREVIEW_COUNT)
+                    .map((img, index) => (
+                      <div key={index} className="aspect-square rounded-xl overflow-hidden bg-gray-100">
+                        <img src={img} alt={`Photo ${index + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                      </div>
+                    ))}
+                  {/* Video thumbnail in the grid */}
+                  {caseData.videoUrl && (showAllMedia || caseData.images.length < MEDIA_PREVIEW_COUNT) && (
+                    <div className="aspect-square rounded-xl overflow-hidden bg-gray-900">
+                      <video
+                        src={caseData.videoUrl}
+                        className="w-full h-full object-cover"
+                        controls
+                        preload="metadata"
+                      />
                     </div>
-                  ))}
+                  )}
                 </div>
+                {/* Expand / Collapse button */}
+                {caseData.images.length > MEDIA_PREVIEW_COUNT && (
+                  <button
+                    onClick={() => setShowAllMedia((v) => !v)}
+                    className="mt-3 flex items-center gap-1 text-sm font-medium text-[#C0392B] hover:text-[#A02E24] transition-colors"
+                  >
+                    {showAllMedia ? (
+                      <><ChevronUp size={16} /> {t("case_detail.show_less")}</>
+                    ) : (
+                      <><ChevronDown size={16} /> +{caseData.images.length - MEDIA_PREVIEW_COUNT} {t("case_detail.show_more")}</>
+                    )}
+                  </button>
+                )}
               </div>
             )}
           </div>

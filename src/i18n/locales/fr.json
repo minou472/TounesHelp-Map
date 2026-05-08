@@ -210,7 +210,27 @@
     "case_update_error": "Erreur lors de la modification",
     "case_deleted_success": "Cas supprimé avec succès",
     "case_delete_error": "Erreur lors de la suppression",
-    "delete_confirm": "Êtes-vous sûr de vouloir supprimer ce cas ?"
+    "delete_confirm": "Êtes-vous sûr de vouloir supprimer ce cas ?",
+    "my_profile": "Mon Profil",
+    "edit_profile": "Modifier le profil",
+    "profile_saved": "Profil mis à jour avec succès",
+    "profile_save_error": "Erreur lors de la mise à jour du profil",
+    "name": "Nom",
+    "phone": "Téléphone",
+    "bio": "Bio",
+    "bio_placeholder": "Quelques mots sur vous...",
+    "my_location": "Ma Localisation",
+    "set_location_hint": "Cliquez sur la carte pour définir votre localisation personnelle",
+    "set_location_prompt": "Définissez votre localisation pour voir les cas à proximité",
+    "location_saved": "Localisation enregistrée",
+    "location_set": "Localisation définie",
+    "nearby_cases": "Cas près de chez vous",
+    "no_nearby_cases": "Aucun cas proche trouvé",
+    "nearby_cases_desc": "Basé sur votre localisation personnelle",
+    "km_away": "{{km}} km",
+    "edit_media": "Médias",
+    "current_files": "Fichiers actuels",
+    "add_new_files": "Ajouter de nouveaux fichiers"
   },
   "case_detail": {
     "loading": "Chargement du cas...",
@@ -235,7 +255,11 @@
     "resolved": "Résolu",
     "status_suffering": "Souffre encore",
     "status_helping": "En cours d'aide",
-    "status_resolved": "Résolu"
+    "status_resolved": "Résolu",
+    "show_more": "Voir plus",
+    "show_less": "Voir moins",
+    "video": "Vidéo",
+    "media_section": "Photos & Vidéos"
   },
   "create_case": {
     "steps": {
@@ -271,7 +295,9 @@
       "people_affected": "Nombre de personnes affectées",
       "files_selected": "Fichiers sélectionnés:",
       "upload_hint": "Glissez vos photos et vidéos ici ou cliquez pour parcourir",
-      "upload_limits": "Max 10 fichiers · 5MB chacun · Images: JPG PNG WebP · Vidéos: MP4 AVI MOV"
+      "upload_limits": "Max 10 fichiers · 5MB chacun · Images: JPG PNG WebP · Vidéos: MP4 AVI MOV",
+      "autofilled": "Auto-rempli",
+      "delegation": "Délégation"
     },
     "buttons": {
       "previous": "Précédent",
@@ -290,7 +316,8 @@
       "case_error": "Erreur lors de la création du cas",
       "map_loading": "Chargement de la carte...",
       "images_count": "image(s)",
-      "video_count": "1 vidéo"
+      "video_count": "1 vidéo",
+      "min_one_file": "Au moins 1 fichier requis pour soumettre le cas"
     },
     "review": {
       "basic_info": "Informations de base",

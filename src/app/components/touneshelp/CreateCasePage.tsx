@@ -54,6 +54,8 @@ export function CreateCasePage() {
   });
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [autoFilled, setAutoFilled] = useState<{ city?: boolean; governorate?: boolean }>({});
+  const [previewExpanded, setPreviewExpanded] = useState(false);
 
   // Google Maps configuration
   const GOOGLE_MAPS_API_KEY = "AIzaSyAmk4IjHlJsQb8gchi-9SXxRD0vGaCsxaI";
@@ -201,9 +203,23 @@ export function CreateCasePage() {
   const progress = (step / totalSteps) * 100;
 
   const handleNext = () => {
-    if (step < totalSteps) setStep(step + 1);
-    else {
+    // Enforce ≥1 file before leaving media step or submitting
+    if (step === 5) {
+      const hasFiles = formData.images.length > 0 || uploadedFiles.length > 0;
+      if (!hasFiles) {
+        toast.error(t("create_case.messages.min_one_file"));
+        return;
+      }
+    }
+    if (step === totalSteps) {
+      const hasFiles = formData.images.length > 0;
+      if (!hasFiles) {
+        toast.error(t("create_case.messages.min_one_file"));
+        return;
+      }
       handleSubmit();
+    } else {
+      setStep(step + 1);
     }
   };
 
@@ -357,9 +373,16 @@ export function CreateCasePage() {
               </div>
 
               <div>
-                <Label htmlFor="governorate">
-                  {t("create_case.labels.governorate")}
-                </Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="governorate">
+                    {t("create_case.labels.governorate")}
+                  </Label>
+                  {autoFilled.governorate && (
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                      ✓ {t("create_case.labels.autofilled")}
+                    </span>
+                  )}
+                </div>
                 <Select
                   value={formData.governorate}
                   onValueChange={(v) =>
@@ -384,7 +407,14 @@ export function CreateCasePage() {
               </div>
 
               <div>
-                <Label htmlFor="city">{t("create_case.labels.city")}</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="city">{t("create_case.labels.city")}</Label>
+                  {autoFilled.city && (
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                      ✓ {t("create_case.labels.autofilled")}
+                    </span>
+                  )}
+                </div>
                 <Input
                   id="city"
                   value={formData.city}
@@ -409,10 +439,33 @@ export function CreateCasePage() {
                       zoom={7}
                       onClick={(e) => {
                         if (e.latLng) {
-                          setFormData({
-                            ...formData,
-                            latitude: e.latLng!.lat(),
-                            longitude: e.latLng!.lng()
+                          const lat = e.latLng!.lat();
+                          const lng = e.latLng!.lng();
+                          setFormData((prev) => ({ ...prev, latitude: lat, longitude: lng }));
+                          // Reverse geocode to auto-fill city and governorate
+                          const geocoder = new google.maps.Geocoder();
+                          geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+                            if (status === "OK" && results && results[0]) {
+                              let city = "";
+                              let governorate = "";
+                              for (const comp of results[0].address_components) {
+                                if (comp.types.includes("locality") || comp.types.includes("sublocality")) {
+                                  city = comp.long_name;
+                                }
+                                if (comp.types.includes("administrative_area_level_1")) {
+                                  governorate = comp.long_name;
+                                }
+                              }
+                              setFormData((prev) => ({
+                                ...prev,
+                                city: city || prev.city,
+                                governorate: governorate || prev.governorate
+                              }));
+                              setAutoFilled({
+                                city: !!city,
+                                governorate: !!governorate
+                              });
+                            }
                           });
                         }
                       }}
@@ -634,7 +687,29 @@ export function CreateCasePage() {
                   </label>
                 </div>
 
-                {/* Uploaded Files Preview */}
+                {/* Already uploaded URLs preview */}
+                {formData.images.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="font-medium text-[#1C1C1E] text-sm">
+                      ✅ {formData.images.length} {t("create_case.messages.images_count")} {t("create_case.labels.files_selected")}
+                    </h3>
+                    <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+                      {formData.images.map((url, i) => (
+                        <div key={i} className="relative group aspect-square rounded-lg overflow-hidden border border-gray-200">
+                          <img src={url} alt={`uploaded-${i}`} className="w-full h-full object-cover" />
+                          <button
+                            onClick={() => setFormData((prev) => ({ ...prev, images: prev.images.filter((_, idx) => idx !== i) }))}
+                            className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Pending Files Thumbnail Preview */}
                 {uploadedFiles.length > 0 && (
                   <div className="space-y-3">
                     <h3 className="font-medium text-[#1C1C1E]">
@@ -642,35 +717,30 @@ export function CreateCasePage() {
                     </h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       {uploadedFiles.map((file, index) => (
-                        <div
-                          key={index}
-                          className="relative bg-gray-50 rounded-lg p-3"
-                        >
-                          <div className="flex items-center gap-2">
-                            {file.type.startsWith("image/") ? (
-                              <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
-                                📷
-                              </div>
-                            ) : (
-                              <div className="w-8 h-8 bg-red-100 rounded flex items-center justify-center">
-                                🎥
-                              </div>
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate">
-                                {file.name}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {(file.size / 1024 / 1024).toFixed(1)}MB
-                              </p>
-                            </div>
-                            <button
-                              onClick={() => removeFile(index)}
-                              className="p-1 hover:bg-gray-200 rounded"
-                              disabled={uploading}
-                            >
-                              <X size={14} />
-                            </button>
+                        <div key={index} className="relative group rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+                          {file.type.startsWith("image/") ? (
+                            <img
+                              src={URL.createObjectURL(file)}
+                              alt={file.name}
+                              className="w-full aspect-square object-cover"
+                            />
+                          ) : (
+                            <video
+                              src={URL.createObjectURL(file)}
+                              className="w-full aspect-square object-cover"
+                              muted
+                            />
+                          )}
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+                          <button
+                            onClick={() => removeFile(index)}
+                            className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            disabled={uploading}
+                          >
+                            <X size={12} />
+                          </button>
+                          <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 truncate">
+                            {file.name}
                           </div>
                         </div>
                       ))}
@@ -753,21 +823,20 @@ export function CreateCasePage() {
 
               {(formData.images.length > 0 || formData.videoUrl) && (
                 <Card className="p-6 bg-blue-50 border-blue-200">
-                  <h3 className="font-bold text-blue-900 mb-2">
+                  <h3 className="font-bold text-blue-900 mb-3">
                     {t("create_case.review.media")}
                   </h3>
                   {formData.images.length > 0 && (
-                    <div className="mb-2">
-                      <p className="text-sm text-blue-800">
-                        {formData.images.length}{" "}
-                        {t("create_case.messages.images_count")}
-                      </p>
+                    <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mb-2">
+                      {formData.images.map((url, i) => (
+                        <div key={i} className="aspect-square rounded-lg overflow-hidden border border-blue-200">
+                          <img src={url} alt={`review-${i}`} className="w-full h-full object-cover" />
+                        </div>
+                      ))}
                     </div>
                   )}
                   {formData.videoUrl && (
-                    <p className="text-sm text-blue-800">
-                      {t("create_case.messages.video_count")}
-                    </p>
+                    <p className="text-sm text-blue-800 mt-2">🎥 {t("create_case.messages.video_count")}</p>
                   )}
                 </Card>
               )}

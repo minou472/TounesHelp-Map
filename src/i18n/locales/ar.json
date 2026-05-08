@@ -210,7 +210,27 @@
     "case_update_error": "خطأ في تعديل الحالة",
     "case_deleted_success": "تم حذف الحالة بنجاح",
     "case_delete_error": "خطأ في حذف الحالة",
-    "delete_confirm": "هل أنت متأكد من حذف هذه الحالة؟"
+    "delete_confirm": "هل أنت متأكد من حذف هذه الحالة؟",
+    "my_profile": "ملفي الشخصي",
+    "edit_profile": "تعديل الملف الشخصي",
+    "profile_saved": "تم تحديث الملف الشخصي بنجاح",
+    "profile_save_error": "خطأ في تحديث الملف الشخصي",
+    "name": "الاسم",
+    "phone": "الهاتف",
+    "bio": "نبذة",
+    "bio_placeholder": "بضع كلمات عنك...",
+    "my_location": "موقعي",
+    "set_location_hint": "انقر على الخريطة لتحديد موقعك الشخصي",
+    "set_location_prompt": "حدد موقعك لرؤية الحالات القريبة منك",
+    "location_saved": "تم حفظ الموقع",
+    "location_set": "تم تحديد الموقع",
+    "nearby_cases": "حالات قريبة منك",
+    "no_nearby_cases": "لا توجد حالات قريبة",
+    "nearby_cases_desc": "بناءً على موقعك الشخصي",
+    "km_away": "{{km}} كم",
+    "edit_media": "الوسائط",
+    "current_files": "الملفات الحالية",
+    "add_new_files": "إضافة ملفات جديدة"
   },
   "case_detail": {
     "loading": "جاري تحميل الحالة...",
@@ -235,7 +255,11 @@
     "resolved": "تم الحل",
     "status_suffering": "لا يزال يعاني",
     "status_helping": "قيد المساعدة",
-    "status_resolved": "تم الحل"
+    "status_resolved": "تم الحل",
+    "show_more": "عرض المزيد",
+    "show_less": "عرض أقل",
+    "video": "فيديو",
+    "media_section": "الصور ومقاطع الفيديو"
   },
   "create_case": {
     "steps": {
@@ -271,7 +295,9 @@
       "people_affected": "عدد الأشخاص المتضررين",
       "files_selected": "الملفات المختارة:",
       "upload_hint": "اسحب صورك وفيديوهاتك هنا أو انقر للتصفح",
-      "upload_limits": "حد أقصى 10 ملفات · 5 ميغابايت لكل · صور: JPG PNG WebP · فيديوهات: MP4 AVI MOV"
+      "upload_limits": "حد أقصى 10 ملفات · 5 ميغابايت لكل · صور: JPG PNG WebP · فيديوهات: MP4 AVI MOV",
+      "autofilled": "مملوء تلقائياً",
+      "delegation": "المعتمدية"
     },
     "buttons": {
       "previous": "السابق",
@@ -290,7 +316,8 @@
       "case_error": "خطأ في إنشاء الحالة",
       "map_loading": "جاري تحميل الخريطة...",
       "images_count": "صورة/صور",
-      "video_count": "فيديو واحد"
+      "video_count": "فيديو واحد",
+      "min_one_file": "يجب رفع ملف واحد على الأقل لإرسال الحالة"
     },
     "review": {
       "basic_info": "المعلومات الأساسية",

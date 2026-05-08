@@ -287,6 +287,20 @@ export function updateUser(id: string, data: UpdateUserData) {
   });
 }
 
+export function updateCurrentUser(data: { name?: string; phone?: string; bio?: string }) {
+  const rawUser = localStorage.getItem("touneshelp_user");
+  let userId = "";
+  try {
+    const parsed = JSON.parse(rawUser || "{}") as { id?: string };
+    userId = parsed.id || "";
+  } catch { /* ignore */ }
+  if (!userId) return Promise.reject(new Error("User not authenticated"));
+  return request<AdminUser>(`/api/users/${userId}`, {
+    method: "PATCH",
+    body: JSON.stringify(data)
+  });
+}
+
 export function deleteUser(id: string) {
   return request<{ message: string }>(`/api/users/${id}`, {
     method: "DELETE"
