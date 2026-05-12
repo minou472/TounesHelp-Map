@@ -54,6 +54,7 @@ export type AdminUser = {
   phone?: string | null;
   role: "USER" | "ADMIN";
   status: "ACTIVE" | "BLOCKED";
+  gender?: "MALE" | "FEMALE" | string;
   avatar?: string | null;
   rating?: number;
   helpedCount?: number;

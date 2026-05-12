@@ -21,6 +21,8 @@ import { AdminChatbot } from "./components/touneshelp/admin/AdminChatbot";
 import { AdminSettings } from "./components/touneshelp/admin/AdminSettings";
 import { NotFound } from "./components/NotFound";
 
+import { TermsPage } from "./components/touneshelp/TermsPage";
+
 export const tounesHelpRouter = createBrowserRouter([
   {
     path: "/",
@@ -33,6 +35,7 @@ export const tounesHelpRouter = createBrowserRouter([
       { path: "connexion", Component: LoginPage },
       { path: "mot-de-passe-oublie", Component: ForgotPasswordPage },
       { path: "inscription", Component: RegisterPage },
+      { path: "conditions-utilisation", Component: TermsPage },
       { path: "dashboard", Component: UserDashboard },
       { path: "creer-cas", Component: CreateCasePage },
       { path: "admin", Component: AdminDashboard },

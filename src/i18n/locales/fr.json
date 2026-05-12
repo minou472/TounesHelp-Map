@@ -137,7 +137,28 @@
     "create_account_btn": "Créer mon compte",
     "account_created": "Compte créé avec succès !",
     "register_error": "Erreur lors de la création du compte",
-    "register_failed": "Impossible de créer le compte. Réessayez plus tard."
+    "register_failed": "Impossible de créer le compte. Réessayez plus tard.",
+    "gender_label": "Sexe",
+    "male": "Homme",
+    "female": "Femme"
+  },
+  "terms": {
+    "back": "Retour à l'inscription",
+    "title": "Conditions d'Utilisation",
+    "last_updated": "Dernière mise à jour : Mai 2026",
+    "intro_title": "Introduction",
+    "intro_text": "Bienvenue sur TounesHelp Map. En utilisant notre plateforme, vous acceptez ces conditions d'utilisation. Notre plateforme est conçue pour connecter les personnes dans le besoin avec des bénévoles et des ONG à travers la Tunisie.",
+    "responsibilities_title": "Responsabilités de l'utilisateur",
+    "resp_1": "Vous devez fournir des informations exactes et véridiques lorsque vous signalez un cas.",
+    "resp_2": "Vous acceptez d'utiliser la plateforme uniquement pour son objectif prévu : l'aide humanitaire et le soutien.",
+    "resp_3": "Vous êtes responsable de la confidentialité de vos identifiants de connexion.",
+    "prohibited_title": "Contenu et actions interdits",
+    "prohibited_intro": "Les actions suivantes sont strictement interdites et peuvent entraîner la résiliation immédiate du compte :",
+    "prohibited_1": "Publier des demandes d'aide fausses, trompeuses ou frauduleuses.",
+    "prohibited_2": "Utiliser la plateforme à des fins commerciales, de spam ou de harcèlement.",
+    "privacy_title": "Confidentialité des données",
+    "privacy_text": "Nous respectons votre vie privée. Les informations que vous fournissez ne seront utilisées que pour faciliter l'aide humanitaire. Nous ne vendons pas vos données personnelles à des tiers.",
+    "contact_info": "Pour toute question concernant ces conditions, veuillez nous contacter à l'adresse"
   },
   "forgot_password": {
     "title": "Mot de passe oublié",

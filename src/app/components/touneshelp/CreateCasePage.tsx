@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../lib/auth";
@@ -25,6 +25,16 @@ export function CreateCasePage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user } = useAuth();
+  
+  // Auth Guard
+  useEffect(() => {
+    const token = localStorage.getItem("touneshelp_token");
+    if (!token && !user) {
+      toast.error(t("login.account_not_found") || "Please sign in to report a case");
+      navigate("/connexion");
+    }
+  }, [user, navigate, t]);
+
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     title: "",
@@ -442,31 +452,38 @@ export function CreateCasePage() {
                           const lat = e.latLng!.lat();
                           const lng = e.latLng!.lng();
                           setFormData((prev) => ({ ...prev, latitude: lat, longitude: lng }));
-                          // Reverse geocode to auto-fill city and governorate
-                          const geocoder = new google.maps.Geocoder();
-                          geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-                            if (status === "OK" && results && results[0]) {
-                              let city = "";
-                              let governorate = "";
-                              for (const comp of results[0].address_components) {
-                                if (comp.types.includes("locality") || comp.types.includes("sublocality")) {
-                                  city = comp.long_name;
+                          // Reverse geocode using OpenStreetMap Nominatim to avoid API key restrictions
+                          fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`)
+                            .then(res => res.json())
+                            .then(data => {
+                              if (data && data.address) {
+                                let city = data.address.city || data.address.town || data.address.village || data.address.county || "";
+                                let rawGov = data.address.state || data.address.region || "";
+                                let governorate = "";
+
+                                if (rawGov) {
+                                  const normalized = tunisiaGovernorates.find(
+                                    (g) => rawGov.toLowerCase().includes(g.toLowerCase()) || 
+                                           rawGov.toLowerCase().replace(/[' -]/g, '').includes(g.toLowerCase().replace(/[' -]/g, ''))
+                                  );
+                                  governorate = normalized || ""; 
                                 }
-                                if (comp.types.includes("administrative_area_level_1")) {
-                                  governorate = comp.long_name;
-                                }
+
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  city: city || prev.city,
+                                  governorate: governorate || prev.governorate
+                                }));
+                                setAutoFilled({
+                                  city: !!city,
+                                  governorate: !!governorate
+                                });
                               }
-                              setFormData((prev) => ({
-                                ...prev,
-                                city: city || prev.city,
-                                governorate: governorate || prev.governorate
-                              }));
-                              setAutoFilled({
-                                city: !!city,
-                                governorate: !!governorate
-                              });
-                            }
-                          });
+                            })
+                            .catch(err => {
+                              console.error("OSM Geocoding failed:", err);
+                              toast.error("Reverse geocoding failed. Please enter location manually.");
+                            });
                         }
                       }}
                     >

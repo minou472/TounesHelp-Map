@@ -138,7 +138,28 @@
     "create_account_btn": "Create my account",
     "account_created": "Account created successfully!",
     "register_error": "Error creating account",
-    "register_failed": "Unable to create account. Try again later."
+    "register_failed": "Unable to create account. Try again later.",
+    "gender_label": "Gender",
+    "male": "Male",
+    "female": "Female"
+  },
+  "terms": {
+    "back": "Back to registration",
+    "title": "Terms of Use",
+    "last_updated": "Last updated: May 2026",
+    "intro_title": "Introduction",
+    "intro_text": "Welcome to TounesHelp Map. By using our platform, you agree to these terms of use. Our platform is designed to connect people in need with volunteers and NGOs across Tunisia.",
+    "responsibilities_title": "User Responsibilities",
+    "resp_1": "You must provide accurate and truthful information when reporting a case.",
+    "resp_2": "You agree to use the platform only for its intended purpose: humanitarian aid and support.",
+    "resp_3": "You are responsible for maintaining the confidentiality of your account credentials.",
+    "prohibited_title": "Prohibited Content and Actions",
+    "prohibited_intro": "The following actions are strictly prohibited and may result in immediate account termination:",
+    "prohibited_1": "Posting false, misleading, or fraudulent help requests.",
+    "prohibited_2": "Using the platform for commercial purposes, spam, or harassment.",
+    "privacy_title": "Data Privacy",
+    "privacy_text": "We respect your privacy. The information you provide will only be used to facilitate humanitarian aid. We do not sell your personal data to third parties.",
+    "contact_info": "For any questions regarding these terms, please contact us at"
   },
   "forgot_password": {
     "title": "Forgot Password",

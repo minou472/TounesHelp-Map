@@ -68,7 +68,7 @@ export function UserDashboard() {
   // Personal location (localStorage only)
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number; city?: string } | null>(null);
   const [locationMapOpen, setLocationMapOpen] = useState(false);
-  const { isLoaded } = useJsApiLoader({ id: "google-map-script-dash", googleMapsApiKey: GOOGLE_MAPS_API_KEY });
+  const { isLoaded } = useJsApiLoader({ id: "google-map-script", googleMapsApiKey: GOOGLE_MAPS_API_KEY });
 
   // Edit dialog state
   const [editDialogOpen, setEditDialogOpen] = useState(false);

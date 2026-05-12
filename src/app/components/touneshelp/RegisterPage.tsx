@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Checkbox } from "../ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Eye, EyeOff, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../../lib/auth";
@@ -20,6 +21,7 @@ export function RegisterPage() {
     password: '',
     confirmPassword: '',
     phone: '',
+    gender: 'MALE' as 'MALE' | 'FEMALE',
     terms: false,
   });
 
@@ -56,6 +58,7 @@ export function RegisterPage() {
           email: formData.email,
           password: formData.password,
           phone: formData.phone,
+          gender: formData.gender,
         }),
       });
 
@@ -206,6 +209,22 @@ export function RegisterPage() {
               />
             </div>
 
+            <div>
+              <Label htmlFor="gender">{t("register.gender_label")}</Label>
+              <Select
+                value={formData.gender}
+                onValueChange={(value: "MALE" | "FEMALE") => setFormData({ ...formData, gender: value })}
+              >
+                <SelectTrigger className="h-12 rounded-lg mt-2">
+                  <SelectValue placeholder={t("register.gender_label")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="MALE">{t("register.male")}</SelectItem>
+                  <SelectItem value="FEMALE">{t("register.female")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="flex items-start gap-3">
               <Checkbox
                 id="terms"
@@ -213,7 +232,7 @@ export function RegisterPage() {
                 onCheckedChange={(checked) => setFormData({ ...formData, terms: checked as boolean })}
               />
               <Label htmlFor="terms" className="text-sm leading-relaxed cursor-pointer">
-                {t("register.terms")}<Link to="/" className="text-[#C0392B] hover:underline">{t("register.terms_link")}</Link> {t("register.privacy_link")}
+                {t("register.terms")}<Link to="/conditions-utilisation" className="text-[#C0392B] hover:underline mx-1">{t("register.terms_link")}</Link> {t("register.privacy_link")}
               </Label>
             </div>
 
