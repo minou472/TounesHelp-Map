@@ -141,7 +141,12 @@
     "register_failed": "Unable to create account. Try again later.",
     "gender_label": "Gender",
     "male": "Male",
-    "female": "Female"
+    "female": "Female",
+    "user_type_label": "Register as",
+    "volunteer": "Volunteer",
+    "organization": "Organization",
+    "other": "Other",
+    "other_description": "Please specify"
   },
   "terms": {
     "back": "Back to registration",

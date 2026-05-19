@@ -13,6 +13,13 @@ import {
   DialogFooter,
 } from "../../ui/dialog";
 import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "../../ui/sheet";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -32,6 +39,7 @@ import {
   updateUser,
   deleteUser,
   createUser,
+  fetchAdminUserById,
   type AdminUser,
 } from "../../../lib/backendApi";
 import { toast } from "sonner";
@@ -58,6 +66,11 @@ export function AdminUsers() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [createForm, setCreateForm] = useState(EMPTY_CREATE_FORM);
   const [isCreating, setIsCreating] = useState(false);
+
+  // Profile dialog state
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState<any>(null);
 
   const load = async () => {
     try {
@@ -143,6 +156,20 @@ export function AdminUsers() {
       toast.error(error?.message || "Erreur lors de la création de l'utilisateur.");
     } finally {
       setIsCreating(false);
+    }
+  };
+
+  const handleViewProfile = async (id: string) => {
+    setProfileOpen(true);
+    setProfileLoading(true);
+    try {
+      const data = await fetchAdminUserById(id);
+      setSelectedProfile(data);
+    } catch (error: any) {
+      toast.error(error?.message || "Impossible de charger le profil");
+      setProfileOpen(false);
+    } finally {
+      setProfileLoading(false);
     }
   };
 
@@ -272,6 +299,15 @@ export function AdminUsers() {
                     </button>
                     {openMenuId === user.id && (
                       <div className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                        <button
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                          onClick={() => {
+                            handleViewProfile(user.id);
+                            setOpenMenuId(null);
+                          }}
+                        >
+                          <UserPlus size={16} /> Voir le profil
+                        </button>
                         <button
                           className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                           onClick={() => handleUpdateStatus(user.id, user.status)}
@@ -413,6 +449,120 @@ export function AdminUsers() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* User Profile Sheet */}
+      <Sheet open={profileOpen} onOpenChange={setProfileOpen}>
+        <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Profil Utilisateur</SheetTitle>
+          </SheetHeader>
+          <div className="py-6">
+            {profileLoading ? (
+              <div className="flex justify-center p-8 text-gray-500">Chargement...</div>
+            ) : selectedProfile ? (
+              <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-[#C0392B] flex items-center justify-center text-white text-2xl font-bold">
+                    {selectedProfile.name[0]?.toUpperCase()}
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold">{selectedProfile.name}</h2>
+                    <p className="text-gray-500">{selectedProfile.email}</p>
+                    {selectedProfile.phone && <p className="text-gray-500 text-sm">{selectedProfile.phone}</p>}
+                    <div className="flex gap-2 mt-2">
+                      <Badge variant="outline">{selectedProfile.role}</Badge>
+                      <Badge variant="outline" className={selectedProfile.status === 'ACTIVE' ? 'text-green-600 border-green-600' : 'text-red-600 border-red-600'}>
+                        {selectedProfile.status}
+                      </Badge>
+                      {selectedProfile.userType && (
+                        <Badge variant="secondary">{selectedProfile.userType}</Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {selectedProfile.bio && (
+                  <div>
+                    <h3 className="font-semibold text-sm text-gray-500 mb-1">Bio</h3>
+                    <p className="text-sm bg-gray-50 p-3 rounded-lg">{selectedProfile.bio}</p>
+                  </div>
+                )}
+                {selectedProfile.userTypeDescription && (
+                  <div>
+                    <h3 className="font-semibold text-sm text-gray-500 mb-1">Description (Type d'utilisateur)</h3>
+                    <p className="text-sm bg-gray-50 p-3 rounded-lg">{selectedProfile.userTypeDescription}</p>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-4">
+                  <Card className="p-4 text-center">
+                    <p className="text-2xl font-bold text-[#C0392B]">{selectedProfile.createdCases?.length || 0}</p>
+                    <p className="text-xs text-gray-500 uppercase">Cas créés</p>
+                  </Card>
+                  <Card className="p-4 text-center">
+                    <p className="text-2xl font-bold text-[#27AE60]">{selectedProfile.helpedCases?.length || 0}</p>
+                    <p className="text-xs text-gray-500 uppercase">Aides apportées</p>
+                  </Card>
+                </div>
+
+                {selectedProfile.assignedCases && selectedProfile.assignedCases.length > 0 && (
+                  <div>
+                    <h3 className="font-bold text-lg mb-3">Cas assignés (Organisation)</h3>
+                    <div className="space-y-3">
+                      {selectedProfile.assignedCases.map((c: any) => (
+                        <Card key={c.id} className="p-3 bg-blue-50 border-blue-200">
+                          <p className="font-semibold">{c.title}</p>
+                          <p className="text-xs text-gray-500">{c.city}, {c.governorate}</p>
+                          <Badge className="mt-2 text-xs">{c.status}</Badge>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <h3 className="font-bold text-lg mb-3">Historique des cas créés</h3>
+                  {selectedProfile.createdCases?.length > 0 ? (
+                    <div className="space-y-3">
+                      {selectedProfile.createdCases.map((c: any) => (
+                        <Card key={c.id} className="p-3">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-semibold">{c.title}</p>
+                              <p className="text-xs text-gray-500">{new Date(c.createdAt).toLocaleDateString()}</p>
+                            </div>
+                            <Badge variant={c.status === 'RESOLVED' ? 'default' : 'secondary'}>{c.status}</Badge>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500">Aucun cas créé.</p>
+                  )}
+                </div>
+
+                <div>
+                  <h3 className="font-bold text-lg mb-3">Historique des aides</h3>
+                  {selectedProfile.helpedCases?.length > 0 ? (
+                    <div className="space-y-3">
+                      {selectedProfile.helpedCases.map((hc: any) => (
+                        <Card key={hc.id} className="p-3">
+                          <p className="font-semibold">{hc.case?.title || 'Cas inconnu'}</p>
+                          <p className="text-xs text-gray-500">Rejoint le: {new Date(hc.joinedAt).toLocaleDateString()}</p>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500">Aucune aide apportée.</p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <p className="text-center text-gray-500">Erreur lors du chargement.</p>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </AdminLayout>
   );
 }

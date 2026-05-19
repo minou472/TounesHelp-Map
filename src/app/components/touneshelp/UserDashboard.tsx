@@ -33,12 +33,17 @@ import {
   User,
   X,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Eye,
+  Heart,
+  HeartCrack,
+  History,
+  Bell
 } from "lucide-react";
 import { useAuth } from "../../lib/auth";
 import { useTranslation } from "react-i18next";
 import type { TunisiaCase } from "../../data/tunisiaData";
-import { fetchCases, updateCase, deleteCase } from "../../lib/backendApi";
+import { fetchCases, updateCase, deleteCase, interactWithCase, fetchUserNotifications, markNotificationsAsRead } from "../../lib/backendApi";
 import { toast } from "sonner";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyAmk4IjHlJsQb8gchi-9SXxRD0vGaCsxaI";
@@ -59,6 +64,10 @@ export function UserDashboard() {
   const [userName, setUserName] = useState(user?.name || "");
 
   const dateLocale = i18n.language === 'ar' ? 'ar-TN' : i18n.language === 'en' ? 'en-US' : 'fr-FR';
+
+  // Notifications state
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   // Profile state
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
@@ -92,10 +101,14 @@ export function UserDashboard() {
     }
 
     try {
-      const cases = await fetchCases({ limit: 300 });
+      const [cases, notifs] = await Promise.all([
+        fetchCases({ limit: 300 }),
+        fetchUserNotifications().catch(() => [])
+      ]);
       setAllCases(
         userEmail ? cases.filter((c) => c.creatorEmail === userEmail) : []
       );
+      setNotifications(notifs);
     } catch (error) {
       console.error("Failed to load dashboard cases", error);
       setAllCases([]);
@@ -218,6 +231,31 @@ export function UserDashboard() {
     }
   };
 
+  const handleOpenNotifications = async () => {
+    setNotificationsOpen(!notificationsOpen);
+    if (!notificationsOpen) {
+      const unread = notifications.some(n => !n.isRead);
+      if (unread) {
+        try {
+          await markNotificationsAsRead();
+          setNotifications(notifications.map(n => ({ ...n, isRead: true })));
+        } catch (e) {
+          console.error("Failed to mark notifications as read", e);
+        }
+      }
+    }
+  };
+
+  const handleInteract = async (caseId: string, type: "SUPPORT" | "SORRY") => {
+    try {
+      await interactWithCase(caseId, type);
+      // Update local state to reflect interaction (optimistic UI could be added)
+      void loadCases();
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur d'interaction");
+    }
+  };
+
   const renderCaseCard = (
     c: TunisiaCase,
     borderColor: string,
@@ -226,9 +264,9 @@ export function UserDashboard() {
     showEditDelete = true
   ) => (
     <Card key={c.id} className={`p-4 border-l-4 ${borderColor} bg-white`}>
-      <div className="flex justify-between items-start gap-4">
+      <div className="flex justify-between items-start gap-4 mb-3">
         <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2 text-sm text-[#6B6B6B]">
+          <div className="flex flex-wrap items-center gap-3 mb-2 text-sm text-[#6B6B6B]">
             <Badge className={`${badgeColor} text-white`}>{badgeText}</Badge>
             <span>📍 {c.governorate}</span>
             <span>
@@ -237,6 +275,9 @@ export function UserDashboard() {
                 day: "numeric",
                 month: "short"
               })}
+            </span>
+            <span className="flex items-center gap-1 text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full text-xs">
+              <Eye size={12} /> {c.visitorsCount || 0} vues
             </span>
           </div>
           <Link
@@ -268,6 +309,45 @@ export function UserDashboard() {
           </div>
         )}
       </div>
+
+      <div className="flex flex-wrap justify-between items-center mt-3 pt-3 border-t border-gray-100">
+        <div className="flex gap-2">
+          {(() => {
+            const supportInteraction = c.interactions?.find((i: any) => i.userId === user?.id && i.type === "SUPPORT");
+            const sorryInteraction = c.interactions?.find((i: any) => i.userId === user?.id && i.type === "SORRY");
+            return (
+              <>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={`flex items-center gap-1 group ${supportInteraction ? 'text-red-600 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50'}`}
+                  onClick={() => handleInteract(c.id, "SUPPORT")}
+                  title="Support"
+                >
+                  <Heart size={16} className={supportInteraction ? 'fill-red-600' : 'group-hover:fill-red-600'} />
+                  <span className="text-xs">{c.interactions?.filter((i: any) => i.type === "SUPPORT").length || 0}</span>
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={`flex items-center gap-1 group ${sorryInteraction ? 'text-red-600 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50'}`}
+                  onClick={() => handleInteract(c.id, "SORRY")}
+                  title="Sorry"
+                >
+                  <HeartCrack size={16} className={sorryInteraction ? 'fill-red-600' : 'group-hover:fill-red-600'} />
+                  <span className="text-xs">{c.interactions?.filter((i: any) => i.type === "SORRY").length || 0}</span>
+                </Button>
+              </>
+            );
+          })()}
+        </div>
+
+        {c.modifications && c.modifications.length > 0 && (
+          <div className="text-xs text-gray-500 flex items-center gap-1">
+            <History size={12} /> {c.modifications.length} modification(s)
+          </div>
+        )}
+      </div>
     </Card>
   );
 
@@ -283,12 +363,49 @@ export function UserDashboard() {
               </h1>
               <p className="text-[#6B6B6B]">{t("dashboard.cases_status")}</p>
             </div>
-            <Link to="/creer-cas">
-              <Button className="bg-[#C0392B] hover:bg-[#A02E24] text-white rounded-xl h-12 px-6 font-semibold">
-                <Plus className="mr-2" size={20} />
-                {t("dashboard.report_new_case")}
-              </Button>
-            </Link>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Button 
+                  variant="outline" 
+                  className="bg-white rounded-full w-12 h-12 p-0 relative border-gray-200"
+                  onClick={handleOpenNotifications}
+                >
+                  <Bell className="text-gray-600" size={20} />
+                  {notifications.filter(n => !n.isRead).length > 0 && (
+                    <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white"></span>
+                  )}
+                </Button>
+
+                {notificationsOpen && (
+                  <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
+                    <div className="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                      <h3 className="font-bold text-gray-800">Notifications</h3>
+                      <span className="text-xs text-gray-500">{notifications.length} au total</span>
+                    </div>
+                    <div className="max-h-80 overflow-y-auto">
+                      {notifications.length > 0 ? (
+                        notifications.map(n => (
+                          <div key={n.id} className={`p-4 border-b border-gray-50 text-sm ${!n.isRead ? 'bg-blue-50/30' : ''}`}>
+                            <p className="text-gray-800">{n.message}</p>
+                            <p className="text-xs text-gray-500 mt-1">{new Date(n.createdAt).toLocaleString(dateLocale)}</p>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-6 text-center text-gray-500 text-sm">
+                          Aucune notification
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <Link to="/creer-cas">
+                <Button className="bg-[#C0392B] hover:bg-[#A02E24] text-white rounded-xl h-12 px-6 font-semibold shadow-sm">
+                  <Plus className="mr-2" size={20} />
+                  {t("dashboard.report_new_case")}
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -392,6 +509,119 @@ export function UserDashboard() {
           </Card>
         </div>
       </section>
+
+      {/* ── Donut Chart ── */}
+      {userCases.length > 0 && (() => {
+        const total = userCases.length;
+        const segments = [
+          { label: t("dashboard.suffering"), count: sufferingCases.length, color: "#C0392B", bg: "#FFF0EE" },
+          { label: t("dashboard.helping"),   count: helpingCases.length,   color: "#E67E22", bg: "#FFF4ED" },
+          { label: t("dashboard.resolved"),  count: resolvedCases.length,  color: "#27AE60", bg: "#F0FFF4" },
+        ];
+
+        // Build SVG arcs
+        const R = 70, r = 42, cx = 90, cy = 90;
+        const circumference = 2 * Math.PI * R;
+        let cumAngle = -Math.PI / 2; // start at 12 o'clock
+
+        const arcs = segments.map((seg) => {
+          const fraction = total > 0 ? seg.count / total : 0;
+          const angle = fraction * 2 * Math.PI;
+          const x1 = cx + R * Math.cos(cumAngle);
+          const y1 = cy + R * Math.sin(cumAngle);
+          cumAngle += angle;
+          const x2 = cx + R * Math.cos(cumAngle);
+          const y2 = cy + R * Math.sin(cumAngle);
+          const largeArc = angle > Math.PI ? 1 : 0;
+          // inner arc
+          const ix1 = cx + r * Math.cos(cumAngle - angle);
+          const iy1 = cy + r * Math.sin(cumAngle - angle);
+          const ix2 = cx + r * Math.cos(cumAngle);
+          const iy2 = cy + r * Math.sin(cumAngle);
+          const path =
+            fraction === 0
+              ? ""
+              : fraction >= 1
+              ? // full circle — draw two halves
+                `M ${cx + R} ${cy} A ${R} ${R} 0 1 1 ${cx - R} ${cy} A ${R} ${R} 0 1 1 ${cx + R} ${cy}
+                 M ${cx + r} ${cy} A ${r} ${r} 0 1 0 ${cx - r} ${cy} A ${r} ${r} 0 1 0 ${cx + r} ${cy} Z`
+              : `M ${x1} ${y1} A ${R} ${R} 0 ${largeArc} 1 ${x2} ${y2}
+                 L ${ix2} ${iy2} A ${r} ${r} 0 ${largeArc} 0 ${ix1} ${iy1} Z`;
+          return { ...seg, path, fraction };
+        });
+
+        return (
+          <section className="max-w-7xl mx-auto px-6 lg:px-24 py-2 pb-6">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <h2 className="text-lg font-bold text-[#1C1C1E] mb-6">
+                📊 {t("dashboard.cases_status") || "Mes cas par statut"}
+              </h2>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-10">
+                {/* SVG donut */}
+                <div className="relative flex-shrink-0">
+                  <svg width="180" height="180" viewBox="0 0 180 180">
+                    <defs>
+                      <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.12" />
+                      </filter>
+                    </defs>
+                    {/* background ring */}
+                    <circle cx={cx} cy={cy} r={R} fill="none" stroke="#F3F4F6" strokeWidth={R - r} />
+                    {/* coloured arcs */}
+                    {arcs.map((arc, i) =>
+                      arc.path ? (
+                        <path
+                          key={i}
+                          d={arc.path}
+                          fill={arc.color}
+                          filter="url(#shadow)"
+                          style={{
+                            transition: "opacity 0.3s",
+                            opacity: 0.92,
+                          }}
+                        />
+                      ) : null
+                    )}
+                    {/* centre text */}
+                    <text x={cx} y={cy - 6} textAnchor="middle" fontSize="22" fontWeight="700" fill="#1C1C1E">
+                      {total}
+                    </text>
+                    <text x={cx} y={cy + 14} textAnchor="middle" fontSize="10" fill="#6B6B6B">
+                      cas
+                    </text>
+                  </svg>
+                </div>
+
+                {/* Legend */}
+                <div className="flex flex-col gap-3 min-w-[160px]">
+                  {arcs.map((seg, i) => (
+                    <div key={i} className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="inline-block w-3 h-3 rounded-full flex-shrink-0"
+                          style={{ background: seg.color }}
+                        />
+                        <span className="text-sm text-gray-700 font-medium">{seg.label}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold" style={{ color: seg.color }}>
+                          {seg.count}
+                        </span>
+                        <span
+                          className="text-xs px-1.5 py-0.5 rounded-full font-medium"
+                          style={{ background: seg.bg, color: seg.color }}
+                        >
+                          {total > 0 ? Math.round((seg.count / total) * 100) : 0}%
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      })()}
 
       {/* Accordion Cases */}
       <section className="max-w-7xl mx-auto px-6 lg:px-24 pb-12">

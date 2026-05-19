@@ -23,6 +23,11 @@ export type BackendCase = {
   dateResolved?: string | null;
   createdAt: string;
   imagesJson?: string;
+  visitorsCount?: number;
+  isEscalated?: boolean;
+  assignedTo?: { id: string; name: string; email: string } | null;
+  interactions?: any[];
+  modifications?: any[];
 };
 
 export type StatsResponse = {
@@ -149,6 +154,11 @@ export function mapBackendCaseToUi(item: BackendCase): TunisiaCase {
     dateSubmitted: item.createdAt,
     datePublished: item.datePublished || undefined,
     dateResolved: item.dateResolved || undefined,
+    visitorsCount: item.visitorsCount || 0,
+    isEscalated: item.isEscalated || false,
+    assignedTo: item.assignedTo || null,
+    interactions: item.interactions || [],
+    modifications: item.modifications || [],
     images: images.length
       ? images
       : ["https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800"]
@@ -228,6 +238,8 @@ export type UpdateCaseData = {
   peopleAffected?: number;
   images?: string[];
   videoUrl?: string;
+  assignedToId?: string | null;
+  isEscalated?: boolean;
 };
 
 export function updateCase(id: string, data: UpdateCaseData) {
@@ -265,6 +277,10 @@ export type CreateUserData = {
   status?: "ACTIVE" | "BLOCKED";
   password?: string;
 };
+
+export async function fetchAdminUserById(id: string) {
+  return request<any>(`/api/users/${id}`);
+}
 
 export type UpdateUserData = {
   name?: string;
@@ -394,4 +410,23 @@ export type NotificationsResponse = {
 
 export function fetchNotifications() {
   return request<NotificationsResponse>("/api/notifications");
+}
+
+export function visitCase(id: string) {
+  return request<{ visitorsCount: number }>(`/api/cases/${id}/visit`, { method: "POST" });
+}
+
+export function interactWithCase(id: string, type: "SUPPORT" | "SORRY") {
+  return request<{ action: string }>(`/api/cases/${id}/interact`, {
+    method: "POST",
+    body: JSON.stringify({ type })
+  });
+}
+
+export function fetchUserNotifications() {
+  return request<any[]>("/api/users/notifications");
+}
+
+export function markNotificationsAsRead() {
+  return request<{ message: string }>("/api/users/notifications", { method: "PATCH" });
 }

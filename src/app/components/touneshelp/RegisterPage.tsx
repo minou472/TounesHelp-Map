@@ -22,6 +22,8 @@ export function RegisterPage() {
     confirmPassword: '',
     phone: '',
     gender: 'MALE' as 'MALE' | 'FEMALE',
+    userType: 'VOLUNTEER' as 'CITIZEN' | 'VOLUNTEER' | 'ORGANIZATION' | 'OTHER',
+    userTypeDescription: '',
     terms: false,
   });
 
@@ -59,6 +61,8 @@ export function RegisterPage() {
           password: formData.password,
           phone: formData.phone,
           gender: formData.gender,
+          userType: formData.userType,
+          userTypeDescription: formData.userType === 'OTHER' ? formData.userTypeDescription : undefined,
         }),
       });
 
@@ -224,6 +228,47 @@ export function RegisterPage() {
                 </SelectContent>
               </Select>
             </div>
+
+            <div>
+              <p className="font-semibold text-sm text-[#1C1C1E] mb-3">
+                {t("register.user_type_label") || "Register as"}
+              </p>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { value: "VOLUNTEER" as const, label: t("register.volunteer") || "Volunteer", icon: "🤝" },
+                  { value: "ORGANIZATION" as const, label: t("register.organization") || "Organization", icon: "🏢" },
+                  { value: "OTHER" as const, label: t("register.other") || "Other", icon: "👤" },
+                ].map(({ value, label, icon }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, userType: value })}
+                    className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 cursor-pointer transition-all text-center w-full
+                      ${formData.userType === value
+                        ? "border-[#C0392B] bg-[#C0392B]/5 text-[#C0392B]"
+                        : "border-gray-200 bg-white text-gray-500 hover:border-[#C0392B]/50 hover:text-[#C0392B]"
+                      }`}
+                  >
+                    <span className="text-xl">{icon}</span>
+                    <span className="text-xs font-semibold leading-tight">{label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {formData.userType === 'OTHER' && (
+              <div className="mt-2">
+                <Label htmlFor="userTypeDescription">{t("register.other_description") || "Please specify"}</Label>
+                <Input
+                  id="userTypeDescription"
+                  value={formData.userTypeDescription}
+                  onChange={(e) => setFormData({ ...formData, userTypeDescription: e.target.value })}
+                  className="h-12 rounded-lg mt-2"
+                  required
+                />
+              </div>
+            )}
+
 
             <div className="flex items-start gap-3">
               <Checkbox

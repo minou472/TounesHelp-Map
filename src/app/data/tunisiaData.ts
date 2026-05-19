@@ -20,6 +20,11 @@ export type TunisiaCase = {
   datePublished?: string;
   dateResolved?: string;
   images: string[];
+  visitorsCount?: number;
+  isEscalated?: boolean;
+  assignedTo?: { id: string; name: string; email: string } | null;
+  interactions?: any[];
+  modifications?: any[];
 };
 
 export const tunisiaGovernorates = [

@@ -140,7 +140,12 @@
     "register_failed": "لا يمكن إنشاء الحساب. حاول مرة أخرى لاحقاً.",
     "gender_label": "الجنس",
     "male": "ذكر",
-    "female": "أنثى"
+    "female": "أنثى",
+    "user_type_label": "التسجيل بصفة",
+    "volunteer": "متطوع",
+    "organization": "منظمة",
+    "other": "أخرى",
+    "other_description": "يرجى التحديد"
   },
   "terms": {
     "back": "العودة إلى التسجيل",

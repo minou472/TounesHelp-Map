@@ -140,7 +140,12 @@
     "register_failed": "Impossible de créer le compte. Réessayez plus tard.",
     "gender_label": "Sexe",
     "male": "Homme",
-    "female": "Femme"
+    "female": "Femme",
+    "user_type_label": "S'inscrire en tant que",
+    "volunteer": "Bénévole",
+    "organization": "Organisation",
+    "other": "Autre",
+    "other_description": "Veuillez préciser"
   },
   "terms": {
     "back": "Retour à l'inscription",

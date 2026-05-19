@@ -12,7 +12,9 @@ import {
   AlertCircle,
   Clock,
   CheckCircle,
-  Filter
+  Filter,
+  Users,
+  ArrowUpCircle
 } from "lucide-react";
 import {
   Select,
@@ -22,6 +24,8 @@ import {
   SelectValue
 } from "../../ui/select";
 import { toast } from "sonner";
+import { fetchAdminUsers, type AdminUser } from "../../../lib/backendApi";
+
 interface TunisiaCase {
   id: string;
   title: string;
@@ -34,35 +38,55 @@ interface TunisiaCase {
   creatorName: string;
   creatorEmail: string;
   createdAt?: string;
+  assignedTo?: { id: string; name: string } | null;
+  assignedToId?: string | null;
+  isEscalated?: boolean;
 }
 import { fetchCases, updateCase, deleteCase } from "../../../lib/backendApi";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from "../../ui/dialog";
 
 export function AdminCases() {
   const [cases, setCases] = useState<TunisiaCase[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [ngos, setNgos] = useState<AdminUser[]>([]);
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [selectedCaseForAssign, setSelectedCaseForAssign] = useState<string | null>(null);
+  const [selectedNgo, setSelectedNgo] = useState("");
 
-  const loadCases = async () => {
+  const loadCasesAndNgos = async () => {
     setLoading(true);
     try {
-      const data = await fetchCases({ limit: 200 });
-      // Normalize status to lowercase for frontend consistency
-      const normalizedCases = data.map((caseData: any) => ({
+      const [casesData, usersData] = await Promise.all([
+        fetchCases({ limit: 200 }),
+        fetchAdminUsers()
+      ]);
+      
+      const normalizedCases = casesData.map((caseData: any) => ({
         ...caseData,
         status: caseData.status?.toLowerCase() || "suffering"
       }));
       setCases(normalizedCases);
+
+      const orgs = usersData.users.filter(u => u.userType === "ORGANIZATION");
+      setNgos(orgs);
     } catch (error) {
-      console.error("Failed to load cases", error);
-      toast.error("Erreur lors du chargement des cas");
+      console.error("Failed to load data", error);
+      toast.error("Erreur lors du chargement des données");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    void loadCases();
+    void loadCasesAndNgos();
   }, []);
 
   const handleDelete = async (id: string) => {
@@ -81,9 +105,36 @@ export function AdminCases() {
     try {
       await updateCase(id, { status: newStatus as "SUFFERING" | "HELPING" | "RESOLVED" });
       toast.success("Statut mis à jour");
-      loadCases();
+      loadCasesAndNgos();
     } catch (error: any) {
       toast.error(error?.message || "Erreur lors de la mise à jour");
+    }
+  };
+
+  const handleEscalate = async (id: string) => {
+    try {
+      await updateCase(id, { isEscalated: true });
+      toast.success("Cas escaladé avec succès");
+      loadCasesAndNgos();
+    } catch (error: any) {
+      toast.error(error?.message || "Erreur lors de l'escalade");
+    }
+  };
+
+  const handleAssignNGO = async () => {
+    if (!selectedCaseForAssign || !selectedNgo) {
+      toast.error("Veuillez sélectionner une ONG");
+      return;
+    }
+    try {
+      await updateCase(selectedCaseForAssign, { assignedToId: selectedNgo, status: "HELPING" });
+      toast.success("Cas assigné avec succès");
+      setAssignDialogOpen(false);
+      setSelectedCaseForAssign(null);
+      setSelectedNgo("");
+      loadCasesAndNgos();
+    } catch (error: any) {
+      toast.error(error?.message || "Erreur lors de l'assignation");
     }
   };
 
@@ -141,7 +192,7 @@ export function AdminCases() {
             </p>
           </div>
           <Button
-            onClick={loadCases}
+            onClick={loadCasesAndNgos}
             variant="outline"
             className="text-[#C0392B] border-[#C0392B]"
           >
@@ -246,6 +297,16 @@ export function AdminCases() {
                       <div className="text-xs text-gray-500 max-w-[200px] truncate">
                         {caseData.description}
                       </div>
+                      <div className="flex gap-1 mt-1">
+                        {caseData.isEscalated && (
+                          <Badge variant="destructive" className="h-4 text-[10px] px-1">Escaladé</Badge>
+                        )}
+                        {caseData.assignedTo && (
+                          <Badge variant="secondary" className="h-4 text-[10px] px-1 bg-blue-100 text-blue-800">
+                            Assigné: {caseData.assignedTo.name}
+                          </Badge>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-700">
@@ -287,7 +348,32 @@ export function AdminCases() {
                         : "—"}
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex gap-1">
+                      <div className="flex gap-1 flex-wrap max-w-[200px]">
+                        {!caseData.assignedToId && caseData.status === "suffering" && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-blue-600 hover:bg-blue-50 h-8 px-2"
+                            onClick={() => {
+                              setSelectedCaseForAssign(caseData.id);
+                              setAssignDialogOpen(true);
+                            }}
+                            title="Assigner ONG"
+                          >
+                            <Users size={14} />
+                          </Button>
+                        )}
+                        {!caseData.isEscalated && caseData.status !== "resolved" && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-purple-600 hover:bg-purple-50 h-8 px-2"
+                            onClick={() => handleEscalate(caseData.id)}
+                            title="Escalader le cas"
+                          >
+                            <ArrowUpCircle size={14} />
+                          </Button>
+                        )}
                         {caseData.status === "suffering" && (
                           <Button
                             size="sm"
@@ -321,7 +407,6 @@ export function AdminCases() {
                           onClick={() => handleDelete(caseData.id)}
                           title="Rejeter / Supprimer"
                         >
-                          Rejeter
                           <Trash2 size={14} />
                         </Button>
                       </div>
@@ -333,6 +418,40 @@ export function AdminCases() {
           </table>
         </div>
       </Card>
+
+      {/* Assign NGO Dialog */}
+      <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assigner une organisation</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <label className="text-sm font-medium mb-2 block">Sélectionnez une ONG</label>
+            <Select value={selectedNgo} onValueChange={setSelectedNgo}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choisir une ONG..." />
+              </SelectTrigger>
+              <SelectContent>
+                {ngos.length > 0 ? (
+                  ngos.map((ngo) => (
+                    <SelectItem key={ngo.id} value={ngo.id}>
+                      {ngo.name} ({ngo.email})
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="none" disabled>
+                    Aucune ONG disponible
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>Annuler</Button>
+            <Button onClick={handleAssignNGO} className="bg-blue-600 hover:bg-blue-700 text-white">Assigner</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 }
