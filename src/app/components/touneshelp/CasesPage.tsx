@@ -60,6 +60,16 @@ export function CasesPage() {
   const pagedCases = sortedCases.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
   const featuredCases = useMemo(() => cases.slice(0, 8), [cases]);
 
+  const hasActiveFilter = selectedStatus !== "all" || selectedGovernorate !== "all" || searchQuery !== "";
+  const resetAll = () => { setSelectedStatus("all"); setSelectedGovernorate("all"); setSearchQuery(""); setSortOrder("recent"); };
+
+  // Cases that don't match the active filter — shown as suggestions
+  const suggestedCases = useMemo(() => {
+    if (!hasActiveFilter) return [];
+    const filteredIds = new Set(filteredCases.map((c) => c.id));
+    return cases.filter((c) => !filteredIds.has(c.id)).slice(0, 8);
+  }, [cases, filteredCases, hasActiveFilter]);
+
   const scrollCarousel = (dir: "left" | "right") => {
     if (!carouselRef.current) return;
     carouselRef.current.scrollBy({ left: dir === "left" ? -carouselRef.current.clientWidth * 0.7 : carouselRef.current.clientWidth * 0.7, behavior: "smooth" });
@@ -86,8 +96,7 @@ export function CasesPage() {
     { value: "resolved",  label: t("admin.resolved", "Résolu"),               activeColor: "bg-[#27AE60]", inactiveClass: "border-[#27AE60] text-[#27AE60] hover:bg-[#27AE60] hover:text-white" },
   ];
 
-  const hasActiveFilter = selectedStatus !== "all" || selectedGovernorate !== "all" || searchQuery !== "";
-  const resetAll = () => { setSelectedStatus("all"); setSelectedGovernorate("all"); setSearchQuery(""); setSortOrder("recent"); };
+
 
   return (
     <div className="min-h-screen bg-[#FDF6EC]">
@@ -198,101 +207,187 @@ export function CasesPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-12">
-        {/* Featured Carousel */}
-        <section className="mb-16">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-[#1C1C1E]">{t("cases_list.featured", "À la une")}</h2>
-            <div className="flex gap-2">
-              <Button variant="outline" size="icon" className="rounded-full" onClick={() => scrollCarousel("left")} aria-label="Précédent">
-                <ChevronLeft size={20} />
-              </Button>
-              <Button variant="outline" size="icon" className="rounded-full" onClick={() => scrollCarousel("right")} aria-label="Suivant">
-                <ChevronRight size={20} />
-              </Button>
-            </div>
-          </div>
-          <div ref={carouselRef} className="flex gap-6 overflow-x-auto pb-4 scroll-smooth" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-            {featuredCases.map((c) => <CaseCard key={c.id} case={c} />)}
-          </div>
-        </section>
-
-        {/* All Cases Grid */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-[#1C1C1E]">
-              {t("map_page.all_cases", "Tous les cas")}
-              <span className="ml-2 text-base font-normal text-gray-500">({sortedCases.length})</span>
-            </h2>
-          </div>
-
-          {sortedCases.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="text-5xl mb-4">🔍</div>
-              <p className="text-[#6B6B6B] text-lg mb-4">{t("cases_list.no_cases_found")}</p>
-              <Button onClick={resetAll} className="bg-[#C0392B] hover:bg-[#A02E24]">
-                {t("cases_list.reset_filters")}
-              </Button>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {pagedCases.map((c) => (
-                  <div key={c.id} className="flex justify-center">
-                    <CaseCard case={c} />
-                  </div>
-                ))}
-              </div>
-
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-2 mt-12">
-                  <Button variant="outline" size="icon" className="rounded-lg" disabled={currentPage === 1}
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}>
+        {/* ── No filter active: show featured carousel + all cases ── */}
+        {!hasActiveFilter && (
+          <>
+            {/* Featured Carousel */}
+            <section className="mb-16">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-[#1C1C1E]">{t("cases_list.featured", "À la une")}</h2>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="icon" className="rounded-full" onClick={() => scrollCarousel("left")} aria-label="Précédent">
                     <ChevronLeft size={20} />
                   </Button>
-
-                  {pageNumbers[0] > 1 && (
-                    <>
-                      <Button variant="outline" className="w-10 h-10 rounded-lg" onClick={() => setCurrentPage(1)}>1</Button>
-                      {pageNumbers[0] > 2 && <span className="px-1 text-gray-400">…</span>}
-                    </>
-                  )}
-
-                  {pageNumbers.map((p) => (
-                    <Button key={p} onClick={() => setCurrentPage(p)}
-                      variant={p === currentPage ? "default" : "outline"}
-                      className={`w-10 h-10 rounded-lg font-semibold ${
-                        p === currentPage
-                          ? "bg-[#C0392B] hover:bg-[#A02E24] text-white border-transparent"
-                          : "text-gray-700 hover:border-[#C0392B] hover:text-[#C0392B]"
-                      }`}>
-                      {p}
-                    </Button>
-                  ))}
-
-                  {pageNumbers[pageNumbers.length - 1] < totalPages && (
-                    <>
-                      {pageNumbers[pageNumbers.length - 1] < totalPages - 1 && <span className="px-1 text-gray-400">…</span>}
-                      <Button variant="outline" className="w-10 h-10 rounded-lg" onClick={() => setCurrentPage(totalPages)}>
-                        {totalPages}
-                      </Button>
-                    </>
-                  )}
-
-                  <Button variant="outline" size="icon" className="rounded-lg" disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}>
+                  <Button variant="outline" size="icon" className="rounded-full" onClick={() => scrollCarousel("right")} aria-label="Suivant">
                     <ChevronRight size={20} />
                   </Button>
                 </div>
-              )}
+              </div>
+              <div ref={carouselRef} className="flex gap-6 overflow-x-auto pb-4 scroll-smooth" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                {featuredCases.map((c) => <CaseCard key={c.id} case={c} />)}
+              </div>
+            </section>
 
-              {totalPages > 1 && (
-                <p className="text-center text-sm text-gray-400 mt-3">
-                  Page {currentPage} / {totalPages} &mdash; {sortedCases.length} cas
-                </p>
+            {/* All Cases Grid */}
+            <section>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-[#1C1C1E]">
+                  {t("map_page.all_cases", "Tous les cas")}
+                  <span className="ml-2 text-base font-normal text-gray-500">({sortedCases.length})</span>
+                </h2>
+              </div>
+
+              {sortedCases.length === 0 ? (
+                <div className="text-center py-20">
+                  <div className="text-5xl mb-4">🔍</div>
+                  <p className="text-[#6B6B6B] text-lg mb-4">{t("cases_list.no_cases_found")}</p>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {pagedCases.map((c) => (
+                      <div key={c.id} className="flex justify-center">
+                        <CaseCard case={c} />
+                      </div>
+                    ))}
+                  </div>
+
+                  {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-2 mt-12">
+                      <Button variant="outline" size="icon" className="rounded-lg" disabled={currentPage === 1}
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}>
+                        <ChevronLeft size={20} />
+                      </Button>
+
+                      {pageNumbers[0] > 1 && (
+                        <>
+                          <Button variant="outline" className="w-10 h-10 rounded-lg" onClick={() => setCurrentPage(1)}>1</Button>
+                          {pageNumbers[0] > 2 && <span className="px-1 text-gray-400">…</span>}
+                        </>
+                      )}
+
+                      {pageNumbers.map((p) => (
+                        <Button key={p} onClick={() => setCurrentPage(p)}
+                          variant={p === currentPage ? "default" : "outline"}
+                          className={`w-10 h-10 rounded-lg font-semibold ${
+                            p === currentPage
+                              ? "bg-[#C0392B] hover:bg-[#A02E24] text-white border-transparent"
+                              : "text-gray-700 hover:border-[#C0392B] hover:text-[#C0392B]"
+                          }`}>
+                          {p}
+                        </Button>
+                      ))}
+
+                      {pageNumbers[pageNumbers.length - 1] < totalPages && (
+                        <>
+                          {pageNumbers[pageNumbers.length - 1] < totalPages - 1 && <span className="px-1 text-gray-400">…</span>}
+                          <Button variant="outline" className="w-10 h-10 rounded-lg" onClick={() => setCurrentPage(totalPages)}>
+                            {totalPages}
+                          </Button>
+                        </>
+                      )}
+
+                      <Button variant="outline" size="icon" className="rounded-lg" disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}>
+                        <ChevronRight size={20} />
+                      </Button>
+                    </div>
+                  )}
+
+                  {totalPages > 1 && (
+                    <p className="text-center text-sm text-gray-400 mt-3">
+                      Page {currentPage} / {totalPages} &mdash; {sortedCases.length} cas
+                    </p>
+                  )}
+                </>
               )}
-            </>
-          )}
-        </section>
+            </section>
+          </>
+        )}
+
+        {/* ── Filter active: show filtered results + suggested cases ── */}
+        {hasActiveFilter && (
+          <>
+            {/* Filtered Results */}
+            <section>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-[#1C1C1E]">
+                  {t("cases_list.results", "Résultats")}
+                  <span className="ml-2 text-base font-normal text-gray-500">({sortedCases.length})</span>
+                </h2>
+              </div>
+
+              {sortedCases.length === 0 ? (
+                <div className="text-center py-20">
+                  <div className="text-5xl mb-4">🔍</div>
+                  <p className="text-[#6B6B6B] text-lg mb-4">{t("cases_list.no_cases_found", "Aucun cas trouvé avec ces filtres")}</p>
+                  <Button onClick={resetAll} className="bg-[#C0392B] hover:bg-[#A02E24]">
+                    {t("cases_list.reset_filters", "Réinitialiser les filtres")}
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {pagedCases.map((c) => (
+                      <div key={c.id} className="flex justify-center">
+                        <CaseCard case={c} />
+                      </div>
+                    ))}
+                  </div>
+
+                  {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-2 mt-12">
+                      <Button variant="outline" size="icon" className="rounded-lg" disabled={currentPage === 1}
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}>
+                        <ChevronLeft size={20} />
+                      </Button>
+
+                      {pageNumbers[0] > 1 && (
+                        <>
+                          <Button variant="outline" className="w-10 h-10 rounded-lg" onClick={() => setCurrentPage(1)}>1</Button>
+                          {pageNumbers[0] > 2 && <span className="px-1 text-gray-400">…</span>}
+                        </>
+                      )}
+
+                      {pageNumbers.map((p) => (
+                        <Button key={p} onClick={() => setCurrentPage(p)}
+                          variant={p === currentPage ? "default" : "outline"}
+                          className={`w-10 h-10 rounded-lg font-semibold ${
+                            p === currentPage
+                              ? "bg-[#C0392B] hover:bg-[#A02E24] text-white border-transparent"
+                              : "text-gray-700 hover:border-[#C0392B] hover:text-[#C0392B]"
+                          }`}>
+                          {p}
+                        </Button>
+                      ))}
+
+                      {pageNumbers[pageNumbers.length - 1] < totalPages && (
+                        <>
+                          {pageNumbers[pageNumbers.length - 1] < totalPages - 1 && <span className="px-1 text-gray-400">…</span>}
+                          <Button variant="outline" className="w-10 h-10 rounded-lg" onClick={() => setCurrentPage(totalPages)}>
+                            {totalPages}
+                          </Button>
+                        </>
+                      )}
+
+                      <Button variant="outline" size="icon" className="rounded-lg" disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}>
+                        <ChevronRight size={20} />
+                      </Button>
+                    </div>
+                  )}
+
+                  {totalPages > 1 && (
+                    <p className="text-center text-sm text-gray-400 mt-3">
+                      Page {currentPage} / {totalPages} &mdash; {sortedCases.length} cas
+                    </p>
+                  )}
+                </>
+              )}
+            </section>
+
+          </>
+        )}
       </div>
     </div>
   );

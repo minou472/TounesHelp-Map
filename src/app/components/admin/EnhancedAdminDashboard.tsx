@@ -26,6 +26,7 @@ import { useTranslation } from 'react-i18next';
 import { CasesManagement } from './CasesManagement';
 import { UsersManagement } from './UsersManagement';
 import { fetchNotifications, type NotificationsResponse } from '../../lib/backendApi';
+import { tunisiaGovernorates } from '../../data/tunisiaData';
 
 type NavigationItem = {
   id: string;
@@ -40,13 +41,6 @@ const navigationItems: NavigationItem[] = [
   { id: 'cases', key: 'case_management', icon: Briefcase, path: '/admin/enhanced/cases' },
   { id: 'users', key: 'users', icon: Users, path: '/admin/enhanced/users' },
   { id: 'notifications', key: 'notifications', icon: Bell, path: '/admin/enhanced/notifications' },
-];
-
-const GOVERNORATES = [
-  "Ariana", "Béja", "Ben Arous", "Bizerte", "Gabès", "Gafsa",
-  "Jendouba", "Kairouan", "Kasserine", "Kébili", "Kef", "Mahdia",
-  "Manouba", "Médenine", "Monastir", "Nabeul", "Sfax", "Sidi Bouzid",
-  "Siliana", "Sousse", "Tataouine", "Tozeur", "Tunis", "Zaghouan"
 ];
 
 export function EnhancedAdminDashboard() {
@@ -123,7 +117,7 @@ export function EnhancedAdminDashboard() {
   ];
 
   // Cases by governorate data (top 10)
-  const governorateData = GOVERNORATES
+  const governorateData = tunisiaGovernorates
     .map(gov => ({
       name: gov,
       cases: cases.filter(c => c.location && c.location.includes(gov)).length,

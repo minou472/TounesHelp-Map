@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { ArrowLeft, MapPin, Calendar, Phone, Mail, Users, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Phone, Mail, Users, ChevronDown, ChevronUp, Lock } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { useTranslation } from "react-i18next";
 import type { TunisiaCase } from "../../data/tunisiaData";
 import { fetchCaseById } from "../../lib/backendApi";
+import { useAuth } from "../../lib/auth";
 
 export function CaseDetailPage() {
   const { t, i18n } = useTranslation();
@@ -16,6 +17,8 @@ export function CaseDetailPage() {
   const [loading, setLoading] = useState(true);
   const [showAllMedia, setShowAllMedia] = useState(false);
   const MEDIA_PREVIEW_COUNT = 3;
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
 
   const dateLocale = i18n.language === 'ar' ? 'ar-TN' : i18n.language === 'en' ? 'en-US' : 'fr-FR';
 
@@ -168,57 +171,87 @@ export function CaseDetailPage() {
           {/* Right Column - Sticky */}
           <div className="space-y-6">
             {/* Victim Info Card */}
-            <Card className="p-6 bg-white rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.10)]">
-              <h3 className="font-bold text-lg text-[#1C1C1E] mb-4">{t("case_detail.affected_person")}</h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-xs text-[#6B6B6B] mb-1">{t("case_detail.name")}</p>
-                  <p className="font-semibold text-[#1C1C1E]">{caseData.victimName}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-[#6B6B6B] mb-1">{t("case_detail.phone")}</p>
-                  <a href={`tel:${caseData.victimPhone}`} className="text-[#C0392B] hover:underline flex items-center gap-2">
-                    <Phone size={16} />
-                    {caseData.victimPhone}
-                  </a>
-                </div>
-                {caseData.victimEmail && (
+            {isAuthenticated ? (
+              <Card className="p-6 bg-white rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.10)]">
+                <h3 className="font-bold text-lg text-[#1C1C1E] mb-4">{t("case_detail.affected_person")}</h3>
+                <div className="space-y-3">
                   <div>
-                    <p className="text-xs text-[#6B6B6B] mb-1">{t("case_detail.email")}</p>
-                    <a href={`mailto:${caseData.victimEmail}`} className="text-[#C0392B] hover:underline flex items-center gap-2 break-all">
-                      <Mail size={16} />
-                      {caseData.victimEmail}
+                    <p className="text-xs text-[#6B6B6B] mb-1">{t("case_detail.name")}</p>
+                    <p className="font-semibold text-[#1C1C1E]">{caseData.victimName}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#6B6B6B] mb-1">{t("case_detail.phone")}</p>
+                    <a href={`tel:${caseData.victimPhone}`} className="text-[#C0392B] hover:underline flex items-center gap-2">
+                      <Phone size={16} />
+                      {caseData.victimPhone}
                     </a>
                   </div>
-                )}
-              </div>
-            </Card>
+                  {caseData.victimEmail && (
+                    <div>
+                      <p className="text-xs text-[#6B6B6B] mb-1">{t("case_detail.email")}</p>
+                      <a href={`mailto:${caseData.victimEmail}`} className="text-[#C0392B] hover:underline flex items-center gap-2 break-all">
+                        <Mail size={16} />
+                        {caseData.victimEmail}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            ) : (
+              <Card className="p-6 bg-white rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.10)]">
+                <h3 className="font-bold text-lg text-[#1C1C1E] mb-4">{t("case_detail.affected_person")}</h3>
+                <div className="flex flex-col items-center text-center py-4">
+                  <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                    <Lock size={24} className="text-[#C0392B]" />
+                  </div>
+                  <p className="text-sm text-[#6B6B6B] mb-3">{t("case_detail.login_to_see", "Connectez-vous pour voir les informations de la personne concernée")}</p>
+                  <Button onClick={() => navigate('/login')} variant="outline" className="text-[#C0392B] border-[#C0392B] hover:bg-red-50">
+                    {t("case_detail.login_btn", "Se connecter")}
+                  </Button>
+                </div>
+              </Card>
+            )}
 
             {/* Contact Card */}
-            <Card className="p-6 bg-white rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.10)] border-t-4 border-[#C0392B]">
-              <h3 className="font-bold text-lg text-[#1C1C1E] mb-4">{t("case_detail.contact_responsible")}</h3>
-              <div className="space-y-3 mb-6">
-                <div>
-                  <p className="text-xs text-[#6B6B6B] mb-1">{t("case_detail.created_by")}</p>
-                  <p className="font-semibold text-[#1C1C1E]">{caseData.creatorName}</p>
+            {isAuthenticated ? (
+              <Card className="p-6 bg-white rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.10)] border-t-4 border-[#C0392B]">
+                <h3 className="font-bold text-lg text-[#1C1C1E] mb-4">{t("case_detail.contact_responsible")}</h3>
+                <div className="space-y-3 mb-6">
+                  <div>
+                    <p className="text-xs text-[#6B6B6B] mb-1">{t("case_detail.created_by")}</p>
+                    <p className="font-semibold text-[#1C1C1E]">{caseData.creatorName}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#6B6B6B] mb-1">{t("case_detail.phone")}</p>
+                    <a href={`tel:${caseData.creatorPhone}`} className="text-[#C0392B] hover:underline">
+                      {caseData.creatorPhone}
+                    </a>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#6B6B6B] mb-1">{t("case_detail.email")}</p>
+                    <a href={`mailto:${caseData.creatorEmail}`} className="text-[#C0392B] hover:underline break-all">
+                      {caseData.creatorEmail}
+                    </a>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-[#6B6B6B] mb-1">{t("case_detail.phone")}</p>
-                  <a href={`tel:${caseData.creatorPhone}`} className="text-[#C0392B] hover:underline">
-                    {caseData.creatorPhone}
-                  </a>
+                <Button className="w-full bg-[#C0392B] hover:bg-[#A02E24] text-white rounded-xl h-12 font-semibold">
+                  {t("case_detail.contact_now")}
+                </Button>
+              </Card>
+            ) : (
+              <Card className="p-6 bg-white rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.10)] border-t-4 border-[#C0392B]">
+                <h3 className="font-bold text-lg text-[#1C1C1E] mb-4">{t("case_detail.contact_responsible")}</h3>
+                <div className="flex flex-col items-center text-center py-4">
+                  <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                    <Lock size={24} className="text-[#C0392B]" />
+                  </div>
+                  <p className="text-sm text-[#6B6B6B] mb-3">{t("case_detail.login_to_contact", "Connectez-vous pour contacter le responsable")}</p>
+                  <Button onClick={() => navigate('/login')} className="w-full bg-[#C0392B] hover:bg-[#A02E24] text-white rounded-xl h-12 font-semibold">
+                    {t("case_detail.login_btn", "Se connecter")}
+                  </Button>
                 </div>
-                <div>
-                  <p className="text-xs text-[#6B6B6B] mb-1">{t("case_detail.email")}</p>
-                  <a href={`mailto:${caseData.creatorEmail}`} className="text-[#C0392B] hover:underline break-all">
-                    {caseData.creatorEmail}
-                  </a>
-                </div>
-              </div>
-              <Button className="w-full bg-[#C0392B] hover:bg-[#A02E24] text-white rounded-xl h-12 font-semibold">
-                {t("case_detail.contact_now")}
-              </Button>
-            </Card>
+              </Card>
+            )}
 
             {/* Status Timeline Card */}
             <Card className="p-6 bg-white rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.10)]">

@@ -5,6 +5,7 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { useTranslation } from 'react-i18next';
 import type { TunisiaCase } from '../../data/tunisiaData';
+import { useAuth } from '../../lib/auth';
 
 interface TunisiaMapProps {
   cases: TunisiaCase[];
@@ -81,6 +82,8 @@ function TunisiaMapInner({ cases, height = '600px', zoom = 7, center = tunisiaCe
   const { t } = useTranslation();
   const [selectedCase, setSelectedCase] = useState<TunisiaCase | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
 
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
@@ -182,15 +185,17 @@ function TunisiaMapInner({ cases, height = '600px', zoom = 7, center = tunisiaCe
                     {t("map_page.view_case", "Voir le cas")}
                   </Button>
                 </Link>
-                <a
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${selectedCase.coordinates[0]},${selectedCase.coordinates[1]}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button size="sm" variant="outline" className="text-xs h-8">
-                    {t("map_page.directions", "Itinéraire")}
-                  </Button>
-                </a>
+                {isAuthenticated && (
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${selectedCase.coordinates[0]},${selectedCase.coordinates[1]}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button size="sm" variant="outline" className="text-xs h-8">
+                      {t("map_page.directions", "Itinéraire")}
+                    </Button>
+                  </a>
+                )}
               </div>
             </div>
           </InfoWindow>

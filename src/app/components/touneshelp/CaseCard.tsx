@@ -1,10 +1,11 @@
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
-import { MapPin, Phone, Mail } from "lucide-react";
+import { MapPin, Phone, Mail, Lock } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import type { TunisiaCase } from "../../data/tunisiaData";
+import { useAuth } from "../../lib/auth";
 
 interface CaseCardProps {
   case: TunisiaCase;
@@ -12,6 +13,8 @@ interface CaseCardProps {
 
 export function CaseCard({ case: caseData }: CaseCardProps) {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
   
   const statusConfig = {
     suffering: {
@@ -71,28 +74,37 @@ export function CaseCard({ case: caseData }: CaseCardProps) {
         {/* Divider */}
         <div className="border-t border-[#F0E6D3] my-4" />
 
-        {/* Person Info */}
-        <div className="space-y-2 mb-4">
-          <div className="flex items-start gap-2">
-            <span className="text-2xl">👤</span>
-            <div className="flex-1">
-              <p className="text-xs text-[#6B6B6B] mb-0.5">{t("cases_list.affected_person", "Personne concernée")}</p>
-              <p className="text-sm font-medium text-[#1C1C1E]">{caseData.victimName}</p>
+        {/* Person Info — hidden for visitors */}
+        {isAuthenticated ? (
+          <div className="space-y-2 mb-4">
+            <div className="flex items-start gap-2">
+              <span className="text-2xl">👤</span>
+              <div className="flex-1">
+                <p className="text-xs text-[#6B6B6B] mb-0.5">{t("cases_list.affected_person", "Personne concernée")}</p>
+                <p className="text-sm font-medium text-[#1C1C1E]">{caseData.victimName}</p>
+              </div>
             </div>
-          </div>
 
-          <div className="flex items-center gap-2 text-sm text-[#6B6B6B]">
-            <Phone size={14} />
-            <span className="text-xs">{caseData.victimPhone}</span>
-          </div>
-
-          {caseData.victimEmail && (
             <div className="flex items-center gap-2 text-sm text-[#6B6B6B]">
-              <Mail size={14} />
-              <span className="text-xs truncate">{caseData.victimEmail}</span>
+              <Phone size={14} />
+              <span className="text-xs">{caseData.victimPhone}</span>
             </div>
-          )}
-        </div>
+
+            {caseData.victimEmail && (
+              <div className="flex items-center gap-2 text-sm text-[#6B6B6B]">
+                <Mail size={14} />
+                <span className="text-xs truncate">{caseData.victimEmail}</span>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="mb-4">
+            <Link to="/login" className="flex items-center gap-2 text-sm text-[#6B6B6B] bg-gray-50 rounded-xl px-4 py-3 hover:bg-gray-100 transition-colors">
+              <Lock size={16} className="text-[#C0392B]" />
+              <span>{t("cases_list.login_to_see_info", "Connectez-vous pour voir les coordonnées")}</span>
+            </Link>
+          </div>
+        )}
 
         {/* Divider */}
         <div className="border-t border-[#F0E6D3] mb-4" />
@@ -107,3 +119,4 @@ export function CaseCard({ case: caseData }: CaseCardProps) {
     </Card>
   );
 }
+

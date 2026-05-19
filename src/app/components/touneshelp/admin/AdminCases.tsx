@@ -24,25 +24,8 @@ import {
   SelectValue
 } from "../../ui/select";
 import { toast } from "sonner";
-import { fetchAdminUsers, type AdminUser } from "../../../lib/backendApi";
-
-interface TunisiaCase {
-  id: string;
-  title: string;
-  description: string;
-  governorate: string;
-  city: string;
-  status: string;
-  victimName: string;
-  victimPhone: string;
-  creatorName: string;
-  creatorEmail: string;
-  createdAt?: string;
-  assignedTo?: { id: string; name: string } | null;
-  assignedToId?: string | null;
-  isEscalated?: boolean;
-}
-import { fetchCases, updateCase, deleteCase } from "../../../lib/backendApi";
+import { fetchAdminUsers, type AdminUser, fetchCases, updateCase, deleteCase } from "../../../lib/backendApi";
+import type { TunisiaCase } from "../../../data/tunisiaData";
 import {
   Dialog,
   DialogContent,
