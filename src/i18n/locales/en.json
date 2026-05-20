@@ -294,12 +294,14 @@
       "location": "Location",
       "person": "Person",
       "media": "Media",
-      "review": "Review"
+      "review": "Review",
+      "creator_info": "Creator Information"
     },
     "headings": {
       "basic_info": "Basic Information",
       "location": "Location",
       "person": "Affected Person",
+      "creator_info": "Creator Information",
       "media": "Media",
       "review": "Review"
     },
@@ -308,6 +310,8 @@
       "case_title_placeholder": "Briefly describe the situation",
       "description": "Description *",
       "description_placeholder": "Describe the situation in detail...",
+      "category": "Category *",
+      "category_placeholder": "Select a category",
       "governorate": "Governorate *",
       "governorate_placeholder": "Select a governorate",
       "city": "City/Delegation *",
@@ -318,13 +322,29 @@
       "victim_name": "Person's Name *",
       "victim_name_placeholder": "Full name or anonymous",
       "victim_phone": "Phone *",
-      "victim_phone_placeholder": "+216",
+      "victim_phone_placeholder": "8-digit phone number",
       "people_affected": "Number of affected people",
+      "creator_name": "Creator Name *",
+      "creator_name_placeholder": "Your full name",
+      "creator_phone": "Creator Phone *",
+      "creator_phone_placeholder": "Your 8-digit phone number",
+      "creator_email": "Creator Email (Optional)",
+      "creator_email_placeholder": "Your email address",
       "files_selected": "Selected files:",
       "upload_hint": "Drag your photos and videos here or click to browse",
-      "upload_limits": "Max 10 files · 5MB each · Images: JPG PNG WebP · Videos: MP4 AVI MOV",
+      "upload_limits": "Max 10 files · 50MB each · Images: JPG PNG WebP · Videos: MP4 AVI MOV",
       "autofilled": "Auto-filled",
-      "delegation": "Delegation"
+      "delegation": "Delegation",
+      "min_chars": "{{count}} characters ({{min}} minimum)"
+    },
+    "categories": {
+      "MEDICAL": "Medical",
+      "EDUCATION": "Education",
+      "FOOD": "Food",
+      "SHELTER": "Shelter",
+      "TRANSPORTATION": "Transportation",
+      "WATER": "Water",
+      "OTHER": "Other"
     },
     "buttons": {
       "previous": "Previous",
@@ -336,15 +356,20 @@
     "messages": {
       "file_type_error": "Unsupported file type",
       "file_size_error": "File too large (max 5MB)",
+      "file_size_error_50": "File is too large. Maximum size is 50MB.",
       "max_files_error": "Maximum 10 files allowed",
       "upload_success": "file(s) uploaded successfully",
+      "upload_success_plural": "{{count}} file(s) uploaded successfully!",
       "upload_error": "Error uploading files",
       "case_created": "Case created successfully!",
       "case_error": "Error creating case",
       "map_loading": "Loading map...",
       "images_count": "image(s)",
       "video_count": "1 video",
-      "min_one_file": "At least 1 file is required to submit the case"
+      "video_too_long": "Video \"{{name}}\" is too long ({{duration}}s). Please limit videos to {{max}} seconds.",
+      "min_one_file": "At least 1 file is required to submit the case",
+      "fill_required": "Please fill in all required fields",
+      "phone_error": "Phone number must be exactly 8 digits"
     },
     "review": {
       "basic_info": "Basic Information",
@@ -400,5 +425,14 @@
     "status_suffering": "Still Suffering",
     "status_helping": "Being Helped",
     "status_resolved": "Resolved"
+  },
+  "about_page": {
+    "title": "About TounesHelp Map",
+    "mission_title": "Our Mission",
+    "mission_text": "We are dedicated to bridging the gap between forgotten communities and those who can provide help across Tunisia.",
+    "story_title": "Our Story",
+    "story_text": "Founded in 2026, TounesHelp Map started as a small initiative to ensure that no call for help goes unheard.",
+    "values_title": "Our Values",
+    "values_list": "Compassion|Transparency|Urgency|Community"
   }
 }

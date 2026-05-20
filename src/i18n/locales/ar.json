@@ -293,12 +293,14 @@
       "location": "الموقع",
       "person": "الشخص",
       "media": "الوسائط",
-      "review": "المراجعة"
+      "review": "المراجعة",
+      "creator_info": "معلومات المنشئ"
     },
     "headings": {
       "basic_info": "المعلومات الأساسية",
       "location": "الموقع",
       "person": "الشخص المعني",
+      "creator_info": "معلومات المنشئ",
       "media": "الوسائط",
       "review": "المراجعة"
     },
@@ -307,6 +309,8 @@
       "case_title_placeholder": "وصف الوضع باختصار",
       "description": "الوصف *",
       "description_placeholder": "وصف الوضع بالتفصيل...",
+      "category": "الفئة *",
+      "category_placeholder": "اختر فئة",
       "governorate": "الولاية *",
       "governorate_placeholder": "اختر ولاية",
       "city": "المدينة/المعتمدية *",
@@ -317,13 +321,29 @@
       "victim_name": "اسم الشخص *",
       "victim_name_placeholder": "الاسم الكامل أو مجهول",
       "victim_phone": "الهاتف *",
-      "victim_phone_placeholder": "+216",
+      "victim_phone_placeholder": "رقم الهاتف (8 أرقام)",
       "people_affected": "عدد الأشخاص المتضررين",
+      "creator_name": "اسم المنشئ *",
+      "creator_name_placeholder": "اسمك الكامل",
+      "creator_phone": "هاتف المنشئ *",
+      "creator_phone_placeholder": "رقم هاتفك (8 أرقام)",
+      "creator_email": "البريد الإلكتروني للمنشئ (اختياري)",
+      "creator_email_placeholder": "بريدك الإلكتروني",
       "files_selected": "الملفات المختارة:",
       "upload_hint": "اسحب صورك وفيديوهاتك هنا أو انقر للتصفح",
-      "upload_limits": "حد أقصى 10 ملفات · 5 ميغابايت لكل · صور: JPG PNG WebP · فيديوهات: MP4 AVI MOV",
+      "upload_limits": "حد أقصى 10 ملفات · 50 ميغابايت لكل · صور: JPG PNG WebP · فيديوهات: MP4 AVI MOV",
       "autofilled": "مملوء تلقائياً",
-      "delegation": "المعتمدية"
+      "delegation": "المعتمدية",
+      "min_chars": "{{count}} حرف ({{min}} كحد أدنى)"
+    },
+    "categories": {
+      "MEDICAL": "طبي",
+      "EDUCATION": "تعليم",
+      "FOOD": "غذاء",
+      "SHELTER": "سكن",
+      "TRANSPORTATION": "نقل",
+      "WATER": "ماء",
+      "OTHER": "أخرى"
     },
     "buttons": {
       "previous": "السابق",
@@ -335,15 +355,20 @@
     "messages": {
       "file_type_error": "نوع الملف غير مدعوم",
       "file_size_error": "الملف كبير جداً (حد أقصى 5 ميغابايت)",
+      "file_size_error_50": "الملف كبير جداً. الحد الأقصى هو 50 ميغابايت.",
       "max_files_error": "الحد الأقصى 10 ملفات مسموح",
       "upload_success": "تم رفع الملف(الملفات) بنجاح",
+      "upload_success_plural": "تم رفع {{count}} ملف(ملفات) بنجاح!",
       "upload_error": "خطأ في رفع الملفات",
       "case_created": "تم إنشاء الحالة بنجاح!",
       "case_error": "خطأ في إنشاء الحالة",
       "map_loading": "جاري تحميل الخريطة...",
       "images_count": "صورة/صور",
       "video_count": "فيديو واحد",
-      "min_one_file": "يجب رفع ملف واحد على الأقل لإرسال الحالة"
+      "video_too_long": "الفيديو \"{{name}}\" طويل جداً ({{duration}} ثانية). يرجى تحديد الفيديوهات بـ {{max}} ثانية.",
+      "min_one_file": "يجب رفع ملف واحد على الأقل لإرسال الحالة",
+      "fill_required": "يرجى ملء جميع الحقول المطلوبة",
+      "phone_error": "يجب أن يتكون رقم الهاتف من 8 أرقام بالضبط"
     },
     "review": {
       "basic_info": "المعلومات الأساسية",
@@ -399,5 +424,14 @@
     "status_suffering": "لا يزال يعاني",
     "status_helping": "قيد المساعدة",
     "status_resolved": "تم الحل"
+  },
+  "about_page": {
+    "title": "عن خريطة TounesHelp",
+    "mission_title": "مهمتنا",
+    "mission_text": "نحن ملتزمون بسد الفجوة بين المجتمعات المنسية وأولئك الذين يمكنهم تقديم المساعدة في جميع أنحاء تونس.",
+    "story_title": "قصتنا",
+    "story_text": "تأسست خريطة TounesHelp في عام 2026، وقد بدأت كمبادرة صغيرة لضمان عدم بقاء أي نداء مساعدة دون استجابة.",
+    "values_title": "قيمنا",
+    "values_list": "الرحمة|الشفافية|الاستعجال|المجتمع"
   }
 }

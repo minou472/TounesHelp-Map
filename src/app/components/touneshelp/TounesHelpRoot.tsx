@@ -97,10 +97,17 @@ export function TounesHelpRoot() {
                 )}
               </Link>
               <Link
-                to="/"
-                className="text-[15px] text-[#6B6B6B] hover:text-[#1C1C1E]"
+                to="/a-propos"
+                className={`text-[15px] relative ${
+                  isActive("/a-propos")
+                    ? "text-[#C0392B] font-semibold"
+                    : "text-[#6B6B6B] hover:text-[#1C1C1E]"
+                }`}
               >
                 {t("navigation.about")}
+                {isActive("/a-propos") && (
+                  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#C0392B]" />
+                )}
               </Link>
             </nav>
 
@@ -202,8 +209,12 @@ export function TounesHelpRoot() {
                 {t("navigation.map")}
               </Link>
               <Link
-                to="/"
-                className="block text-[#6B6B6B] hover:text-[#C0392B] py-2"
+                to="/a-propos"
+                className={`block py-2 ${
+                  isActive("/a-propos")
+                    ? "text-[#C0392B] font-semibold"
+                    : "text-[#6B6B6B] hover:text-[#C0392B]"
+                }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {t("navigation.about")}
@@ -302,7 +313,7 @@ export function TounesHelpRoot() {
                   {t("navigation.map", "Carte")}
                 </Link>
                 <Link
-                  to="/"
+                  to="/a-propos"
                   className="block text-gray-400 hover:text-white text-sm"
                 >
                   {t("navigation.about", "À propos")}

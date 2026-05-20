@@ -117,11 +117,11 @@ export function CreateCasePage() {
       const isValidSize = file.size <= 50 * 1024 * 1024; // 50MB
 
       if (!isImage && !isVideo) {
-        toast.error(`${file.name}: ${t("create_case.messages.file_type_error") || "Type de fichier non supporté."}`);
+        toast.error(`${file.name}: ${t("create_case.messages.file_type_error")}`);
         continue;
       }
       if (!isValidSize) {
-        toast.error(`${file.name}: Le fichier est trop volumineux. La taille maximale est de 50MB.`);
+        toast.error(`${file.name}: ${t("create_case.messages.file_size_error_50")}`);
         continue;
       }
 
@@ -130,7 +130,11 @@ export function CreateCasePage() {
         const maxDuration = 60; // 60 seconds limit
         if (duration > maxDuration) {
           toast.error(
-            `La vidéo "${file.name}" est trop longue (${Math.round(duration)}s). Veuillez limiter vos vidéos à ${maxDuration} secondes pour les adapter à la plateforme.`
+            t("create_case.messages.video_too_long", {
+              name: file.name,
+              duration: Math.round(duration),
+              max: maxDuration
+            })
           );
           continue;
         }
@@ -141,7 +145,7 @@ export function CreateCasePage() {
 
     if (uploadedFiles.length + checkedFiles.length > 10) {
       checkedFiles.forEach(f => URL.revokeObjectURL(f.previewUrl));
-      toast.error(t("create_case.messages.max_files_error") || "Maximum 10 fichiers autorisés.");
+      toast.error(t("create_case.messages.max_files_error"));
       return;
     }
 
@@ -177,10 +181,7 @@ export function CreateCasePage() {
         URL.revokeObjectURL(item.previewUrl);
         successCount++;
       } catch (error: any) {
-        console.error(`Upload failed for ${item.file.name}:`, error);
-        failCount++;
-        remainingFiles.push(item);
-        toast.error(`Échec de l'importation de "${item.file.name}": ${error?.message || "Erreur inconnue"}`);
+        toast.error(`${t("create_case.messages.upload_error")} "${item.file.name}": ${error?.message || t("create_case.messages.case_error")}`);
       }
     }
 
@@ -194,7 +195,7 @@ export function CreateCasePage() {
 
     if (successCount > 0) {
       toast.success(
-        `${successCount} fichier(s) importé(s) avec succès !`
+        t("create_case.messages.upload_success_plural", { count: successCount })
       );
     }
   };
@@ -213,7 +214,14 @@ export function CreateCasePage() {
         !formData.creatorPhone ||
         !formData.creatorEmail
       ) {
-        toast.error("Veuillez remplir tous les champs obligatoires");
+        toast.error(t("create_case.messages.fill_required"));
+        return;
+      }
+
+      // Phone validation
+      const phoneRegex = /^[0-9]{8}$/;
+      if (!phoneRegex.test(formData.victimPhone) || !phoneRegex.test(formData.creatorPhone)) {
+        toast.error(t("create_case.messages.phone_error"));
         return;
       }
 
@@ -281,7 +289,7 @@ export function CreateCasePage() {
     { number: 1, label: t("create_case.steps.basic_info") },
     { number: 2, label: t("create_case.steps.location") },
     { number: 3, label: t("create_case.steps.person") },
-    { number: 4, label: "Créateur" },
+    { number: 4, label: t("create_case.steps.creator_info") },
     { number: 5, label: t("create_case.steps.media") },
     { number: 6, label: t("create_case.steps.review") }
   ];
@@ -377,12 +385,12 @@ export function CreateCasePage() {
                   className="mt-2 min-h-[200px]"
                 />
                 <p className="text-sm text-gray-500 mt-1 text-right">
-                  {formData.description.length} caractères (150 minimum)
+                  {t("create_case.labels.min_chars", { count: formData.description.length, min: 150 })}
                 </p>
               </div>
 
               <div>
-                <Label htmlFor="category">Catégorie *</Label>
+                <Label htmlFor="category">{t("create_case.labels.category")}</Label>
                 <Select
                   value={formData.category}
                   onValueChange={(
@@ -397,16 +405,16 @@ export function CreateCasePage() {
                   ) => setFormData({ ...formData, category: value })}
                 >
                   <SelectTrigger className="mt-2 h-12">
-                    <SelectValue placeholder="Sélectionner une catégorie" />
+                    <SelectValue placeholder={t("create_case.labels.category_placeholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="MEDICAL">Médical</SelectItem>
-                    <SelectItem value="EDUCATION">Éducation</SelectItem>
-                    <SelectItem value="FOOD">Nourriture</SelectItem>
-                    <SelectItem value="SHELTER">Logement</SelectItem>
-                    <SelectItem value="TRANSPORTATION">Transport</SelectItem>
-                    <SelectItem value="WATER">Eau</SelectItem>
-                    <SelectItem value="OTHER">Autre</SelectItem>
+                    <SelectItem value="MEDICAL">{t("create_case.categories.MEDICAL")}</SelectItem>
+                    <SelectItem value="EDUCATION">{t("create_case.categories.EDUCATION")}</SelectItem>
+                    <SelectItem value="FOOD">{t("create_case.categories.FOOD")}</SelectItem>
+                    <SelectItem value="SHELTER">{t("create_case.categories.SHELTER")}</SelectItem>
+                    <SelectItem value="TRANSPORTATION">{t("create_case.categories.TRANSPORTATION")}</SelectItem>
+                    <SelectItem value="WATER">{t("create_case.categories.WATER")}</SelectItem>
+                    <SelectItem value="OTHER">{t("create_case.categories.OTHER")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -607,9 +615,10 @@ export function CreateCasePage() {
                   id="victimPhone"
                   type="tel"
                   value={formData.victimPhone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, victimPhone: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "").slice(0, 8);
+                    setFormData({ ...formData, victimPhone: val });
+                  }}
                   placeholder={t("create_case.labels.victim_phone_placeholder")}
                   className="mt-2 h-12"
                 />
@@ -662,41 +671,42 @@ export function CreateCasePage() {
                     4
                   </div>
                   <h2 className="text-2xl font-bold text-[#1C1C1E]">
-                    Informations du Créateur
+                    {t("create_case.headings.creator_info")}
                   </h2>
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="creatorName">Nom du Créateur</Label>
+                <Label htmlFor="creatorName">{t("create_case.labels.creator_name")}</Label>
                 <Input
                   id="creatorName"
                   value={formData.creatorName}
                   onChange={(e) =>
                     setFormData({ ...formData, creatorName: e.target.value })
                   }
-                  placeholder="Votre nom complet"
+                  placeholder={t("create_case.labels.creator_name_placeholder")}
                   className="mt-2 h-12"
                 />
               </div>
 
               <div>
-                <Label htmlFor="creatorPhone">Téléphone du Créateur</Label>
+                <Label htmlFor="creatorPhone">{t("create_case.labels.creator_phone")}</Label>
                 <Input
                   id="creatorPhone"
                   type="tel"
                   value={formData.creatorPhone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, creatorPhone: e.target.value })
-                  }
-                  placeholder="Votre numéro de téléphone"
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "").slice(0, 8);
+                    setFormData({ ...formData, creatorPhone: val });
+                  }}
+                  placeholder={t("create_case.labels.creator_phone_placeholder")}
                   className="mt-2 h-12"
                 />
               </div>
 
               <div>
                 <Label htmlFor="creatorEmail">
-                  Email du Créateur (Optionnel)
+                  {t("create_case.labels.creator_email")}
                 </Label>
                 <Input
                   id="creatorEmail"
@@ -705,7 +715,7 @@ export function CreateCasePage() {
                   onChange={(e) =>
                     setFormData({ ...formData, creatorEmail: e.target.value })
                   }
-                  placeholder="Votre email"
+                  placeholder={t("create_case.labels.creator_email_placeholder")}
                   className="mt-2 h-12"
                 />
               </div>
@@ -880,6 +890,14 @@ export function CreateCasePage() {
                 </h3>
                 <p className="text-sm text-blue-800">{formData.victimName}</p>
                 <p className="text-sm text-blue-800">{formData.victimPhone}</p>
+              </Card>
+
+              <Card className="p-6 bg-blue-50 border-blue-200">
+                <h3 className="font-bold text-blue-900 mb-2">
+                  {t("create_case.review.creator_info")}
+                </h3>
+                <p className="text-sm text-blue-800">{formData.creatorName}</p>
+                <p className="text-sm text-blue-800">{formData.creatorPhone}</p>
               </Card>
 
               {(formData.images.length > 0 || formData.videoUrl) && (
