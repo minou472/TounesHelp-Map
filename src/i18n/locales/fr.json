@@ -261,7 +261,11 @@
     "km_away": "{{km}} km",
     "edit_media": "Médias",
     "current_files": "Fichiers actuels",
-    "add_new_files": "Ajouter de nouveaux fichiers"
+    "add_new_files": "Ajouter de nouveaux fichiers",
+    "my_cases": "Mes Cas",
+    "cases_history": "Historique des cas",
+    "clear_filter": "Effacer le filtre",
+    "no_cases_on_date": "Aucun cas pour cette date"
   },
   "case_detail": {
     "loading": "Chargement du cas...",

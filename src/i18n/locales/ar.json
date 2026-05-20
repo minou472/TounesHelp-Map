@@ -261,7 +261,11 @@
     "km_away": "{{km}} كم",
     "edit_media": "الوسائط",
     "current_files": "الملفات الحالية",
-    "add_new_files": "إضافة ملفات جديدة"
+    "add_new_files": "إضافة ملفات جديدة",
+    "my_cases": "حالاتي",
+    "cases_history": "سجل الحالات",
+    "clear_filter": "مسح الفلتر",
+    "no_cases_on_date": "لا توجد حالات في هذا التاريخ"
   },
   "case_detail": {
     "loading": "جاري تحميل الحالة...",

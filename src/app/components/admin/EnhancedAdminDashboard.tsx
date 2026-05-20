@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { Badge } from '../ui/badge';
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import { CasesManagement } from './CasesManagement';
 import { UsersManagement } from './UsersManagement';
@@ -116,14 +116,7 @@ export function EnhancedAdminDashboard() {
     { name: t('admin.status_resolved'), value: resolvedThisMonth, color: '#27AE60' },
   ];
 
-  // Cases by governorate data (top 10)
-  const governorateData = tunisiaGovernorates
-    .map(gov => ({
-      name: gov,
-      cases: cases.filter(c => c.location && c.location.includes(gov)).length,
-    }))
-    .sort((a, b) => b.cases - a.cases)
-    .slice(0, 10);
+
 
   // Activity timeline (last 7 days)
   const timelineData = Array.from({ length: 7 }, (_, i) => {
@@ -560,28 +553,8 @@ export function EnhancedAdminDashboard() {
               </Card>
             </div>
 
-            {/* Cases by Governorate & Recent Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Cases by Governorate */}
-              <Card className="p-6 bg-white border border-[#E2E8F0] rounded-xl">
-                <h4 className="text-lg font-bold text-[#1A202C] mb-4">{t('admin.top_10_governorates')}</h4>
-                {governorateData.reduce((acc, curr) => acc + curr.cases, 0) > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={governorateData} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-                      <XAxis type="number" tick={{ fill: '#718096', fontSize: 12 }} />
-                      <YAxis dataKey="name" type="category" tick={{ fill: '#718096', fontSize: 11 }} width={80} />
-                      <Tooltip />
-                      <Bar dataKey="cases" fill="#1E88E5" radius={[0, 4, 4, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="h-[300px] flex items-center justify-center text-[#718096]">No data</div>
-                )}
-              </Card>
-
-              {/* Recent Activity Feed */}
-              <Card className="p-6 bg-white border border-[#E2E8F0] rounded-xl">
+            {/* Recent Activity Feed - full width */}
+            <Card className="p-6 bg-white border border-[#E2E8F0] rounded-xl">
                 <h4 className="text-lg font-bold text-[#1A202C] mb-4">{t('admin.recent_activity')}</h4>
                 <div className="space-y-4">
                   {recentActivity.map((activity) => (
@@ -598,15 +571,14 @@ export function EnhancedAdminDashboard() {
                     <p className="text-sm text-[#718096] text-center py-4">{t('admin.no_activity', 'Aucune activité récente')}</p>
                   )}
                 </div>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full mt-4 text-[#1E88E5] border-[#1E88E5]"
                   onClick={() => setActiveNav('notifications')}
                 >
                   {t('admin.view_all')}
                 </Button>
               </Card>
-            </div>
               </>
             )}
           </div>

@@ -102,6 +102,7 @@ export function UserDashboard() {
   const [editImages, setEditImages] = useState<string[]>([]);
   const [editNewFiles, setEditNewFiles] = useState<Array<{ file: File; previewUrl: string }>>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dateFilter, setDateFilter] = useState("");
 
   useEffect(() => {
     if (!editDialogOpen) {
@@ -714,128 +715,173 @@ export function UserDashboard() {
         );
       })()}
 
-      {/* Accordion Cases */}
+      {/* My Cases + History Sidebar */}
       <section className="max-w-7xl mx-auto px-6 lg:px-24 pb-12">
-        <Accordion type="single" collapsible className="space-y-4">
-          {/* Suffering Cases */}
-          <AccordionItem value="suffering" className="border-0">
-            <AccordionTrigger className="bg-[#FFF0EE] hover:bg-[#FFE5E2] px-6 py-5 rounded-xl transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#C0392B]" />
-                <span className="font-bold text-[#1C1C1E]">
-                  {t("dashboard.suffering_cases")}
-                </span>
-                <Badge className="bg-[#C0392B] text-white ml-2">
-                  {sufferingCases.length}
-                </Badge>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 space-y-3">
-              {sufferingCases.map((c) =>
-                renderCaseCard(
-                  c,
-                  "border-[#C0392B]",
-                  "bg-[#C0392B]",
-                  t("dashboard.suffering")
-                )
-              )}
-              {sufferingCases.length === 0 && (
-                <p className="text-center text-gray-500 py-4">
-                  {t("dashboard.no_suffering_cases")}
-                </p>
-              )}
-            </AccordionContent>
-          </AccordionItem>
+        <div className="flex flex-col lg:flex-row gap-8">
 
-          {/* Helping Cases */}
-          <AccordionItem value="helping" className="border-0">
-            <AccordionTrigger className="bg-[#FFF4ED] hover:bg-[#FFEEE0] px-6 py-5 rounded-xl transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#E67E22]" />
-                <span className="font-bold text-[#1C1C1E]">
-                  {t("dashboard.helping_cases")}
-                </span>
-                <Badge className="bg-[#E67E22] text-white ml-2">
-                  {helpingCases.length}
-                </Badge>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 space-y-3">
-              {helpingCases.map((c) =>
-                renderCaseCard(
-                  c,
-                  "border-[#E67E22]",
-                  "bg-[#E67E22]",
-                  t("dashboard.helping")
-                )
-              )}
-              {helpingCases.length === 0 && (
-                <p className="text-center text-gray-500 py-4">
-                  {t("dashboard.no_helping_cases")}
-                </p>
-              )}
-            </AccordionContent>
-          </AccordionItem>
+          {/* ── Left: My Cases ── */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-1 h-7 rounded-full bg-[#C0392B]" />
+              <h2 className="text-2xl font-bold text-[#1C1C1E]">
+                {t("dashboard.my_cases", "Mes Cas")}
+              </h2>
+              <span className="ml-2 bg-[#C0392B] text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                {userCases.length}
+              </span>
+            </div>
 
-          {/* Resolved Cases */}
-          <AccordionItem value="resolved" className="border-0">
-            <AccordionTrigger className="bg-[#F0FFF4] hover:bg-[#E5FFE9] px-6 py-5 rounded-xl transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#27AE60]" />
-                <span className="font-bold text-[#1C1C1E]">{t("dashboard.resolved_cases")}</span>
-                <Badge className="bg-[#27AE60] text-white ml-2">
-                  {resolvedCases.length}
-                </Badge>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 space-y-3">
-              {resolvedCases.map((c) => (
-                <Card
-                  key={c.id}
-                  className="p-4 border-l-4 border-[#27AE60] bg-white"
-                >
-                  <div className="flex justify-between items-start gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2 text-sm text-[#6B6B6B]">
-                        <Badge className="bg-[#27AE60] text-white">
-                          {t("dashboard.resolved_badge")}
-                        </Badge>
-                        <span>📍 {c.governorate}</span>
-                        <span>
-                          📅{" "}
-                          {new Date(c.dateSubmitted).toLocaleDateString(
-                            dateLocale,
-                            { day: "numeric", month: "short" }
-                          )}
-                        </span>
-                      </div>
-                      <Link
-                        to={`/cas/${c.id}`}
-                        className="font-semibold text-[#1C1C1E] hover:text-[#C0392B]"
-                      >
-                        {c.title}
-                      </Link>
-                    </div>
-                    <Link to={`/cas/${c.id}`}>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-[#27AE60]"
-                      >
-                        {t("dashboard.view_resolution")}
-                      </Button>
-                    </Link>
+            <Accordion type="single" collapsible className="space-y-4">
+              {/* Suffering Cases */}
+              <AccordionItem value="suffering" className="border-0">
+                <AccordionTrigger className="bg-[#FFF0EE] hover:bg-[#FFE5E2] px-6 py-5 rounded-xl transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#C0392B]" />
+                    <span className="font-bold text-[#1C1C1E]">{t("dashboard.suffering_cases")}</span>
+                    <Badge className="bg-[#C0392B] text-white ml-2">{sufferingCases.length}</Badge>
                   </div>
-                </Card>
-              ))}
-              {resolvedCases.length === 0 && (
-                <p className="text-center text-gray-500 py-4">
-                  {t("dashboard.no_resolved_cases")}
-                </p>
-              )}
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+                </AccordionTrigger>
+                <AccordionContent className="pt-4 space-y-3">
+                  {sufferingCases.map((c) => renderCaseCard(c, "border-[#C0392B]", "bg-[#C0392B]", t("dashboard.suffering")))}
+                  {sufferingCases.length === 0 && <p className="text-center text-gray-500 py-4">{t("dashboard.no_suffering_cases")}</p>}
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Helping Cases */}
+              <AccordionItem value="helping" className="border-0">
+                <AccordionTrigger className="bg-[#FFF4ED] hover:bg-[#FFEEE0] px-6 py-5 rounded-xl transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#E67E22]" />
+                    <span className="font-bold text-[#1C1C1E]">{t("dashboard.helping_cases")}</span>
+                    <Badge className="bg-[#E67E22] text-white ml-2">{helpingCases.length}</Badge>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pt-4 space-y-3">
+                  {helpingCases.map((c) => renderCaseCard(c, "border-[#E67E22]", "bg-[#E67E22]", t("dashboard.helping")))}
+                  {helpingCases.length === 0 && <p className="text-center text-gray-500 py-4">{t("dashboard.no_helping_cases")}</p>}
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Resolved Cases */}
+              <AccordionItem value="resolved" className="border-0">
+                <AccordionTrigger className="bg-[#F0FFF4] hover:bg-[#E5FFE9] px-6 py-5 rounded-xl transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#27AE60]" />
+                    <span className="font-bold text-[#1C1C1E]">{t("dashboard.resolved_cases")}</span>
+                    <Badge className="bg-[#27AE60] text-white ml-2">{resolvedCases.length}</Badge>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pt-4 space-y-3">
+                  {resolvedCases.map((c) => (
+                    <Card key={c.id} className="p-4 border-l-4 border-[#27AE60] bg-white">
+                      <div className="flex justify-between items-start gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2 text-sm text-[#6B6B6B]">
+                            <Badge className="bg-[#27AE60] text-white">{t("dashboard.resolved_badge")}</Badge>
+                            <span>📍 {c.governorate}</span>
+                            <span>📅 {new Date(c.dateSubmitted).toLocaleDateString(dateLocale, { day: "numeric", month: "short" })}</span>
+                          </div>
+                          <Link to={`/cas/${c.id}`} className="font-semibold text-[#1C1C1E] hover:text-[#C0392B]">{c.title}</Link>
+                        </div>
+                        <Link to={`/cas/${c.id}`}>
+                          <Button size="sm" variant="outline" className="text-[#27AE60]">{t("dashboard.view_resolution")}</Button>
+                        </Link>
+                      </div>
+                    </Card>
+                  ))}
+                  {resolvedCases.length === 0 && <p className="text-center text-gray-500 py-4">{t("dashboard.no_resolved_cases")}</p>}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+
+          {/* ── Right: Cases History Sidebar ── */}
+          <div className="w-full lg:w-80 flex-shrink-0">
+            <div className="sticky top-6">
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                {/* Sidebar header */}
+                <div className="bg-gradient-to-r from-[#1C1C1E] to-[#3a3a3e] px-5 py-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <History size={18} className="text-white" />
+                    <h3 className="font-bold text-white text-base">
+                      {t("dashboard.cases_history", "Historique des cas")}
+                    </h3>
+                  </div>
+                  <input
+                    type="date"
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="w-full bg-white/10 text-white placeholder-white/60 border border-white/20 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-white/40"
+                  />
+                  {dateFilter && (
+                    <button
+                      onClick={() => setDateFilter("")}
+                      className="mt-2 text-xs text-white/70 hover:text-white underline"
+                    >
+                      {t("dashboard.clear_filter", "Effacer le filtre")}
+                    </button>
+                  )}
+                </div>
+
+                {/* Timeline list */}
+                <div className="max-h-[560px] overflow-y-auto">
+                  {(() => {
+                    const filtered = [...userCases]
+                      .filter(c => {
+                        if (!dateFilter) return true;
+                        return new Date(c.dateSubmitted).toISOString().startsWith(dateFilter);
+                      })
+                      .sort((a, b) => new Date(b.dateSubmitted).getTime() - new Date(a.dateSubmitted).getTime());
+
+                    if (filtered.length === 0) return (
+                      <div className="p-6 text-center text-gray-400 text-sm">
+                        {dateFilter
+                          ? t("dashboard.no_cases_on_date", "Aucun cas pour cette date")
+                          : t("dashboard.no_suffering_cases")}
+                      </div>
+                    );
+
+                    const statusColors: Record<string, string> = {
+                      suffering: "#C0392B",
+                      helping: "#E67E22",
+                      resolved: "#27AE60",
+                    };
+
+                    return filtered.map((c, i) => (
+                      <div key={c.id} className="relative">
+                        {/* timeline line */}
+                        {i < filtered.length - 1 && (
+                          <div className="absolute left-[26px] top-10 bottom-0 w-0.5 bg-gray-100" />
+                        )}
+                        <Link to={`/cas/${c.id}`} className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors group">
+                          {/* dot */}
+                          <div
+                            className="w-4 h-4 rounded-full border-2 border-white shadow flex-shrink-0 mt-1"
+                            style={{ backgroundColor: statusColors[c.status?.toLowerCase()] ?? "#718096" }}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-[#1C1C1E] group-hover:text-[#C0392B] truncate">
+                              {c.title}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              📅 {new Date(c.dateSubmitted).toLocaleDateString(dateLocale, { day: "numeric", month: "short", year: "numeric" })}
+                            </p>
+                            <p className="text-xs text-gray-400">📍 {c.governorate}</p>
+                          </div>
+                          <div
+                            className="w-2 h-2 rounded-full flex-shrink-0 mt-2"
+                            style={{ backgroundColor: statusColors[c.status?.toLowerCase()] ?? "#718096" }}
+                          />
+                        </Link>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </section>
 
       {/* Nearby Cases Section */}
