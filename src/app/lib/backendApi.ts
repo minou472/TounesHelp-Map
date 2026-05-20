@@ -207,6 +207,7 @@ export type CreateCaseData = {
   peopleAffected: number;
   images: string[];
   videoUrl?: string;
+  status?: "SUFFERING" | "HELPING" | "RESOLVED";
 };
 
 export function createCase(data: CreateCaseData) {
