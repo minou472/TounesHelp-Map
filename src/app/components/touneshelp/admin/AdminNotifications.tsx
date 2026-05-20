@@ -7,8 +7,10 @@ import {
   fetchNotifications,
   type NotificationsResponse,
 } from "../../../lib/backendApi";
+import { useTranslation } from "react-i18next";
 
 export function AdminNotifications() {
+  const { t } = useTranslation();
   const [notifications, setNotifications] =
     useState<NotificationsResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,7 +34,7 @@ export function AdminNotifications() {
       <AdminLayout>
         <div className="text-center py-16">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#C0392B] mx-auto mb-4" />
-          <p className="text-gray-500">Chargement des notifications...</p>
+          <p className="text-gray-500">{t("admin.notif_loading")}</p>
         </div>
       </AdminLayout>
     );
@@ -45,7 +47,7 @@ export function AdminNotifications() {
       iconColor: "text-[#C0392B]",
       bgColor: "bg-red-50",
       borderColor: "border-[#C0392B]",
-      title: "Cas en attente",
+      title: t("admin.notif_pending_cases"),
       message: notifications?.details.pendingCasesMessage,
       count: notifications?.breakdown.pendingCases || 0,
       badgeColor: "bg-[#C0392B]",
@@ -56,7 +58,7 @@ export function AdminNotifications() {
       iconColor: "text-[#27AE60]",
       bgColor: "bg-green-50",
       borderColor: "border-[#27AE60]",
-      title: "Nouveaux utilisateurs",
+      title: t("admin.notif_recent_users"),
       message: notifications?.details.recentUsersMessage,
       count: notifications?.breakdown.recentUsers || 0,
       badgeColor: "bg-[#27AE60]",
@@ -67,7 +69,7 @@ export function AdminNotifications() {
       iconColor: "text-[#E67E22]",
       bgColor: "bg-orange-50",
       borderColor: "border-[#E67E22]",
-      title: "Cas anciens non résolus",
+      title: t("admin.notif_old_cases"),
       message: notifications?.details.oldCasesMessage,
       count: notifications?.breakdown.oldUnresolvedCases || 0,
       badgeColor: "bg-[#E67E22]",
@@ -77,10 +79,8 @@ export function AdminNotifications() {
   return (
     <AdminLayout>
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-[#1C1C1E]">Notifications</h2>
-        <p className="text-gray-600">
-          Résumé des alertes et notifications du système
-        </p>
+        <h2 className="text-2xl font-bold text-[#1C1C1E]">{t("admin.notifications")}</h2>
+        <p className="text-gray-600">{t("admin.notifications_desc")}</p>
       </div>
 
       {/* Summary Card */}
@@ -91,7 +91,7 @@ export function AdminNotifications() {
               <Bell size={24} className="text-blue-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Total des notifications</p>
+              <p className="text-sm text-gray-600">{t("admin.notif_total_label")}</p>
               <p className="text-3xl font-bold text-[#1C1C1E]">
                 {notifications?.total || 0}
               </p>
@@ -99,7 +99,7 @@ export function AdminNotifications() {
           </div>
           {notifications && notifications.total > 0 && (
             <Badge className="bg-[#C0392B] text-white px-3 py-1">
-              {notifications.total} en attente
+              {notifications.total} {t("admin.notif_pending_badge")}
             </Badge>
           )}
         </div>
@@ -143,10 +143,10 @@ export function AdminNotifications() {
               className="mx-auto mb-4 text-green-400"
             />
             <h3 className="text-lg font-semibold text-gray-500 mb-2">
-              Tout est en ordre !
+              {t("admin.notif_all_clear_title")}
             </h3>
             <p className="text-gray-400">
-              Aucune notification en attente pour le moment
+              {t("admin.notif_all_clear_desc")}
             </p>
           </Card>
         )}

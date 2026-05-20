@@ -105,15 +105,15 @@ export function EnhancedAdminDashboard() {
 
   // Calculate metrics
   const totalCases = cases.length;
-  const pendingCases = cases.filter(c => c.status && c.status.toLowerCase() === 'pending').length;
+  const pendingCases = cases.filter(c => c.status && c.status.toLowerCase() === 'suffering').length;
   const resolvedThisMonth = cases.filter(c => c.status && c.status.toLowerCase() === 'resolved').length;
   const totalUsers = users.length;
 
   // Cases by status data
   const statusData = [
     { name: t('admin.status_suffering'), value: pendingCases, color: '#E53935' },
-    { name: t('admin.status_helping'), value: cases.filter(c => c.status === 'helping').length, color: '#FF9800' },
-    { name: t('admin.status_resolved'), value: resolvedThisMonth, color: '#43A047' },
+    { name: t('admin.status_helping'), value: cases.filter(c => c.status && c.status.toLowerCase() === 'helping').length, color: '#FF9800' },
+    { name: t('admin.status_resolved'), value: resolvedThisMonth, color: '#27AE60' },
   ];
 
   // Cases by governorate data (top 10)
@@ -518,7 +518,8 @@ export function EnhancedAdminDashboard() {
                         cy="50%"
                         innerRadius={50}
                         outerRadius={80}
-                        paddingAngle={5}
+                        paddingAngle={3}
+                        minAngle={8}
                         dataKey="value"
                       >
                         {statusData.map((entry, index) => (

@@ -92,7 +92,12 @@
     "notif_recent_users": "New Users (last 7 days)",
     "notif_old_cases": "Old Unresolved Cases",
     "notif_total": "{{count}} total notification(s) requiring attention.",
-    "no_notifications": "No notifications at this time."
+    "no_notifications": "No notifications at this time.",
+    "notif_total_label": "Total notifications",
+    "notif_pending_badge": "pending",
+    "notif_all_clear_title": "All clear!",
+    "notif_all_clear_desc": "No pending notifications at the moment.",
+    "notif_loading": "Loading notifications..."
   },
   "login": {
     "together_help": "Together, let's help Tunisia",

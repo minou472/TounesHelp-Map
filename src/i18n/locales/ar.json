@@ -92,7 +92,12 @@
     "notif_recent_users": "مستخدمون جدد (آخر 7 أيام)",
     "notif_old_cases": "حالات قديمة غير محلولة",
     "notif_total": "{{count}} إشعار(إشعارات) تحتاج انتباهك.",
-    "no_notifications": "لا توجد إشعارات حالياً."
+    "no_notifications": "لا توجد إشعارات حالياً.",
+    "notif_total_label": "إجمالي الإشعارات",
+    "notif_pending_badge": "في الانتظار",
+    "notif_all_clear_title": "كل شيء على ما يرام!",
+    "notif_all_clear_desc": "لا توجد إشعارات معلقة في الوقت الحالي.",
+    "notif_loading": "جاري تحميل الإشعارات..."
   },
   "login": {
     "together_help": "معاً، نساعد تونس",
