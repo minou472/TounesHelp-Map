@@ -51,6 +51,7 @@ export function EnhancedAdminDashboard() {
 
   const [cases, setCases] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notifications, setNotifications] = useState<NotificationsResponse | null>(null);
   const [notifLoading, setNotifLoading] = useState(false);
@@ -72,9 +73,14 @@ export function EnhancedAdminDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [resCases, resUsers] = await Promise.all([
+        const [resCases, resUsers, resStats] = await Promise.all([
           fetch('/api/cases?limit=200').then(r => r.json().catch(() => ({}))),
           fetch('/api/users?limit=200', {
+            headers: {
+              'Authorization': 'Bearer ' + localStorage.getItem('touneshelp_token')
+            }
+          }).then(r => r.json().catch(() => ({}))),
+          fetch('/api/stats', {
             headers: {
               'Authorization': 'Bearer ' + localStorage.getItem('touneshelp_token')
             }
@@ -82,6 +88,7 @@ export function EnhancedAdminDashboard() {
         ]);
         if (resCases && resCases.success && Array.isArray(resCases.data)) setCases(resCases.data);
         if (resUsers && resUsers.success && Array.isArray(resUsers.data)) setUsers(resUsers.data);
+        if (resStats && resStats.success) setStats(resStats.data);
       } catch (e) {
         console.error('Failed to fetch data', e);
       } finally {
@@ -103,11 +110,11 @@ export function EnhancedAdminDashboard() {
     i18n.changeLanguage(newLang);
   };
 
-  // Calculate metrics
-  const totalCases = cases.length;
-  const pendingCases = cases.filter(c => c.status && c.status.toLowerCase() === 'suffering').length;
-  const resolvedThisMonth = cases.filter(c => c.status && c.status.toLowerCase() === 'resolved').length;
-  const totalUsers = users.length;
+  // Calculate metrics (using API stats if available, fallback to length)
+  const totalCases = stats?.overview?.totalCases ?? cases.length;
+  const pendingCases = stats?.overview?.sufferingCases ?? cases.filter(c => c.status && c.status.toLowerCase() === 'suffering').length;
+  const resolvedThisMonth = stats?.overview?.resolvedCases ?? cases.filter(c => c.status && c.status.toLowerCase() === 'resolved').length;
+  const totalUsers = stats?.overview?.totalUsers ?? users.length;
 
   // Cases by status data
   const statusData = [
