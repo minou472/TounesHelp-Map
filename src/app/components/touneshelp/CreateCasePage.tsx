@@ -21,6 +21,22 @@ import { toast } from "sonner";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import { uploadFile, createCase } from "../../lib/backendApi";
 
+const getVideoDuration = (file: File): Promise<number> => {
+  return new Promise((resolve) => {
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.src = URL.createObjectURL(file);
+    video.onloadedmetadata = () => {
+      URL.revokeObjectURL(video.src);
+      resolve(video.duration);
+    };
+    video.onerror = () => {
+      URL.revokeObjectURL(video.src);
+      resolve(-1);
+    };
+  });
+};
+
 export function CreateCasePage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -62,8 +78,15 @@ export function CreateCasePage() {
     images: [] as string[],
     videoUrl: ""
   });
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<Array<{ file: File; previewUrl: string }>>([]);
   const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      uploadedFiles.forEach(f => URL.revokeObjectURL(f.previewUrl));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [autoFilled, setAutoFilled] = useState<{ city?: boolean; governorate?: boolean }>({});
   const [previewExpanded, setPreviewExpanded] = useState(false);
 
@@ -84,33 +107,52 @@ export function CreateCasePage() {
     lng: 9.0
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const validFiles = files.filter((file) => {
+    const checkedFiles: Array<{ file: File; previewUrl: string }> = [];
+
+    for (const file of files) {
       const isImage = file.type.startsWith("image/");
       const isVideo = file.type.startsWith("video/");
       const isValidSize = file.size <= 50 * 1024 * 1024; // 50MB
 
       if (!isImage && !isVideo) {
-        toast.error(t("create_case.messages.file_type_error"));
-        return false;
+        toast.error(`${file.name}: ${t("create_case.messages.file_type_error") || "Type de fichier non supporté."}`);
+        continue;
       }
       if (!isValidSize) {
-        toast.error("Le fichier est trop volumineux. La taille maximale est de 50MB.");
-        return false;
+        toast.error(`${file.name}: Le fichier est trop volumineux. La taille maximale est de 50MB.`);
+        continue;
       }
-      return true;
-    });
 
-    if (uploadedFiles.length + validFiles.length > 10) {
-      toast.error(t("create_case.messages.max_files_error"));
+      if (isVideo) {
+        const duration = await getVideoDuration(file);
+        const maxDuration = 60; // 60 seconds limit
+        if (duration > maxDuration) {
+          toast.error(
+            `La vidéo "${file.name}" est trop longue (${Math.round(duration)}s). Veuillez limiter vos vidéos à ${maxDuration} secondes pour les adapter à la plateforme.`
+          );
+          continue;
+        }
+      }
+
+      checkedFiles.push({ file, previewUrl: URL.createObjectURL(file) });
+    }
+
+    if (uploadedFiles.length + checkedFiles.length > 10) {
+      checkedFiles.forEach(f => URL.revokeObjectURL(f.previewUrl));
+      toast.error(t("create_case.messages.max_files_error") || "Maximum 10 fichiers autorisés.");
       return;
     }
 
-    setUploadedFiles((prev) => [...prev, ...validFiles]);
+    setUploadedFiles((prev) => [...prev, ...checkedFiles]);
   };
 
   const removeFile = (index: number) => {
+    const item = uploadedFiles[index];
+    if (item) {
+      URL.revokeObjectURL(item.previewUrl);
+    }
     setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
@@ -118,40 +160,42 @@ export function CreateCasePage() {
     if (uploadedFiles.length === 0) return;
 
     setUploading(true);
-    try {
-      const uploadPromises = uploadedFiles.map(async (file) => {
-        const result = await uploadFile(file);
-        return result.url;
-      });
+    const newImages: string[] = [];
+    let newVideoUrl = formData.videoUrl;
+    const remainingFiles: Array<{ file: File; previewUrl: string }> = [];
+    let successCount = 0;
+    let failCount = 0;
 
-      const uploadedUrls = await Promise.all(uploadPromises);
+    for (const item of uploadedFiles) {
+      try {
+        const result = await uploadFile(item.file);
+        if (result.type === "image") {
+          newImages.push(result.url);
+        } else if (result.type === "video") {
+          newVideoUrl = result.url;
+        }
+        URL.revokeObjectURL(item.previewUrl);
+        successCount++;
+      } catch (error: any) {
+        console.error(`Upload failed for ${item.file.name}:`, error);
+        failCount++;
+        remainingFiles.push(item);
+        toast.error(`Échec de l'importation de "${item.file.name}": ${error?.message || "Erreur inconnue"}`);
+      }
+    }
 
-      // Separate images and videos
-      const images = uploadedUrls.filter((url) => {
-        const extension = url.split(".").pop()?.toLowerCase();
-        return ["jpg", "jpeg", "png", "webp"].includes(extension || "");
-      });
+    setFormData((prev) => ({
+      ...prev,
+      images: [...prev.images, ...newImages],
+      videoUrl: newVideoUrl || prev.videoUrl
+    }));
 
-      const videos = uploadedUrls.filter((url) => {
-        const extension = url.split(".").pop()?.toLowerCase();
-        return ["mp4", "avi", "mov", "wmv"].includes(extension || "");
-      });
+    setUploadedFiles(remainingFiles);
 
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, ...images],
-        videoUrl: videos.length > 0 ? videos[0] : prev.videoUrl
-      }));
-
-      setUploadedFiles([]);
+    if (successCount > 0) {
       toast.success(
-        `${uploadedUrls.length} ${t("create_case.messages.upload_success")}`
+        `${successCount} fichier(s) importé(s) avec succès !`
       );
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error(t("create_case.messages.upload_error"));
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -733,17 +777,17 @@ export function CreateCasePage() {
                       {t("create_case.labels.files_selected")}
                     </h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {uploadedFiles.map((file, index) => (
+                      {uploadedFiles.map(({ file, previewUrl }, index) => (
                         <div key={index} className="relative group rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
                           {file.type.startsWith("image/") ? (
                             <img
-                              src={URL.createObjectURL(file)}
+                              src={previewUrl}
                               alt={file.name}
                               className="w-full aspect-square object-cover"
                             />
                           ) : (
                             <video
-                              src={URL.createObjectURL(file)}
+                              src={previewUrl}
                               className="w-full aspect-square object-cover"
                               muted
                             />

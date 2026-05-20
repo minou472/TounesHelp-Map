@@ -48,6 +48,22 @@ import { toast } from "sonner";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyAmk4IjHlJsQb8gchi-9SXxRD0vGaCsxaI";
 
+const getVideoDuration = (file: File): Promise<number> => {
+  return new Promise((resolve) => {
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.src = URL.createObjectURL(file);
+    video.onloadedmetadata = () => {
+      URL.revokeObjectURL(video.src);
+      resolve(video.duration);
+    };
+    video.onerror = () => {
+      URL.revokeObjectURL(video.src);
+      resolve(-1);
+    };
+  });
+};
+
 function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -84,8 +100,16 @@ export function UserDashboard() {
   const [editingCase, setEditingCase] = useState<TunisiaCase | null>(null);
   const [editForm, setEditForm] = useState({ title: "", description: "", fullDescription: "" });
   const [editImages, setEditImages] = useState<string[]>([]);
-  const [editNewFiles, setEditNewFiles] = useState<File[]>([]);
+  const [editNewFiles, setEditNewFiles] = useState<Array<{ file: File; previewUrl: string }>>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!editDialogOpen) {
+      editNewFiles.forEach(f => URL.revokeObjectURL(f.previewUrl));
+      setEditNewFiles([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editDialogOpen]);
 
   const loadCases = async () => {
     const rawUser = localStorage.getItem("touneshelp_user");
@@ -193,22 +217,89 @@ export function UserDashboard() {
     setEditDialogOpen(true);
   };
 
+  const handleEditFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const checkedFiles: Array<{ file: File; previewUrl: string }> = [];
+
+    for (const file of files) {
+      const isImage = file.type.startsWith("image/");
+      const isVideo = file.type.startsWith("video/");
+      const isValidSize = file.size <= 50 * 1024 * 1024; // 50MB
+
+      if (!isImage && !isVideo) {
+        toast.error(`${file.name}: Type de fichier non supporté.`);
+        continue;
+      }
+      if (!isValidSize) {
+        toast.error(`${file.name}: Le fichier est trop volumineux. La taille maximale est de 50MB.`);
+        continue;
+      }
+
+      if (isVideo) {
+        const duration = await getVideoDuration(file);
+        const maxDuration = 60; // 60 seconds limit
+        if (duration > maxDuration) {
+          toast.error(
+            `La vidéo "${file.name}" est trop longue (${Math.round(duration)}s). Veuillez limiter vos vidéos à ${maxDuration} secondes pour les adapter à la plateforme.`
+          );
+          continue;
+        }
+      }
+
+      checkedFiles.push({ file, previewUrl: URL.createObjectURL(file) });
+    }
+
+    const currentTotal = editImages.length + editNewFiles.length;
+    if (currentTotal + checkedFiles.length > 10) {
+      checkedFiles.forEach(f => URL.revokeObjectURL(f.previewUrl));
+      toast.error("Maximum 10 fichiers autorisés.");
+      return;
+    }
+
+    setEditNewFiles((prev) => [...prev, ...checkedFiles]);
+  };
+
+  const removeEditNewFile = (index: number) => {
+    const item = editNewFiles[index];
+    if (item) {
+      URL.revokeObjectURL(item.previewUrl);
+    }
+    setEditNewFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSaveEdit = async () => {
     if (!editingCase) return;
     const totalFiles = editImages.length + editNewFiles.length;
     if (totalFiles === 0) { toast.error(t("create_case.messages.min_one_file")); return; }
     setIsSubmitting(true);
     try {
-      let newUrls: string[] = [];
-      if (editNewFiles.length > 0) {
-        const results = await Promise.all(editNewFiles.map((f) => uploadFile(f)));
-        newUrls = results.map((r) => r.url);
+      const uploadedUrls: string[] = [];
+      const failedFiles: Array<{ file: File; previewUrl: string }> = [];
+      
+      for (const item of editNewFiles) {
+        try {
+          const res = await uploadFile(item.file);
+          uploadedUrls.push(res.url);
+          URL.revokeObjectURL(item.previewUrl);
+        } catch (err: any) {
+          console.error("Failed to upload", item.file.name, err);
+          failedFiles.push(item);
+          toast.error(`Échec de l'importation de "${item.file.name}": ${err?.message || "Erreur"}`);
+        }
       }
+
+      if (failedFiles.length > 0) {
+        setEditNewFiles(failedFiles);
+        setEditImages((prev) => [...prev, ...uploadedUrls]);
+        setIsSubmitting(false);
+        return;
+      }
+
       await updateCase(editingCase.id, {
         title: editForm.title,
         description: editForm.description,
         fullDescription: editForm.fullDescription || editForm.description,
-        images: [...editImages, ...newUrls]
+        images: [...editImages, ...uploadedUrls]
       });
       toast.success(t("dashboard.case_updated_success"));
       setEditDialogOpen(false);
@@ -879,17 +970,8 @@ export function UserDashboard() {
                 <Input
                   type="file"
                   multiple
-                  accept="image/jpeg,image/png,image/webp,video/mp4,video/avi,video/quicktime"
-                  onChange={(e) => {
-                    const files = Array.from(e.target.files || []);
-                    const totalLimit = 10;
-                    const currentTotal = editImages.length + editNewFiles.length;
-                    if (currentTotal + files.length > totalLimit) {
-                      toast.error("Max 10 files allowed");
-                      return;
-                    }
-                    setEditNewFiles((prev) => [...prev, ...files]);
-                  }}
+                  accept="image/*,video/*"
+                  onChange={handleEditFileSelect}
                   className="text-sm"
                 />
               </div>
@@ -897,15 +979,15 @@ export function UserDashboard() {
               {/* New Files Preview */}
               {editNewFiles.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {editNewFiles.map((file, i) => (
+                  {editNewFiles.map(({ file, previewUrl }, i) => (
                     <div key={`new-${i}`} className="relative group w-16 h-16 rounded overflow-hidden border bg-gray-50">
                       {file.type.startsWith("image/") ? (
-                        <img src={URL.createObjectURL(file)} alt={file.name} className="w-full h-full object-cover" />
+                        <img src={previewUrl} alt={file.name} className="w-full h-full object-cover" />
                       ) : (
-                        <video src={URL.createObjectURL(file)} className="w-full h-full object-cover" />
+                        <video src={previewUrl} className="w-full h-full object-cover" />
                       )}
                       <button
-                        onClick={() => setEditNewFiles((prev) => prev.filter((_, idx) => idx !== i))}
+                        onClick={() => removeEditNewFile(i)}
                         className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <X size={12} />
