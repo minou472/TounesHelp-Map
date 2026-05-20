@@ -40,7 +40,8 @@ export function CasesManagement() {
     creatorEmail: 'admin@touneshelp.tn',
     peopleAffected: 1,
     latitude: 33.8869,
-    longitude: 9.5375
+    longitude: 9.5375,
+    adoptingNGO: ''
   });
 
   const fetchCases = async () => {
@@ -84,7 +85,8 @@ export function CasesManagement() {
       creatorEmail: 'admin@touneshelp.tn',
       peopleAffected: 1,
       latitude: 33.8869,
-      longitude: 9.5375
+      longitude: 9.5375,
+      adoptingNGO: ''
     });
     setIsDialogOpen(true);
   };
@@ -106,7 +108,8 @@ export function CasesManagement() {
       creatorEmail: c.creatorEmail || '',
       peopleAffected: c.peopleAffected || 1,
       latitude: c.latitude || 33.8869,
-      longitude: c.longitude || 9.5375
+      longitude: c.longitude || 9.5375,
+      adoptingNGO: c.adoptingNGO || ''
     });
     setIsDialogOpen(true);
   };
@@ -240,6 +243,13 @@ export function CasesManagement() {
                       <TableCell>
                         <div className="text-sm">{c.governorate}</div>
                         <div className="text-xs text-gray-500">{c.city}</div>
+                        {c.adoptingNGO && (
+                          <div className="mt-1">
+                            <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-100 text-[10px] py-0 px-1">
+                              {c.adoptingNGO}
+                            </Badge>
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline" className={`${urgency.color} flex w-fit items-center gap-1`}>
@@ -330,6 +340,16 @@ export function CasesManagement() {
               <div className="space-y-2 text-left">
                 <Label>{t('admin.form_victim_phone')}</Label>
                 <Input required value={formData.victimPhone} onChange={e => setFormData({...formData, victimPhone: e.target.value})} />
+              </div>
+
+              <div className="space-y-2 md:col-span-2 text-left pt-2 border-t border-gray-100">
+                <Label className="text-blue-600 font-semibold">{t('admin.form_adopting_ngo', 'Adopting NGO / Organization')}</Label>
+                <Input 
+                  placeholder={t('admin.form_adopting_ngo_placeholder', 'Enter organization name...')} 
+                  value={formData.adoptingNGO} 
+                  onChange={e => setFormData({...formData, adoptingNGO: e.target.value})} 
+                  className="border-blue-100 focus:border-blue-400"
+                />
               </div>
             </div>
 
