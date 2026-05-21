@@ -150,7 +150,7 @@ export function UsersManagement() {
     }
 
     setExpandedUserId(userId);
-    
+
     // Fetch details if not already loaded or to refresh
     if (!userDetails[userId]) {
       try {
@@ -382,153 +382,151 @@ export function UsersManagement() {
                         className={`${idx % 2 === 0 ? 'bg-white' : 'bg-[#FAFBFC]'} hover:bg-[#E3F2FD]/40 transition-colors cursor-pointer group ${expandedUserId === user.id ? 'bg-[#E3F2FD]/20' : ''}`}
                         onClick={() => toggleUserDrawer(user.id)}
                       >
-                      <td className="px-6 py-4 text-center">
-                        {(user.userType && user.userType !== 'CITIZEN') ? (
-                          <Badge className={`${userTypeColors[user.userType]} text-xs whitespace-nowrap`}>
-                            {t(`admin.user_type_${user.userType.toLowerCase()}`)}
-                          </Badge>
-                        ) : (
-                          <span className="text-[#A0AEC0] text-xs">—</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1E88E5] to-[#7C3AED] text-white flex items-center justify-center text-sm font-bold shrink-0">
-                            {(user.name || '?')[0].toUpperCase()}
-                          </div>
-                          <span className="font-medium text-[#1A202C] text-sm">{user.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[#4A5568]">{user.email}</td>
-                      <td className="px-6 py-4 text-center">
-                        <Badge className={`${roleColors[user.role]} text-xs`}>
-                          {user.role === 'ADMIN' ? t('admin.role_admin') : t('admin.role_user')}
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <Badge className={`${statusColors[user.status]} text-xs`}>
-                          {user.status === 'ACTIVE' ? t('admin.status_active') : t('admin.status_blocked')}
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[#718096]">{formatDate(user.createdAt)}</td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            onClick={() => {
-                              setEditingUser(user);
-                              setFormData({
-                                name: user.name,
-                                email: user.email,
-                                phone: user.phone || '',
-                                role: user.role,
-                                status: user.status,
-                              });
-                              setError(null);
-                            }}
-                            className="p-2 rounded-md text-[#718096] hover:text-[#1E88E5] hover:bg-[#E3F2FD] transition-colors"
-                            title={t('admin.edit_user')}
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleBlockUser(user)}
-                            disabled={actionLoading === user.id}
-                            className={`p-2 rounded-md transition-colors ${
-                              user.status === 'ACTIVE'
-                                ? 'text-[#718096] hover:text-[#E53935] hover:bg-[#FFEBEE]'
-                                : 'text-[#718096] hover:text-[#43A047] hover:bg-[#E8F5E9]'
-                            }`}
-                            title={user.status === 'ACTIVE' ? t('admin.block_user') : t('admin.unblock_user')}
-                          >
-                            {actionLoading === user.id ? (
-                              <Loader2 size={16} className="animate-spin" />
-                            ) : user.status === 'ACTIVE' ? (
-                              <Ban size={16} />
-                            ) : (
-                              <CheckCircle size={16} />
-                            )}
-                          </button>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleDeleteUser(user.id, user.name); }}
-                            disabled={actionLoading === user.id}
-                            className="p-2 rounded-md text-[#718096] hover:text-[#E53935] hover:bg-[#FFEBEE] transition-colors"
-                            title={t('admin.delete_user')}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                          <div className="ml-2 text-[#CBD5E0] group-hover:text-[#1E88E5] transition-colors">
-                            {expandedUserId === user.id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-
-                    {/* Detail Drawer */}
-                    {expandedUserId === user.id && (
-                      <tr className="bg-[#F8FAFC]">
-                        <td colSpan={7} className="px-6 py-6 border-b border-[#E2E8F0]">
-                          {loadingDetails === user.id ? (
-                            <div className="flex items-center gap-3 text-[#718096] py-4">
-                              <Loader2 size={20} className="animate-spin" />
-                              <span className="text-sm">{t('admin.loading_details')}</span>
-                            </div>
+                        <td className="px-6 py-4 text-center">
+                          {(user.userType && user.userType !== 'CITIZEN') ? (
+                            <Badge className={`${userTypeColors[user.userType]} text-xs whitespace-nowrap`}>
+                              {t(`admin.user_type_${user.userType.toLowerCase()}`)}
+                            </Badge>
                           ) : (
-                            <div className="animate-in slide-in-from-top-2 duration-200">
-                              <div className="flex flex-wrap gap-8">
-                                {/* Left Side: User Summary */}
-                                <div className="space-y-4 min-w-[200px]">
-                                  <h4 className="font-bold text-[#2D3748] flex items-center gap-2">
-                                    <FileText size={16} />
-                                    {t('admin.case_history')}
-                                  </h4>
-                                  <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-white p-3 rounded-lg border border-[#E2E8F0] shadow-sm">
-                                      <p className="text-[10px] uppercase font-bold text-[#A0AEC0] mb-1">{t('admin.total_cases')}</p>
-                                      <p className="text-xl font-bold text-[#1E88E5]">{userDetails[user.id]?.createdCases?.length || 0}</p>
-                                    </div>
-                                    <div className="bg-white p-3 rounded-lg border border-[#E2E8F0] shadow-sm">
-                                      <p className="text-[10px] uppercase font-bold text-[#A0AEC0] mb-1">{t('admin.status_resolved')}</p>
-                                      <p className="text-xl font-bold text-[#16A34A]">
-                                        {userDetails[user.id]?.createdCases?.filter((c: any) => c.status === 'RESOLVED').length || 0}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Right Side: Cases List */}
-                                <div className="flex-1 min-w-[300px]">
-                                  {userDetails[user.id]?.createdCases && userDetails[user.id].createdCases.length > 0 ? (
-                                    <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
-                                      {userDetails[user.id].createdCases.map((c: any) => (
-                                        <div key={c.id} className="flex items-center justify-between p-3 bg-white hover:bg-[#F1F5F9] rounded-lg border border-[#E2E8F0] transition-colors">
-                                          <div className="flex flex-col">
-                                            <span className="text-sm font-medium text-[#2D3748]">{c.title}</span>
-                                            <span className="text-[11px] text-[#A0AEC0]">{formatDate(c.createdAt)}</span>
-                                          </div>
-                                          <Badge className={`text-[10px] ${
-                                            c.status === 'SUFFERING' ? 'bg-[#FEE2E2] text-[#EF4444]' :
-                                            c.status === 'HELPING' ? 'bg-[#FEF3C7] text-[#D97706]' :
-                                            'bg-[#DCFCE7] text-[#16A34A]'
-                                          }`}>
-                                            {t(`admin.status_${c.status.toLowerCase()}`)}
-                                          </Badge>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  ) : (
-                                    <div className="h-full flex items-center justify-center border-2 border-dashed border-[#E2E8F0] rounded-xl p-8">
-                                      <p className="text-sm text-[#718096] italic">{t('admin.no_cases_found_for_user')}</p>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
+                            <span className="text-[#A0AEC0] text-xs">—</span>
                           )}
                         </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1E88E5] to-[#7C3AED] text-white flex items-center justify-center text-sm font-bold shrink-0">
+                              {(user.name || '?')[0].toUpperCase()}
+                            </div>
+                            <span className="font-medium text-[#1A202C] text-sm">{user.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[#4A5568]">{user.email}</td>
+                        <td className="px-6 py-4 text-center">
+                          <Badge className={`${roleColors[user.role]} text-xs`}>
+                            {user.role === 'ADMIN' ? t('admin.role_admin') : t('admin.role_user')}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <Badge className={`${statusColors[user.status]} text-xs`}>
+                            {user.status === 'ACTIVE' ? t('admin.status_active') : t('admin.status_blocked')}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[#718096]">{formatDate(user.createdAt)}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => {
+                                setEditingUser(user);
+                                setFormData({
+                                  name: user.name,
+                                  email: user.email,
+                                  phone: user.phone || '',
+                                  role: user.role,
+                                  status: user.status,
+                                });
+                                setError(null);
+                              }}
+                              className="p-2 rounded-md text-[#718096] hover:text-[#1E88E5] hover:bg-[#E3F2FD] transition-colors"
+                              title={t('admin.edit_user')}
+                            >
+                              <Edit size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleBlockUser(user)}
+                              disabled={actionLoading === user.id}
+                              className={`p-2 rounded-md transition-colors ${user.status === 'ACTIVE'
+                                  ? 'text-[#718096] hover:text-[#E53935] hover:bg-[#FFEBEE]'
+                                  : 'text-[#718096] hover:text-[#43A047] hover:bg-[#E8F5E9]'
+                                }`}
+                              title={user.status === 'ACTIVE' ? t('admin.block_user') : t('admin.unblock_user')}
+                            >
+                              {actionLoading === user.id ? (
+                                <Loader2 size={16} className="animate-spin" />
+                              ) : user.status === 'ACTIVE' ? (
+                                <Ban size={16} />
+                              ) : (
+                                <CheckCircle size={16} />
+                              )}
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleDeleteUser(user.id, user.name); }}
+                              disabled={actionLoading === user.id}
+                              className="p-2 rounded-md text-[#718096] hover:text-[#E53935] hover:bg-[#FFEBEE] transition-colors"
+                              title={t('admin.delete_user')}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                            <div className="ml-2 text-[#CBD5E0] group-hover:text-[#1E88E5] transition-colors">
+                              {expandedUserId === user.id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                            </div>
+                          </div>
+                        </td>
                       </tr>
-                    )}
-                  </>
-                ))}
+
+                      {/* Detail Drawer */}
+                      {expandedUserId === user.id && (
+                        <tr className="bg-[#F8FAFC]">
+                          <td colSpan={7} className="px-6 py-6 border-b border-[#E2E8F0]">
+                            {loadingDetails === user.id ? (
+                              <div className="flex items-center gap-3 text-[#718096] py-4">
+                                <Loader2 size={20} className="animate-spin" />
+                                <span className="text-sm">{t('admin.loading_details')}</span>
+                              </div>
+                            ) : (
+                              <div className="animate-in slide-in-from-top-2 duration-200">
+                                <div className="flex flex-wrap gap-8">
+                                  {/* Left Side: User Summary */}
+                                  <div className="space-y-4 min-w-[200px]">
+                                    <h4 className="font-bold text-[#2D3748] flex items-center gap-2">
+                                      <FileText size={16} />
+                                      {t('admin.case_history')}
+                                    </h4>
+                                    <div className="grid grid-cols-2 gap-4">
+                                      <div className="bg-white p-3 rounded-lg border border-[#E2E8F0] shadow-sm">
+                                        <p className="text-[10px] uppercase font-bold text-[#A0AEC0] mb-1">{t('admin.total_cases')}</p>
+                                        <p className="text-xl font-bold text-[#1E88E5]">{userDetails[user.id]?.createdCases?.length || 0}</p>
+                                      </div>
+                                      <div className="bg-white p-3 rounded-lg border border-[#E2E8F0] shadow-sm">
+                                        <p className="text-[10px] uppercase font-bold text-[#A0AEC0] mb-1">{t('admin.status_resolved')}</p>
+                                        <p className="text-xl font-bold text-[#16A34A]">
+                                          {userDetails[user.id]?.createdCases?.filter((c: any) => c.status === 'RESOLVED').length || 0}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Right Side: Cases List */}
+                                  <div className="flex-1 min-w-[300px]">
+                                    {userDetails[user.id]?.createdCases && userDetails[user.id].createdCases.length > 0 ? (
+                                      <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                                        {userDetails[user.id].createdCases.map((c: any) => (
+                                          <div key={c.id} className="flex items-center justify-between p-3 bg-white hover:bg-[#F1F5F9] rounded-lg border border-[#E2E8F0] transition-colors">
+                                            <div className="flex flex-col">
+                                              <span className="text-sm font-medium text-[#2D3748]">{c.title}</span>
+                                              <span className="text-[11px] text-[#A0AEC0]">{formatDate(c.createdAt)}</span>
+                                            </div>
+                                            <Badge className={`text-[10px] ${c.status === 'SUFFERING' ? 'bg-[#FEE2E2] text-[#EF4444]' :
+                                                c.status === 'HELPING' ? 'bg-[#FEF3C7] text-[#D97706]' :
+                                                  'bg-[#DCFCE7] text-[#16A34A]'
+                                              }`}>
+                                              {t(`admin.status_${c.status.toLowerCase()}`)}
+                                            </Badge>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <div className="h-full flex items-center justify-center border-2 border-dashed border-[#E2E8F0] rounded-xl p-8">
+                                        <p className="text-sm text-[#718096] italic">{t('admin.no_cases_found_for_user')}</p>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      )}
+                    </>
+                  ))}
                 </tbody>
               </table>
             </div>

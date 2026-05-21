@@ -102,6 +102,7 @@
     "user_phone": "Phone",
     "user_role": "Role",
     "user_status_label": "Status",
+    "user_type_label": "User Type",
     "user_joined": "Joined",
     "role_user": "User",
     "role_admin": "Admin",

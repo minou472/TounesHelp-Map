@@ -102,6 +102,7 @@
     "user_phone": "الهاتف",
     "user_role": "الدور",
     "user_status_label": "الحالة",
+    "user_type_label": "نوع المستخدم",
     "user_joined": "تاريخ الانضمام",
     "role_user": "مستخدم",
     "role_admin": "مشرف",
