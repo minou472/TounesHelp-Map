@@ -64,6 +64,7 @@ export type AdminUser = {
   rating?: number;
   helpedCount?: number;
   casesCreated?: number;
+  userType?: string | null;
   createdAt: string;
 };
 

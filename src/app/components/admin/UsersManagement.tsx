@@ -20,6 +20,13 @@ const statusColors: Record<AccountStatus, string> = {
   BLOCKED: 'bg-[#DC2626] text-white',
 };
 
+const userTypeColors: Record<string, string> = {
+  VOLUNTEER: 'bg-[#0D9488] text-white',
+  ORGANIZATION: 'bg-[#4F46E5] text-white',
+  OTHER: 'bg-[#475569] text-white',
+  CITIZEN: 'bg-[#0EA5E9] text-white',
+};
+
 export function UsersManagement() {
   const { t } = useTranslation();
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -337,6 +344,7 @@ export function UsersManagement() {
                     <th className="text-left px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_email')}</th>
                     <th className="text-left px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_phone')}</th>
                     <th className="text-center px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_role')}</th>
+                    <th className="text-center px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_type_label')}</th>
                     <th className="text-center px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_status_label')}</th>
                     <th className="text-left px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_joined')}</th>
                     <th className="text-right px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.actions')}</th>
@@ -361,6 +369,11 @@ export function UsersManagement() {
                       <td className="px-6 py-4 text-center">
                         <Badge className={`${roleColors[user.role]} text-xs`}>
                           {user.role === 'ADMIN' ? t('admin.role_admin') : t('admin.role_user')}
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Badge className={`${userTypeColors[user.userType || 'CITIZEN']} text-xs whitespace-nowrap`}>
+                          {t(`admin.user_type_${(user.userType || 'CITIZEN').toLowerCase()}`)}
                         </Badge>
                       </td>
                       <td className="px-6 py-4 text-center">
