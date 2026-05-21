@@ -3,8 +3,8 @@ import { Card } from '../ui/card';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { fetchAdminUsers, createUser, updateUser, deleteUser, type AdminUser, type CreateUserData, type UpdateUserData } from '../../lib/backendApi';
-import { Search, UserPlus, Edit, Ban, CheckCircle, Trash2, X, Loader2, AlertTriangle } from 'lucide-react';
+import { fetchAdminUsers, fetchAdminUserById, createUser, updateUser, deleteUser, type AdminUser, type CreateUserData, type UpdateUserData } from '../../lib/backendApi';
+import { Search, UserPlus, Edit, Ban, CheckCircle, Trash2, X, Loader2, AlertTriangle, ChevronDown, ChevronUp, FileText, Calendar, Mail, Phone as PhoneIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 type UserRole = 'USER' | 'ADMIN';
@@ -40,6 +40,9 @@ export function UsersManagement() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
+  const [userDetails, setUserDetails] = useState<Record<string, any>>({});
+  const [loadingDetails, setLoadingDetails] = useState<string | null>(null);
 
   useEffect(() => {
     loadUsers();
@@ -137,6 +140,28 @@ export function UsersManagement() {
       setError(err.message || 'Failed to update user status');
     } finally {
       setActionLoading(null);
+    }
+  };
+
+  const toggleUserDrawer = async (userId: string) => {
+    if (expandedUserId === userId) {
+      setExpandedUserId(null);
+      return;
+    }
+
+    setExpandedUserId(userId);
+    
+    // Fetch details if not already loaded or to refresh
+    if (!userDetails[userId]) {
+      try {
+        setLoadingDetails(userId);
+        const data = await fetchAdminUserById(userId);
+        setUserDetails(prev => ({ ...prev, [userId]: data }));
+      } catch (err: any) {
+        console.error('Failed to load user details:', err);
+      } finally {
+        setLoadingDetails(null);
+      }
     }
   };
 
@@ -340,11 +365,10 @@ export function UsersManagement() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC]">
+                    <th className="text-center px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_type_label')}</th>
                     <th className="text-left px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_name')}</th>
                     <th className="text-left px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_email')}</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_phone')}</th>
                     <th className="text-center px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_role')}</th>
-                    <th className="text-center px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_type_label')}</th>
                     <th className="text-center px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_status_label')}</th>
                     <th className="text-left px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_joined')}</th>
                     <th className="text-right px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.actions')}</th>
@@ -352,10 +376,21 @@ export function UsersManagement() {
                 </thead>
                 <tbody className="divide-y divide-[#E2E8F0]">
                   {filteredUsers.map((user, idx) => (
-                    <tr
-                      key={user.id}
-                      className={`${idx % 2 === 0 ? 'bg-white' : 'bg-[#FAFBFC]'} hover:bg-[#E3F2FD]/40 transition-colors`}
-                    >
+                    <>
+                      <tr
+                        key={user.id}
+                        className={`${idx % 2 === 0 ? 'bg-white' : 'bg-[#FAFBFC]'} hover:bg-[#E3F2FD]/40 transition-colors cursor-pointer group ${expandedUserId === user.id ? 'bg-[#E3F2FD]/20' : ''}`}
+                        onClick={() => toggleUserDrawer(user.id)}
+                      >
+                      <td className="px-6 py-4 text-center">
+                        {(user.userType && user.userType !== 'CITIZEN') ? (
+                          <Badge className={`${userTypeColors[user.userType]} text-xs whitespace-nowrap`}>
+                            {t(`admin.user_type_${user.userType.toLowerCase()}`)}
+                          </Badge>
+                        ) : (
+                          <span className="text-[#A0AEC0] text-xs">—</span>
+                        )}
+                      </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1E88E5] to-[#7C3AED] text-white flex items-center justify-center text-sm font-bold shrink-0">
@@ -365,20 +400,10 @@ export function UsersManagement() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-[#4A5568]">{user.email}</td>
-                      <td className="px-6 py-4 text-sm text-[#4A5568]">{user.phone || '—'}</td>
                       <td className="px-6 py-4 text-center">
                         <Badge className={`${roleColors[user.role]} text-xs`}>
                           {user.role === 'ADMIN' ? t('admin.role_admin') : t('admin.role_user')}
                         </Badge>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        {(user.userType && user.userType !== 'CITIZEN') ? (
-                          <Badge className={`${userTypeColors[user.userType]} text-xs whitespace-nowrap`}>
-                            {t(`admin.user_type_${user.userType.toLowerCase()}`)}
-                          </Badge>
-                        ) : (
-                          <span className="text-[#A0AEC0] text-xs">—</span>
-                        )}
                       </td>
                       <td className="px-6 py-4 text-center">
                         <Badge className={`${statusColors[user.status]} text-xs`}>
@@ -424,17 +449,86 @@ export function UsersManagement() {
                             )}
                           </button>
                           <button
-                            onClick={() => handleDeleteUser(user.id, user.name)}
+                            onClick={(e) => { e.stopPropagation(); handleDeleteUser(user.id, user.name); }}
                             disabled={actionLoading === user.id}
                             className="p-2 rounded-md text-[#718096] hover:text-[#E53935] hover:bg-[#FFEBEE] transition-colors"
                             title={t('admin.delete_user')}
                           >
                             <Trash2 size={16} />
                           </button>
+                          <div className="ml-2 text-[#CBD5E0] group-hover:text-[#1E88E5] transition-colors">
+                            {expandedUserId === user.id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                          </div>
                         </div>
                       </td>
                     </tr>
-                  ))}
+
+                    {/* Detail Drawer */}
+                    {expandedUserId === user.id && (
+                      <tr className="bg-[#F8FAFC]">
+                        <td colSpan={7} className="px-6 py-6 border-b border-[#E2E8F0]">
+                          {loadingDetails === user.id ? (
+                            <div className="flex items-center gap-3 text-[#718096] py-4">
+                              <Loader2 size={20} className="animate-spin" />
+                              <span className="text-sm">{t('admin.loading_details')}</span>
+                            </div>
+                          ) : (
+                            <div className="animate-in slide-in-from-top-2 duration-200">
+                              <div className="flex flex-wrap gap-8">
+                                {/* Left Side: User Summary */}
+                                <div className="space-y-4 min-w-[200px]">
+                                  <h4 className="font-bold text-[#2D3748] flex items-center gap-2">
+                                    <FileText size={16} />
+                                    {t('admin.case_history')}
+                                  </h4>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div className="bg-white p-3 rounded-lg border border-[#E2E8F0] shadow-sm">
+                                      <p className="text-[10px] uppercase font-bold text-[#A0AEC0] mb-1">{t('admin.total_cases')}</p>
+                                      <p className="text-xl font-bold text-[#1E88E5]">{userDetails[user.id]?.createdCases?.length || 0}</p>
+                                    </div>
+                                    <div className="bg-white p-3 rounded-lg border border-[#E2E8F0] shadow-sm">
+                                      <p className="text-[10px] uppercase font-bold text-[#A0AEC0] mb-1">{t('admin.status_resolved')}</p>
+                                      <p className="text-xl font-bold text-[#16A34A]">
+                                        {userDetails[user.id]?.createdCases?.filter((c: any) => c.status === 'RESOLVED').length || 0}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Right Side: Cases List */}
+                                <div className="flex-1 min-w-[300px]">
+                                  {userDetails[user.id]?.createdCases && userDetails[user.id].createdCases.length > 0 ? (
+                                    <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                                      {userDetails[user.id].createdCases.map((c: any) => (
+                                        <div key={c.id} className="flex items-center justify-between p-3 bg-white hover:bg-[#F1F5F9] rounded-lg border border-[#E2E8F0] transition-colors">
+                                          <div className="flex flex-col">
+                                            <span className="text-sm font-medium text-[#2D3748]">{c.title}</span>
+                                            <span className="text-[11px] text-[#A0AEC0]">{formatDate(c.createdAt)}</span>
+                                          </div>
+                                          <Badge className={`text-[10px] ${
+                                            c.status === 'SUFFERING' ? 'bg-[#FEE2E2] text-[#EF4444]' :
+                                            c.status === 'HELPING' ? 'bg-[#FEF3C7] text-[#D97706]' :
+                                            'bg-[#DCFCE7] text-[#16A34A]'
+                                          }`}>
+                                            {t(`admin.status_${c.status.toLowerCase()}`)}
+                                          </Badge>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <div className="h-full flex items-center justify-center border-2 border-dashed border-[#E2E8F0] rounded-xl p-8">
+                                      <p className="text-sm text-[#718096] italic">{t('admin.no_cases_found_for_user')}</p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                ))}
                 </tbody>
               </table>
             </div>
