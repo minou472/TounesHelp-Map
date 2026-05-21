@@ -372,9 +372,13 @@ export function UsersManagement() {
                         </Badge>
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <Badge className={`${userTypeColors[user.userType || 'CITIZEN']} text-xs whitespace-nowrap`}>
-                          {t(`admin.user_type_${(user.userType || 'CITIZEN').toLowerCase()}`)}
-                        </Badge>
+                        {(user.userType && user.userType !== 'CITIZEN') ? (
+                          <Badge className={`${userTypeColors[user.userType]} text-xs whitespace-nowrap`}>
+                            {t(`admin.user_type_${user.userType.toLowerCase()}`)}
+                          </Badge>
+                        ) : (
+                          <span className="text-[#A0AEC0] text-xs">—</span>
+                        )}
                       </td>
                       <td className="px-6 py-4 text-center">
                         <Badge className={`${statusColors[user.status]} text-xs`}>
