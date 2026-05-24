@@ -303,6 +303,7 @@ export function CasesManagement() {
               <TableRow>
                 <TableHead className="w-[300px]">{t('admin.title_description')}</TableHead>
                 <TableHead>{t('admin.location')}</TableHead>
+                <TableHead>{t('admin.creator')}</TableHead>
                 <TableHead>{t('admin.importance_status')}</TableHead>
                 <TableHead>{t('admin.date_added')}</TableHead>
                 <TableHead className="text-right">{t('admin.actions')}</TableHead>
@@ -344,6 +345,9 @@ export function CasesManagement() {
                             </Badge>
                           </div>
                         )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm font-medium">{c.creatorName || 'Admin'}</div>
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline" className={`${urgency.color} flex w-fit items-center gap-1`}>
@@ -540,6 +544,24 @@ export function CasesManagement() {
                   onChange={e => setFormData({...formData, adoptingNGO: e.target.value})} 
                   className="border-blue-100 focus:border-blue-400"
                 />
+              </div>
+
+              {/* Creator Identification */}
+              <div className="space-y-2 md:col-span-2 text-left pt-2 border-t border-gray-100">
+                <Label className="text-[#1E88E5] font-semibold flex items-center gap-2">
+                  {t('admin.form_creator_title', 'Creator Identification')}
+                </Label>
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                  <div className="space-y-2">
+                    <Label>{t('admin.form_creator_name', 'Created By (Name)')}</Label>
+                    <Input 
+                      required 
+                      value={formData.creatorName} 
+                      onChange={e => setFormData({...formData, creatorName: e.target.value})} 
+                      placeholder="Enter creator name..."
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* ---- Upload Picture ---- */}
