@@ -304,6 +304,7 @@ export function CasesManagement() {
                 <TableHead className="w-[300px]">{t('admin.title_description')}</TableHead>
                 <TableHead>{t('admin.location')}</TableHead>
                 <TableHead>{t('admin.creator')}</TableHead>
+                <TableHead>{t('admin.assigned_ngo')}</TableHead>
                 <TableHead>{t('admin.importance_status')}</TableHead>
                 <TableHead>{t('admin.date_added')}</TableHead>
                 <TableHead className="text-right">{t('admin.actions')}</TableHead>
@@ -338,16 +339,20 @@ export function CasesManagement() {
                       <TableCell>
                         <div className="text-sm">{c.governorate}</div>
                         <div className="text-xs text-gray-500">{c.city}</div>
-                        {c.adoptingNGO && (
-                          <div className="mt-1">
-                            <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-100 text-[10px] py-0 px-1">
-                              {c.adoptingNGO}
-                            </Badge>
-                          </div>
-                        )}
                       </TableCell>
                       <TableCell>
                         <div className="text-sm font-medium">{c.creatorName || 'Admin'}</div>
+                      </TableCell>
+                      <TableCell>
+                        {c.adoptingNGO ? (
+                          <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-100 text-[11px] py-1 px-2 font-medium">
+                            {c.adoptingNGO}
+                          </Badge>
+                        ) : (
+                          <span className="text-xs text-gray-400 italic">
+                            {t('admin.no_ngo_assigned')}
+                          </span>
+                        )}
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline" className={`${urgency.color} flex w-fit items-center gap-1`}>

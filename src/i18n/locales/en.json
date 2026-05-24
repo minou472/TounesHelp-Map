@@ -98,6 +98,8 @@
     "form_map_hint": "Click on map to change location",
     "form_creator_title": "Creator Identification",
     "form_creator_name": "Created By (Name)",
+    "assigned_ngo": "Assigned NGO",
+    "no_ngo_assigned": "No NGO assigned",
     "user_management": "User Management",
     "user_management_desc": "Manage all registered user accounts and permissions.",
     "add_user": "Add User",
