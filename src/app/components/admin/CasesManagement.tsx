@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -6,12 +6,21 @@ import { Label } from '../ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Badge } from '../ui/badge';
-import { Search, Plus, Edit2, Trash2, AlertCircle, Clock, CheckCircle } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, AlertCircle, Clock, CheckCircle, ImagePlus, X, Loader2, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 import { tunisiaGovernorates } from '../../data/tunisiaData';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { updateCase, deleteCase, createCase } from '../../lib/backendApi';
+import { updateCase, deleteCase, createCase, uploadFile } from '../../lib/backendApi';
 import { useTranslation } from 'react-i18next';
+import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
+
+const GOOGLE_MAPS_API_KEY = "AIzaSyAmk4IjHlJsQb8gchi-9SXxRD0vGaCsxaI";
+
+const mapContainerStyle = {
+  width: "100%",
+  height: "250px",
+  borderRadius: "8px"
+};
 
 export function CasesManagement() {
   const { t, i18n } = useTranslation();
@@ -23,6 +32,20 @@ export function CasesManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCase, setEditingCase] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Image upload states
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [imagePreview, setImagePreview] = useState<{ file: File; url: string }[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [autoFilled, setAutoFilled] = useState<{ city?: boolean; governorate?: boolean }>({});
+
+  const { isLoaded } = useJsApiLoader({
+    id: "google-map-script",
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY
+  });
 
   // Form state
   const [formData, setFormData] = useState({
@@ -88,6 +111,8 @@ export function CasesManagement() {
       longitude: 9.5375,
       adoptingNGO: ''
     });
+    setUploadedImages([]);
+    setImagePreview([]);
     setIsDialogOpen(true);
   };
 
@@ -111,6 +136,10 @@ export function CasesManagement() {
       longitude: c.longitude || 9.5375,
       adoptingNGO: c.adoptingNGO || ''
     });
+    // Preload existing images for editing
+    const existingImages = c.images && Array.isArray(c.images) ? c.images : [];
+    setUploadedImages(existingImages);
+    setImagePreview([]);
     setIsDialogOpen(true);
   };
 
@@ -126,6 +155,70 @@ export function CasesManagement() {
     }
   };
 
+  // --- Image upload handlers ---
+  const processFiles = useCallback(async (files: FileList | File[]) => {
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const fileArray = Array.from(files);
+
+    const validFiles = fileArray.filter(f => {
+      if (!validTypes.includes(f.type)) {
+        toast.error(`"${f.name}" — unsupported format`);
+        return false;
+      }
+      if (f.size > maxSize) {
+        toast.error(`"${f.name}" — too large (max 5 MB)`);
+        return false;
+      }
+      return true;
+    });
+
+    if (validFiles.length === 0) return;
+
+    // Show previews immediately
+    const previews = validFiles.map(f => ({ file: f, url: URL.createObjectURL(f) }));
+    setImagePreview(prev => [...prev, ...previews]);
+
+    // Upload to server
+    setIsUploading(true);
+    try {
+      const results = await Promise.all(validFiles.map(f => uploadFile(f)));
+      const urls = results.map(r => r.url);
+      setUploadedImages(prev => [...prev, ...urls]);
+      toast.success(`${urls.length} image(s) uploaded`);
+    } catch (err: any) {
+      toast.error(err?.message || 'Upload failed');
+      // Remove previews that failed
+      setImagePreview(prev => prev.filter(p => !previews.includes(p)));
+    } finally {
+      setIsUploading(false);
+    }
+  }, []);
+
+  const handleFileDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files.length > 0) {
+      processFiles(e.dataTransfer.files);
+    }
+  }, [processFiles]);
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      processFiles(e.target.files);
+      e.target.value = ''; // reset so re-selecting same file works
+    }
+  }, [processFiles]);
+
+  const removeImage = (index: number) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+    setImagePreview(prev => {
+      const removed = prev[index];
+      if (removed) URL.revokeObjectURL(removed.url);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -136,13 +229,14 @@ export function CasesManagement() {
       if (isEdit) {
         await updateCase(editingCase.id, {
           ...formData,
-          status: formData.status as 'SUFFERING' | 'HELPING' | 'RESOLVED'
+          status: formData.status as 'SUFFERING' | 'HELPING' | 'RESOLVED',
+          images: uploadedImages
         });
       } else {
         await createCase({
           ...formData,
           status: formData.status as 'SUFFERING' | 'HELPING' | 'RESOLVED',
-          images: [],
+          images: uploadedImages,
           fullDescription: formData.fullDescription || formData.description
         });
       }
@@ -314,7 +408,14 @@ export function CasesManagement() {
               </div>
 
               <div className="space-y-2 text-left">
-                <Label>{t('admin.form_governorate')}</Label>
+                <div className="flex items-center gap-2">
+                  <Label>{t('admin.form_governorate')}</Label>
+                  {autoFilled.governorate && (
+                    <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">
+                      ✓ {t('create_case.labels.autofilled', 'Auto-filled')}
+                    </span>
+                  )}
+                </div>
                 <Select value={formData.governorate} onValueChange={v => setFormData({...formData, governorate: v})}>
                   <SelectTrigger>
                     <SelectValue placeholder={t('admin.form_select_placeholder')} />
@@ -328,8 +429,97 @@ export function CasesManagement() {
               </div>
               
               <div className="space-y-2 text-left">
-                <Label>{t('admin.form_city')}</Label>
+                <div className="flex items-center gap-2">
+                  <Label>{t('admin.form_city')}</Label>
+                  {autoFilled.city && (
+                    <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">
+                      ✓ {t('create_case.labels.autofilled', 'Auto-filled')}
+                    </span>
+                  )}
+                </div>
                 <Input required value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} />
+              </div>
+
+              {/* Map Selection */}
+              <div className="space-y-2 md:col-span-2 text-left">
+                <Label className="flex items-center gap-2">
+                  <MapPin size={16} className="text-[#1E88E5]" />
+                  {t('admin.form_map_location', 'Pin Location on Map')}
+                </Label>
+                <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                  {isLoaded ? (
+                    <GoogleMap
+                      mapContainerStyle={mapContainerStyle}
+                      center={{ lat: formData.latitude, lng: formData.longitude }}
+                      zoom={7}
+                      onClick={(e) => {
+                        if (e.latLng) {
+                          const lat = e.latLng.lat();
+                          const lng = e.latLng.lng();
+                          setFormData(prev => ({ ...prev, latitude: lat, longitude: lng }));
+                          
+                          // Reverse geocode via OSM Nominatim
+                          fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`)
+                            .then(res => res.json())
+                            .then(data => {
+                              if (data && data.address) {
+                                let city = data.address.city || data.address.town || data.address.village || data.address.county || "";
+                                let rawGov = data.address.state || data.address.region || "";
+                                let governorate = "";
+
+                                if (rawGov) {
+                                  const normalized = tunisiaGovernorates.find(
+                                    (g) => rawGov.toLowerCase().includes(g.toLowerCase()) || 
+                                           rawGov.toLowerCase().replace(/[' -]/g, '').includes(g.toLowerCase().replace(/[' -]/g, ''))
+                                  );
+                                  governorate = normalized || ""; 
+                                }
+
+                                setFormData(prev => ({
+                                  ...prev,
+                                  city: city || prev.city,
+                                  governorate: governorate || prev.governorate
+                                }));
+                                setAutoFilled({
+                                  city: !!city,
+                                  governorate: !!governorate
+                                });
+                              }
+                            })
+                            .catch(err => console.error("Geocoding failed", err));
+                        }
+                      }}
+                      options={{
+                        streetViewControl: false,
+                        mapTypeControl: false,
+                        fullscreenControl: false
+                      }}
+                    >
+                      <Marker 
+                        position={{ lat: formData.latitude, lng: formData.longitude }} 
+                        icon={{
+                          url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <circle cx="20" cy="20" r="18" fill="#1E88E5" stroke="white" stroke-width="4"/>
+                              <circle cx="20" cy="20" r="8" fill="white"/>
+                            </svg>
+                          `),
+                          scaledSize: new google.maps.Size(32, 32),
+                          anchor: new google.maps.Point(16, 32)
+                        }}
+                      />
+                    </GoogleMap>
+                  ) : (
+                    <div className="h-[250px] flex items-center justify-center bg-gray-50 text-gray-400">
+                      <Loader2 className="animate-spin mr-2" />
+                      {t('admin.loading_map', 'Loading map...')}
+                    </div>
+                  )}
+                </div>
+                <div className="flex justify-between text-[10px] text-gray-500 mt-1 px-1">
+                  <span>{t('admin.form_map_hint', 'Click on map to change location')}</span>
+                  <span>{formData.latitude.toFixed(4)}, {formData.longitude.toFixed(4)}</span>
+                </div>
               </div>
 
               <div className="space-y-2 text-left">
@@ -350,6 +540,67 @@ export function CasesManagement() {
                   onChange={e => setFormData({...formData, adoptingNGO: e.target.value})} 
                   className="border-blue-100 focus:border-blue-400"
                 />
+              </div>
+
+              {/* ---- Upload Picture ---- */}
+              <div className="space-y-2 md:col-span-2 text-left pt-2 border-t border-gray-100">
+                <Label className="font-semibold flex items-center gap-2">
+                  <ImagePlus size={16} className="text-[#1E88E5]" />
+                  {t('admin.form_upload_picture', 'Upload Pictures')}
+                </Label>
+
+                {/* Drop zone */}
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={handleFileDrop}
+                  className={`relative flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 cursor-pointer transition-colors ${
+                    isDragging
+                      ? 'border-[#1E88E5] bg-blue-50'
+                      : 'border-gray-300 hover:border-[#1E88E5] hover:bg-gray-50'
+                  }`}
+                >
+                  {isUploading ? (
+                    <Loader2 size={28} className="animate-spin text-[#1E88E5]" />
+                  ) : (
+                    <ImagePlus size={28} className="text-gray-400" />
+                  )}
+                  <span className="text-sm text-gray-500">
+                    {isUploading
+                      ? t('admin.form_uploading', 'Uploading...')
+                      : t('admin.form_upload_hint', 'Click or drag images here')}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    JPG, PNG, WebP · {t('admin.form_upload_max', 'Max 5 MB each')}
+                  </span>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    multiple
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* Previews */}
+                {(uploadedImages.length > 0 || imagePreview.length > 0) && (
+                  <div className="flex flex-wrap gap-3 mt-3">
+                    {(imagePreview.length > 0 ? imagePreview.map(p => p.url) : uploadedImages).map((url, idx) => (
+                      <div key={idx} className="relative group w-20 h-20 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                        <img src={url} alt={`Upload ${idx + 1}`} className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
+                          className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
