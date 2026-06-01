@@ -12,6 +12,11 @@ import { fetchCases } from "../../lib/backendApi";
 const PAGE_SIZE = 9;
 type SortOrder = "recent" | "oldest" | "governorate";
 
+/**
+ * CasesPage is a gallery of human resilience and community solidarity.
+ * It allows users to browse, filter, and discover the stories of those
+ * who require aid, making it easy to find where one can make a difference.
+ */
 export function CasesPage() {
   const { t } = useTranslation();
   const [cases, setCases] = useState<TunisiaCase[]>([]);
@@ -63,12 +68,7 @@ export function CasesPage() {
   const hasActiveFilter = selectedStatus !== "all" || selectedGovernorate !== "all" || searchQuery !== "";
   const resetAll = () => { setSelectedStatus("all"); setSelectedGovernorate("all"); setSearchQuery(""); setSortOrder("recent"); };
 
-  // Cases that don't match the active filter — shown as suggestions
-  const suggestedCases = useMemo(() => {
-    if (!hasActiveFilter) return [];
-    const filteredIds = new Set(filteredCases.map((c) => c.id));
-    return cases.filter((c) => !filteredIds.has(c.id)).slice(0, 8);
-  }, [cases, filteredCases, hasActiveFilter]);
+
 
   const scrollCarousel = (dir: "left" | "right") => {
     if (!carouselRef.current) return;

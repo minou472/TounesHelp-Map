@@ -1,31 +1,49 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '../ui/card';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { TunisiaMap } from '../touneshelp/TunisiaMap';
-import { mockCases, governorates } from '../../data/tunisiaData';
+import { tunisiaGovernorates } from '../../data/tunisiaData';
+import type { TunisiaCase } from '../../data/tunisiaData';
+import { fetchCases } from '../../lib/backendApi';
 import { Search, MapPin, Edit, Trash2, Plus, Map } from 'lucide-react';
 
+/**
+ * PlacesManagement Component
+ * This section is an operational command center. By maintaining accurate locations of needs across Tunisia,
+ * we empower volunteers and NGOs to reach vulnerable populations faster. A pinpoint on this map is
+ * often a lifeline for a family in crisis.
+ */
 export function PlacesManagement() {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
+  const [cases, setCases] = useState<TunisiaCase[]>([]);
 
-  // Calculate governorate statistics
-  const governorateStats = governorates.map(gov => {
-    const govCases = mockCases.filter(c => c.governorate === gov);
-    const avgLat = govCases.reduce((sum, c) => sum + c.coordinates[0], 0) / govCases.length || 0;
-    const avgLng = govCases.reduce((sum, c) => sum + c.coordinates[1], 0) / govCases.length || 0;
+  // Fetch geographic spread of suffering to better orchestrate help
+  useEffect(() => {
+    void fetchCases({ limit: 500 }).then(setCases).catch(err => console.error("Failed to fetch cases for map", err));
+  }, []);
+
+  /**
+   * Calculating crisis density per governorate. 
+   * This helps administration identify regions requiring urgent humanitarian intervention
+   * and allows us to distribute resources equitably across the country.
+   */
+  const governorateStats = tunisiaGovernorates.map((gov: string) => {
+    const govCases = cases.filter((c: TunisiaCase) => c.governorate === gov);
+    const avgLat = govCases.reduce((sum: number, c: TunisiaCase) => sum + c.coordinates[0], 0) / govCases.length || 0;
+    const avgLng = govCases.reduce((sum: number, c: TunisiaCase) => sum + c.coordinates[1], 0) / govCases.length || 0;
     
     return {
       name: gov,
       caseCount: govCases.length,
       coordinates: [avgLat, avgLng] as [number, number],
-      lastUpdated: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
+      lastUpdated: new Date() // Refreshed live to ensure we operate on current data and reach victims on time
     };
   }).filter(gov => gov.caseCount > 0);
 
-  const filteredLocations = governorateStats.filter(loc =>
+  const filteredLocations = governorateStats.filter((loc) =>
     loc.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -35,7 +53,7 @@ export function PlacesManagement() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-[#1A202C]">Lieux & Locations</h2>
-          <p className="text-sm text-[#718096] mt-1">Gérer les emplacements géographiques des cas</p>
+          <p className="text-sm text-[#718096] mt-1">Gérer les emplacements géographiques pour accélérer l'aide</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 bg-[#F5F7FA] rounded-lg p-1">
@@ -75,45 +93,34 @@ export function PlacesManagement() {
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Rechercher par gouvernorat..."
+            placeholder="Rechercher par gouvernorat pour cibler l'intervention..."
             className="w-full pl-10"
           />
         </div>
       </Card>
 
-      {/* Map View */}
+      {/* Overview built to visualize impact and need across communities */}
       {viewMode === 'map' && (
         <Card className="p-6 bg-white border border-[#E2E8F0]">
-          <TunisiaMap cases={mockCases} height="600px" zoom={6} />
+          <TunisiaMap cases={cases} height="600px" zoom={6} />
         </Card>
       )}
 
-      {/* List View */}
       {viewMode === 'list' && (
         <Card className="bg-white border border-[#E2E8F0] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-[#F5F7FA] border-b border-[#E2E8F0]">
                 <tr>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-[#1A202C]">
-                    Gouvernorat
-                  </th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-[#1A202C]">
-                    Nombre de cas
-                  </th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-[#1A202C]">
-                    Coordonnées
-                  </th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-[#1A202C]">
-                    Dernière mise à jour
-                  </th>
-                  <th className="text-right px-6 py-4 text-sm font-semibold text-[#1A202C]">
-                    Actions
-                  </th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-[#1A202C]">Gouvernorat</th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-[#1A202C]">Nombre de cas</th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-[#1A202C]">Coordonnées cibles</th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-[#1A202C]">Dernière mise à jour</th>
+                  <th className="text-right px-6 py-4 text-sm font-semibold text-[#1A202C]">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E2E8F0]">
-                {filteredLocations.map((location, index) => (
+                {filteredLocations.map((location, index: number) => (
                   <tr
                     key={location.name}
                     className={`${index % 2 === 0 ? 'bg-white' : 'bg-[#F5F7FA]/30'} hover:bg-[#E3F2FD] transition-colors`}
@@ -131,7 +138,7 @@ export function PlacesManagement() {
                     </td>
                     <td className="px-6 py-4">
                       <Badge className="bg-[#1E88E5] text-white">
-                        {location.caseCount} cas
+                        {location.caseCount} urgence{location.caseCount > 1 ? 's' : ''}
                       </Badge>
                     </td>
                     <td className="px-6 py-4">
@@ -139,7 +146,7 @@ export function PlacesManagement() {
                         {location.coordinates[0].toFixed(4)}°, {location.coordinates[1].toFixed(4)}°
                       </div>
                       <button className="text-xs text-[#1E88E5] hover:underline mt-1">
-                        Copier les coordonnées
+                        Copier pour les équipes de terrain
                       </button>
                     </td>
                     <td className="px-6 py-4">
@@ -177,7 +184,7 @@ export function PlacesManagement() {
           {filteredLocations.length === 0 && (
             <div className="text-center py-12">
               <MapPin className="mx-auto text-[#718096] mb-3" size={48} />
-              <h3 className="text-lg font-medium text-[#1A202C] mb-2">Aucun lieu trouvé</h3>
+              <h3 className="text-lg font-medium text-[#1A202C] mb-2">Aucune alerte ici</h3>
               <p className="text-sm text-[#718096]">
                 Essayez de modifier votre recherche
               </p>
@@ -186,7 +193,7 @@ export function PlacesManagement() {
         </Card>
       )}
 
-      {/* Statistics Cards */}
+      {/* Snapshot of our geographic capacity to render help */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-4 bg-white border border-[#E2E8F0]">
           <div className="flex items-center gap-3">
@@ -194,7 +201,7 @@ export function PlacesManagement() {
               <MapPin className="text-[#1E88E5]" size={20} />
             </div>
             <div>
-              <p className="text-xs text-[#718096]">Total Gouvernorats</p>
+              <p className="text-xs text-[#718096]">Régions atteintes</p>
               <p className="text-xl font-bold text-[#1A202C]">{governorateStats.length}</p>
             </div>
           </div>
@@ -208,8 +215,8 @@ export function PlacesManagement() {
               </svg>
             </div>
             <div>
-              <p className="text-xs text-[#718096]">Emplacements actifs</p>
-              <p className="text-xl font-bold text-[#1A202C]">{mockCases.length}</p>
+              <p className="text-xs text-[#718096]">Emplacements d'urgence</p>
+              <p className="text-xl font-bold text-[#1A202C]">{cases.length}</p>
             </div>
           </div>
         </Card>
@@ -222,8 +229,8 @@ export function PlacesManagement() {
               </svg>
             </div>
             <div>
-              <p className="text-xs text-[#718096]">En attente GPS</p>
-              <p className="text-xl font-bold text-[#1A202C]">3</p>
+              <p className="text-xs text-[#718096]">En attente de repérage</p>
+              <p className="text-xl font-bold text-[#1A202C]">0</p>
             </div>
           </div>
         </Card>
@@ -236,8 +243,8 @@ export function PlacesManagement() {
               </svg>
             </div>
             <div>
-              <p className="text-xs text-[#718096]">Vérifications requises</p>
-              <p className="text-xl font-bold text-[#1A202C]">7</p>
+              <p className="text-xs text-[#718096]">Vérifications sur terrain</p>
+              <p className="text-xl font-bold text-[#1A202C]">0</p>
             </div>
           </div>
         </Card>

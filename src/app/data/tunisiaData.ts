@@ -20,6 +20,7 @@ export type TunisiaCase = {
   datePublished?: string;
   dateResolved?: string;
   images: string[];
+  videoUrl?: string;
   visitorsCount?: number;
   isEscalated?: boolean;
   assignedTo?: { id: string; name: string; email: string } | null;

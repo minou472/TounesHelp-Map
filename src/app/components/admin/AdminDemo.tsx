@@ -36,10 +36,10 @@ export function AdminDemo() {
     },
     {
       icon: MessageCircle,
-      title: 'Chatbot Assistant',
-      description: 'Assistant IA pour répondre aux questions sur la plateforme',
+      title: "Centre d'Aide",
+      description: "Support et coordination pour les bénévoles et donateurs",
       color: 'bg-[#FF9800]',
-      link: '/admin/enhanced/chatbot',
+      link: '/admin/support',
     },
   ];
 
@@ -49,7 +49,7 @@ export function AdminDemo() {
     'Graphiques interactifs (Pie, Bar, Line charts)',
     'Gestion complète des utilisateurs avec filtres',
     'Carte interactive Google Maps avec marqueurs',
-    'Chatbot avec base de connaissances',
+    "Système de support humanitaire intégré",
     'Interface responsive (Desktop, Tablet, Mobile)',
     'Design moderne avec palette de couleurs professionnelle',
   ];
@@ -68,7 +68,7 @@ export function AdminDemo() {
           </h1>
           <p className="text-xl text-[#718096] max-w-2xl mx-auto">
             Interface d'administration complète pour TounesHelpMap avec tableau de bord interactif, 
-            gestion des utilisateurs, carte interactive et chatbot IA
+            gestion des utilisateurs, carte interactive et système de support humanitaire.
           </p>
         </div>
 

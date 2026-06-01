@@ -8,11 +8,9 @@ import {
   ChevronRight,
   Bell,
   MapPin,
-  Settings,
-  MessageSquare
+  Settings
 } from "lucide-react";
 import { Button } from "../../ui/button";
-import { Badge } from "../../ui/badge";
 import { ReactNode, useState, useEffect } from "react";
 import {
   fetchNotifications,
@@ -55,7 +53,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     { path: "/admin/cas", icon: FileText, label: "Tous les cas" },
     { path: "/admin/notifications", icon: Bell, label: "Notifications" },
     { path: "/admin/stats", icon: BarChart3, label: "Statistiques" },
-    { path: "/admin/chatbot", icon: MessageSquare, label: "Chatbot" },
     { path: "/admin/parametres", icon: Settings, label: "Paramètres" },
   ];
 

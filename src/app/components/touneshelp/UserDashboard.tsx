@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import { uploadFile } from "../../lib/backendApi";
@@ -72,6 +72,12 @@ function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+/**
+ * UserDashboard is the personal hub for every hero on this platform.
+ * It tracks the cases reported by the user and their interactions, 
+ * providing a clear view of the tangible impact they are having on 
+ * the lives of their fellow Tunisians.
+ */
 export function UserDashboard() {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
@@ -276,7 +282,7 @@ export function UserDashboard() {
     try {
       const uploadedUrls: string[] = [];
       const failedFiles: Array<{ file: File; previewUrl: string }> = [];
-      
+
       for (const item of editNewFiles) {
         try {
           const res = await uploadFile(item.file);
@@ -409,9 +415,9 @@ export function UserDashboard() {
             const sorryInteraction = c.interactions?.find((i: any) => i.userId === user?.id && i.type === "SORRY");
             return (
               <>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className={`flex items-center gap-1 group ${supportInteraction ? 'text-red-600 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50'}`}
                   onClick={() => handleInteract(c.id, "SUPPORT")}
                   title="Support"
@@ -419,9 +425,9 @@ export function UserDashboard() {
                   <Heart size={16} className={supportInteraction ? 'fill-red-600' : 'group-hover:fill-red-600'} />
                   <span className="text-xs">{c.interactions?.filter((i: any) => i.type === "SUPPORT").length || 0}</span>
                 </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className={`flex items-center gap-1 group ${sorryInteraction ? 'text-red-600 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50'}`}
                   onClick={() => handleInteract(c.id, "SORRY")}
                   title="Sorry"
@@ -457,8 +463,8 @@ export function UserDashboard() {
             </div>
             <div className="flex items-center gap-4">
               <div className="relative">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="bg-white rounded-full w-12 h-12 p-0 relative border-gray-200"
                   onClick={handleOpenNotifications}
                 >
@@ -540,7 +546,7 @@ export function UserDashboard() {
             ) : (
               <p className="text-sm text-gray-500 mb-2">{t("dashboard.set_location_prompt")}</p>
             )}
-            
+
             {locationMapOpen && isLoaded && (
               <div className="h-[200px] w-full rounded-xl overflow-hidden mt-2 relative">
                 <GoogleMap
@@ -607,13 +613,13 @@ export function UserDashboard() {
         const total = userCases.length;
         const segments = [
           { label: t("dashboard.suffering"), count: sufferingCases.length, color: "#C0392B", bg: "#FFF0EE" },
-          { label: t("dashboard.helping"),   count: helpingCases.length,   color: "#E67E22", bg: "#FFF4ED" },
-          { label: t("dashboard.resolved"),  count: resolvedCases.length,  color: "#27AE60", bg: "#F0FFF4" },
+          { label: t("dashboard.helping"), count: helpingCases.length, color: "#E67E22", bg: "#FFF4ED" },
+          { label: t("dashboard.resolved"), count: resolvedCases.length, color: "#27AE60", bg: "#F0FFF4" },
         ];
 
         // Build SVG arcs
         const R = 70, r = 42, cx = 90, cy = 90;
-        const circumference = 2 * Math.PI * R;
+
         let cumAngle = -Math.PI / 2; // start at 12 o'clock
 
         const arcs = segments.map((seg) => {
@@ -634,10 +640,10 @@ export function UserDashboard() {
             fraction === 0
               ? ""
               : fraction >= 1
-              ? // full circle — draw two halves
+                ? // full circle — draw two halves
                 `M ${cx + R} ${cy} A ${R} ${R} 0 1 1 ${cx - R} ${cy} A ${R} ${R} 0 1 1 ${cx + R} ${cy}
                  M ${cx + r} ${cy} A ${r} ${r} 0 1 0 ${cx - r} ${cy} A ${r} ${r} 0 1 0 ${cx + r} ${cy} Z`
-              : `M ${x1} ${y1} A ${R} ${R} 0 ${largeArc} 1 ${x2} ${y2}
+                : `M ${x1} ${y1} A ${R} ${R} 0 ${largeArc} 1 ${x2} ${y2}
                  L ${ix2} ${iy2} A ${r} ${r} 0 ${largeArc} 0 ${ix1} ${iy1} Z`;
           return { ...seg, path, fraction };
         });
@@ -888,7 +894,7 @@ export function UserDashboard() {
       <section className="max-w-7xl mx-auto px-6 lg:px-24 pb-20">
         <h2 className="text-2xl font-bold text-[#1C1C1E] mb-2">{t("dashboard.nearby_cases")}</h2>
         <p className="text-[#6B6B6B] mb-6">{t("dashboard.nearby_cases_desc")}</p>
-        
+
         {!userLocation ? (
           <Card className="p-6 text-center text-gray-500 bg-gray-50">
             <MapPin className="mx-auto mb-2 text-gray-400" size={32} />
@@ -920,15 +926,15 @@ export function UserDashboard() {
             <div className="space-y-4">
               <div>
                 <Label>{t("dashboard.name")}</Label>
-                <Input value={profileForm.name} onChange={(e) => setProfileForm({...profileForm, name: e.target.value})} />
+                <Input value={profileForm.name} onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })} />
               </div>
               <div>
                 <Label>{t("dashboard.phone")}</Label>
-                <Input value={profileForm.phone} onChange={(e) => setProfileForm({...profileForm, phone: e.target.value})} placeholder="+216 ..." />
+                <Input value={profileForm.phone} onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })} placeholder="+216 ..." />
               </div>
               <div>
                 <Label>{t("dashboard.bio")}</Label>
-                <Textarea value={profileForm.bio} onChange={(e) => setProfileForm({...profileForm, bio: e.target.value})} placeholder={t("dashboard.bio_placeholder")} />
+                <Textarea value={profileForm.bio} onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })} placeholder={t("dashboard.bio_placeholder")} />
               </div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
@@ -989,7 +995,7 @@ export function UserDashboard() {
             {/* Edit Media Section */}
             <div className="space-y-3 pt-2">
               <Label>{t("dashboard.edit_media")}</Label>
-              
+
               {/* Current Files */}
               {editImages.length > 0 && (
                 <div>

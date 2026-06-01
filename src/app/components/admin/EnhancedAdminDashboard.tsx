@@ -26,7 +26,7 @@ import { useTranslation } from 'react-i18next';
 import { CasesManagement } from './CasesManagement';
 import { UsersManagement } from './UsersManagement';
 import { fetchNotifications, type NotificationsResponse } from '../../lib/backendApi';
-import { tunisiaGovernorates } from '../../data/tunisiaData';
+
 
 type NavigationItem = {
   id: string;

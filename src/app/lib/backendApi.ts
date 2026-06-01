@@ -326,22 +326,6 @@ export function deleteUser(id: string) {
   });
 }
 
-export type ChatbotResponse = {
-  response: string;
-  links?: string[];
-  language: string;
-};
-
-export function sendChatbotMessage(
-  sessionId: string,
-  message: string,
-  language: string
-) {
-  return request<ChatbotResponse>("/api/chatbot", {
-    method: "POST",
-    body: JSON.stringify({ sessionId, message, language })
-  });
-}
 
 export type UploadResponse = {
   url: string;

@@ -6,8 +6,6 @@ import { Badge } from "../../ui/badge";
 import { Input } from "../../ui/input";
 import {
   Search,
-  Eye,
-  Edit2,
   Trash2,
   AlertCircle,
   Clock,
@@ -34,6 +32,12 @@ import {
   DialogFooter
 } from "../../ui/dialog";
 
+/**
+ * AdminCases Component
+ * The central dashboard where humanitarian efforts are coordinated.
+ * This is where we ensure no cry for help goes unanswered. Every row represents a real plea,
+ * and assigning an NGO (helping) or resolving it means a family receives the support they need.
+ */
 export function AdminCases() {
   const [cases, setCases] = useState<TunisiaCase[]>([]);
   const [loading, setLoading] = useState(true);
@@ -319,8 +323,8 @@ export function AdminCases() {
                       {getStatusBadge(caseData.status)}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
-                      {caseData.createdAt
-                        ? new Date(caseData.createdAt).toLocaleDateString(
+                      {caseData.dateSubmitted
+                        ? new Date(caseData.dateSubmitted).toLocaleDateString(
                             "fr-FR",
                             {
                               year: "numeric",
@@ -332,7 +336,7 @@ export function AdminCases() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex gap-1 flex-wrap max-w-[200px]">
-                        {!caseData.assignedToId && caseData.status === "suffering" && (
+                        {!caseData.assignedTo?.id && caseData.status === "suffering" && (
                           <Button
                             size="sm"
                             variant="ghost"

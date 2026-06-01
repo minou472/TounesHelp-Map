@@ -1,4 +1,9 @@
 import { createBrowserRouter } from "react-router";
+/**
+ * Routing Configuration
+ * Guides our users - both administrators and individuals seeking help - to the right interfaces.
+ * Every path here represents an opportunity to connect someone suffering with the aid they urgently need.
+ */
 import { TounesHelpRoot } from "./components/touneshelp/TounesHelpRoot";
 import { HomePage } from "./components/touneshelp/HomePage";
 import { CasesPage } from "./components/touneshelp/CasesPage";
@@ -17,7 +22,6 @@ import { AdminCases } from "./components/touneshelp/admin/AdminCases";
 import { AdminStats } from "./components/touneshelp/admin/AdminStats";
 import { AdminLieux } from "./components/touneshelp/admin/AdminLieux";
 import { AdminNotifications } from "./components/touneshelp/admin/AdminNotifications";
-import { AdminChatbot } from "./components/touneshelp/admin/AdminChatbot";
 import { AdminSettings } from "./components/touneshelp/admin/AdminSettings";
 import { AboutPage } from "./components/touneshelp/AboutPage";
 import { NotFound } from "./components/NotFound";
@@ -48,7 +52,6 @@ export const tounesHelpRouter = createBrowserRouter([
       { path: "admin/cas", Component: AdminCases },
       { path: "admin/notifications", Component: AdminNotifications },
       { path: "admin/stats", Component: AdminStats },
-      { path: "admin/chatbot", Component: AdminChatbot },
       { path: "admin/parametres", Component: AdminSettings },
       { path: "*", Component: NotFound },
     ],

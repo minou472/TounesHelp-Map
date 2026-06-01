@@ -3,7 +3,7 @@ import { useEffect, useState, useMemo } from "react";
 import { Card } from "../../ui/card";
 import { Badge } from "../../ui/badge";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { FileText, Users, MapPin, TrendingUp, Award, Activity } from "lucide-react";
+import { FileText, Users, TrendingUp, Award } from "lucide-react";
 import { fetchStats, type StatsResponse } from "../../../lib/backendApi";
 
 const STATUS_COLORS: Record<string, string> = {

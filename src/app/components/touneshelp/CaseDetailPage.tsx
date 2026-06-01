@@ -9,6 +9,11 @@ import type { TunisiaCase } from "../../data/tunisiaData";
 import { fetchCaseById } from "../../lib/backendApi";
 import { useAuth } from "../../lib/auth";
 
+/**
+ * CaseDetailPage provides a deep dive into an individual's journey.
+ * It provides the full context, media, and contact details necessary
+ * to turn a simple notification into a direct act of humanitarian assistance.
+ */
 export function CaseDetailPage() {
   const { t, i18n } = useTranslation();
   const { id } = useParams();

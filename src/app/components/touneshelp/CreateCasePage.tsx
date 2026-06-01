@@ -13,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue
 } from "../ui/select";
-import { Progress } from "../ui/progress";
 import { Card } from "../ui/card";
 import { ArrowRight, ArrowLeft, Check, MapPin, Upload, X } from "lucide-react";
 import { tunisiaGovernorates } from "../../data/tunisiaData";
@@ -37,6 +36,11 @@ const getVideoDuration = (file: File): Promise<number> => {
   });
 };
 
+/**
+ * CreateCasePage is the sanctuary where requests for help are first given voice.
+ * Every detail entered here represents a real human struggle, deserving of 
+ * visibility, empathy, and collective response from the community.
+ */
 export function CreateCasePage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -88,7 +92,6 @@ export function CreateCasePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [autoFilled, setAutoFilled] = useState<{ city?: boolean; governorate?: boolean }>({});
-  const [previewExpanded, setPreviewExpanded] = useState(false);
 
   // Google Maps configuration
   const GOOGLE_MAPS_API_KEY = "AIzaSyAmk4IjHlJsQb8gchi-9SXxRD0vGaCsxaI";
@@ -102,10 +105,7 @@ export function CreateCasePage() {
     height: "300px"
   };
 
-  const tunisiaCenter = {
-    lat: 34.0,
-    lng: 9.0
-  };
+
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -168,7 +168,6 @@ export function CreateCasePage() {
     let newVideoUrl = formData.videoUrl;
     const remainingFiles: Array<{ file: File; previewUrl: string }> = [];
     let successCount = 0;
-    let failCount = 0;
 
     for (const item of uploadedFiles) {
       try {
@@ -225,6 +224,8 @@ export function CreateCasePage() {
         return;
       }
 
+      // Creating a case is an act of trust; we prepare this data to be the bridge
+      // between silence and support.
       // Prepare data for API
       const caseData = {
         title: formData.title,
@@ -261,8 +262,7 @@ export function CreateCasePage() {
     }
   };
 
-  const totalSteps = 6;
-  const progress = (step / totalSteps) * 100;
+    const totalSteps = 6;
 
   const handleNext = () => {
     // Enforce ≥1 file before leaving media step or submitting

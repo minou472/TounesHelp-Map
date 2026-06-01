@@ -4,7 +4,7 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { fetchAdminUsers, fetchAdminUserById, createUser, updateUser, deleteUser, type AdminUser, type CreateUserData, type UpdateUserData } from '../../lib/backendApi';
-import { Search, UserPlus, Edit, Ban, CheckCircle, Trash2, X, Loader2, AlertTriangle, ChevronDown, ChevronUp, FileText, Calendar, Mail, Phone as PhoneIcon } from 'lucide-react';
+import { Search, UserPlus, Edit, Ban, CheckCircle, Trash2, X, Loader2, AlertTriangle, ChevronDown, ChevronUp, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 type UserRole = 'USER' | 'ADMIN';

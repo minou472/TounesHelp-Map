@@ -1,0 +1,28 @@
+src/app/components/admin/EnhancedAdminDashboard.tsx(29,1): error TS6133: 'tunisiaGovernorates' is declared but its value is never read.
+src/app/components/admin/UsersManagement.tsx(7,121): error TS6133: 'Calendar' is declared but its value is never read.
+src/app/components/admin/UsersManagement.tsx(7,131): error TS6133: 'Mail' is declared but its value is never read.
+src/app/components/admin/UsersManagement.tsx(7,146): error TS6133: 'PhoneIcon' is declared but its value is never read.
+src/app/components/touneshelp/admin/AdminSettings.tsx(7,1): error TS6133: 'Badge' is declared but its value is never read.
+src/app/components/touneshelp/admin/AdminSettings.tsx(9,3): error TS6133: 'Settings' is declared but its value is never read.
+src/app/components/touneshelp/admin/AdminStats.tsx(6,27): error TS6133: 'MapPin' is declared but its value is never read.
+src/app/components/touneshelp/admin/AdminStats.tsx(6,54): error TS6133: 'Activity' is declared but its value is never read.
+src/app/components/touneshelp/admin/AdminUsers.tsx(20,3): error TS6133: 'SheetDescription' is declared but its value is never read.
+src/app/components/touneshelp/CaseDetailPage.tsx(131,54): error TS2339: Property 'videoUrl' does not exist on type 'TunisiaCase'.
+src/app/components/touneshelp/CaseDetailPage.tsx(143,29): error TS2339: Property 'videoUrl' does not exist on type 'TunisiaCase'.
+src/app/components/touneshelp/CaseDetailPage.tsx(146,39): error TS2339: Property 'videoUrl' does not exist on type 'TunisiaCase'.
+src/app/components/touneshelp/CasesPage.tsx(67,9): error TS6133: 'suggestedCases' is declared but its value is never read.
+src/app/components/touneshelp/CreateCasePage.tsx(16,1): error TS6133: 'Progress' is declared but its value is never read.
+src/app/components/touneshelp/CreateCasePage.tsx(91,10): error TS6133: 'previewExpanded' is declared but its value is never read.
+src/app/components/touneshelp/CreateCasePage.tsx(91,27): error TS6133: 'setPreviewExpanded' is declared but its value is never read.
+src/app/components/touneshelp/CreateCasePage.tsx(105,9): error TS6133: 'tunisiaCenter' is declared but its value is never read.
+src/app/components/touneshelp/CreateCasePage.tsx(171,9): error TS6133: 'failCount' is declared but its value is never read.
+src/app/components/touneshelp/CreateCasePage.tsx(265,9): error TS6133: 'progress' is declared but its value is never read.
+src/app/components/touneshelp/RegisterPage.tsx(8,23): error TS6133: 'Check' is declared but its value is never read.
+src/app/components/touneshelp/TounesHelpRoot.tsx(4,20): error TS6133: 'useEffect' is declared but its value is never read.
+src/app/components/touneshelp/TounesHelpRoot.tsx(8,3): error TS6133: 'LanguageTranslatorCompact' is declared but its value is never read.
+src/app/components/touneshelp/TounesHelpRoot.tsx(25,9): error TS6133: 'handleLogout' is declared but its value is never read.
+src/app/components/touneshelp/TunisiaMap.tsx(33,47): error TS2367: This comparison appears to be unintentional because the types '"AIzaSyAmk4IjHlJsQb8gchi-9SXxRD0vGaCsxaI"' and '"YOUR_GOOGLE_MAPS_API_KEY"' have no overlap.
+src/app/components/touneshelp/TunisiaMap.tsx(84,10): error TS6133: 'map' is declared but its value is never read.
+src/app/components/touneshelp/UserDashboard.tsx(1,40): error TS6133: 'useCallback' is declared but its value is never read.
+src/app/components/touneshelp/UserDashboard.tsx(616,15): error TS6133: 'circumference' is declared but its value is never read.
+src/app/lib/auth.tsx(1,8): error TS6133: 'React' is declared but its value is never read.

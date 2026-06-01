@@ -29,8 +29,8 @@ const tunisiaCenter = {
 // Get one at: https://console.cloud.google.com/google/maps-apis
 const GOOGLE_MAPS_API_KEY = 'AIzaSyAmk4IjHlJsQb8gchi-9SXxRD0vGaCsxaI';
 
-// Check if we have a valid API key
-const hasValidApiKey = GOOGLE_MAPS_API_KEY && GOOGLE_MAPS_API_KEY !== 'YOUR_GOOGLE_MAPS_API_KEY';
+// Check if we have a valid API key (placeholder check removed)
+const hasValidApiKey = !!GOOGLE_MAPS_API_KEY;
 
 // Fallback component when no API key is configured
 function MapFallback({ cases, height }: { cases: TunisiaCase[], height: string }) {
@@ -81,7 +81,6 @@ function MapFallback({ cases, height }: { cases: TunisiaCase[], height: string }
 function TunisiaMapInner({ cases, height = '600px', zoom = 7, center = tunisiaCenter }: TunisiaMapProps) {
   const { t } = useTranslation();
   const [selectedCase, setSelectedCase] = useState<TunisiaCase | null>(null);
-  const [map, setMap] = useState<google.maps.Map | null>(null);
   const { user } = useAuth();
   const isAuthenticated = !!user;
 
@@ -90,12 +89,12 @@ function TunisiaMapInner({ cases, height = '600px', zoom = 7, center = tunisiaCe
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
   });
 
-  const onLoad = useCallback((map: google.maps.Map) => {
-    setMap(map);
+  const onLoad = useCallback(() => {
+    // map instance loaded if needed
   }, []);
 
   const onUnmount = useCallback(() => {
-    setMap(null);
+    // cleanup if needed
   }, []);
 
   const getMarkerIcon = (status: TunisiaCase['status']) => {
@@ -206,6 +205,11 @@ function TunisiaMapInner({ cases, height = '600px', zoom = 7, center = tunisiaCe
 }
 
 // Main export - conditionally renders map or fallback
+/**
+ * TunisiaMap visualizes the landscape of need across the nation.
+ * Each pin on this map is a heartbeat—a call for help located in space,
+ * guiding volunteers and organizations to the exact doorstep where they are needed.
+ */
 export function TunisiaMap({ cases, height = '600px', zoom = 7, center = tunisiaCenter }: TunisiaMapProps) {
   // If no valid API key, show fallback immediately without loading Google Maps
   if (!hasValidApiKey) {

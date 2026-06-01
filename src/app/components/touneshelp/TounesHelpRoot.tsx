@@ -1,11 +1,10 @@
 import { Outlet, Link, useLocation } from "react-router";
 import { Button } from "../ui/button";
 import { Menu, X, LogOut, User } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LanguageTranslator,
-  LanguageTranslatorCompact
 } from "./LanguageTranslator";
 import {
   DropdownMenu,
@@ -17,12 +16,17 @@ import {
 import { useAuth } from "../../lib/auth";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 
+/**
+ * TounesHelpRoot serves as the core emotional and navigational anchor of the platform.
+ * It manages the primary identity of the application, ensuring that whether a user 
+ * is seeking help or offering it, they feel supported by a consistent and clear interface.
+ */
 export function TounesHelpRoot() {
   const location = useLocation();
   const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, logout } = useAuth();
-  const handleLogout = logout;
+
 
   // Check if we're on an admin page
   const isAdminPage = location.pathname.startsWith("/admin");
@@ -42,6 +46,10 @@ export function TounesHelpRoot() {
   return (
     <div className="min-h-screen flex flex-col bg-[#FDF6EC]">
       {/* Navbar */}
+      {/* 
+          The Navbar is more than a navigation tool; it is the bridge between 
+          those in need and those who can provide assistance.
+      */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-[72px]">
