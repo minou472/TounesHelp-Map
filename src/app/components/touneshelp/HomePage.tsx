@@ -7,9 +7,11 @@ import { TunisiaMap } from "./TunisiaMap";
 import { Megaphone, ShieldCheck, Heart, ArrowRight } from "lucide-react";
 import type { TunisiaCase } from "../../data/tunisiaData";
 import { fetchCases, fetchStats } from "../../lib/backendApi";
+import { useAuth } from "../../lib/auth";
 
 export function HomePage() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [cases, setCases] = useState<TunisiaCase[]>([]);
   const [stats, setStats] = useState({
     totalCases: 0,
@@ -234,21 +236,23 @@ export function HomePage() {
       </section>
 
       {/* CTA Banner */}
-      <section className="bg-[#C0392B] py-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-[36px] md:text-[42px] font-bold text-white mb-8">
-            {t("home.cta_title", "Vous pouvez changer une vie aujourd'hui")}
-          </h2>
-          <Link to="/inscription">
-            <Button
-              variant="outline"
-              className="border-2 border-white text-white hover:bg-white hover:text-[#C0392B] rounded-xl h-14 px-12 text-lg font-semibold"
-            >
-              {t("home.cta_button", "Créer un compte gratuitement")}
-            </Button>
-          </Link>
-        </div>
-      </section>
+      {!user && (
+        <section className="bg-[#C0392B] py-20 px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-[36px] md:text-[42px] font-bold text-white mb-8">
+              {t("home.cta_title", "Vous pouvez changer une vie aujourd'hui")}
+            </h2>
+            <Link to="/inscription">
+              <Button
+                variant="outline"
+                className="border-2 border-white text-white hover:bg-white hover:text-[#C0392B] rounded-xl h-14 px-12 text-lg font-semibold"
+              >
+                {t("home.cta_button", "Créer un compte gratuitement")}
+              </Button>
+            </Link>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
