@@ -103,7 +103,8 @@ export function UsersManagement() {
     try {
       setActionLoading('update');
       setError(null);
-      await updateUser(editingUser.id, formData as UpdateUserData);
+      const { email, ...updateData } = formData;
+      await updateUser(editingUser.id, updateData as UpdateUserData);
       setEditingUser(null);
       setFormData({});
       setSuccessMsg(t('admin.user_updated_success'));
@@ -367,6 +368,7 @@ export function UsersManagement() {
                   <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC]">
                     <th className="text-center px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_type_label')}</th>
                     <th className="text-left px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_name')}</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_id_card', 'CIN / Matricule')}</th>
                     <th className="text-left px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_email')}</th>
                     <th className="text-center px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_role')}</th>
                     <th className="text-center px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_status_label')}</th>
@@ -398,6 +400,13 @@ export function UsersManagement() {
                             </div>
                             <span className="font-medium text-[#1A202C] text-sm">{user.name}</span>
                           </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[#4A5568]">
+                          {user.userType === 'VOLUNTEER' ? (
+                            user.idCard ? `*** *** ${user.idCard.slice(-3)}` : '—'
+                          ) : (
+                            user.matricule || user.idCard || '—'
+                          )}
                         </td>
                         <td className="px-6 py-4 text-sm text-[#4A5568]">{user.email}</td>
                         <td className="px-6 py-4 text-center">

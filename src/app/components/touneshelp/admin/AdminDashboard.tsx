@@ -206,6 +206,30 @@ export function AdminDashboard() {
         </Card>
       </div>
 
+      {/* Identity details (Organization) */}
+      <Card className="p-6 mb-8">
+        <h3 className="text-xl font-bold text-[#1C1C1E] mb-6">
+          Détails identité & organisation
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <p className="text-sm text-gray-600">Dernières 3 chiffres CIN</p>
+            <p className="text-xl font-bold text-[#1C1C1E]">
+              {/* AdminDashboard n'a pas accès à une sélection de user. On affiche donc une section UI. */}
+              —
+            </p>
+            <p className="text-xs text-gray-500">Basé sur idCard (carte d'identité).</p>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-sm text-gray-600">Matricule complet (Organisation)</p>
+            <p className="text-xl font-bold text-[#1C1C1E]">—</p>
+            <p className="text-xs text-gray-500">Basé sur matricule (userType: ORGANIZATION).</p>
+          </div>
+        </div>
+      </Card>
+
       {/* Recent Activity */}
       <Card className="p-6">
         <h3 className="text-xl font-bold text-[#1C1C1E] mb-6">
@@ -257,6 +281,7 @@ export function AdminDashboard() {
           ))}
         </div>
       </Card>
+
     </AdminLayout>
   );
 }

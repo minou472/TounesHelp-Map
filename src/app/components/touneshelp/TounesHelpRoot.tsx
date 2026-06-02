@@ -112,11 +112,12 @@ export function TounesHelpRoot() {
                     : "text-[#6B6B6B] hover:text-[#1C1C1E]"
                 }`}
               >
-                {t("navigation.about")}
+                {t("navigation.about", "À propos")}
                 {isActive("/a-propos") && (
                   <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#C0392B]" />
                 )}
               </Link>
+
             </nav>
 
             {/* Right Side Actions */}
@@ -218,15 +219,12 @@ export function TounesHelpRoot() {
               </Link>
               <Link
                 to="/a-propos"
-                className={`block py-2 ${
-                  isActive("/a-propos")
-                    ? "text-[#C0392B] font-semibold"
-                    : "text-[#6B6B6B] hover:text-[#C0392B]"
-                }`}
+                className="block text-[#6B6B6B] hover:text-[#C0392B] py-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {t("navigation.about")}
+                {t("navigation.about", "À propos")}
               </Link>
+
               <div className="pt-4 border-t border-gray-200 space-y-2">
                 {user ? (
                   <>
@@ -326,6 +324,7 @@ export function TounesHelpRoot() {
                 >
                   {t("navigation.about", "À propos")}
                 </Link>
+
                 <Link
                   to="/"
                   className="block text-gray-400 hover:text-white text-sm"

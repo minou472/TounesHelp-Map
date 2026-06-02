@@ -2,6 +2,7 @@ import { RouterProvider } from "react-router";
 import { tounesHelpRouter } from "./touneshelp-routes";
 import { Toaster } from "./components/ui/sonner";
 import { AuthProvider } from "./lib/auth";
+import { RabbitChatbot } from "./components/touneshelp/RabbitChatbot";
 
 /**
  * Root Application Component
@@ -12,6 +13,7 @@ export default function App() {
   return (
     <AuthProvider>
       <RouterProvider router={tounesHelpRouter} />
+      <RabbitChatbot />
       <Toaster />
     </AuthProvider>
   );

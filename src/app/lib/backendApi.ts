@@ -65,6 +65,9 @@ export type AdminUser = {
   helpedCount?: number;
   casesCreated?: number;
   userType?: string | null;
+  userTypeDescription?: string | null;
+  idCard?: string | null;
+  matricule?: string | null;
   createdAt: string;
 };
 
@@ -261,9 +264,14 @@ export function fetchStats() {
   return request<StatsResponse>("/api/stats");
 }
 
-export async function fetchAdminUsers(): Promise<{ users: AdminUser[]; total: number }> {
+export async function fetchAdminUsers(): Promise<{
+  users: AdminUser[];
+  total: number;
+}> {
   // Backend returns successResponse({ users, total }) → request() gives us { users, total } directly
-  const data = await request<{ users: AdminUser[]; total: number }>("/api/users?limit=200");
+  const data = await request<{ users: AdminUser[]; total: number }>(
+    "/api/users?limit=200"
+  );
   // Normalize: if backend returned array directly (old format), wrap it
   if (Array.isArray(data)) {
     return { users: data as AdminUser[], total: (data as AdminUser[]).length };
@@ -306,13 +314,19 @@ export function updateUser(id: string, data: UpdateUserData) {
   });
 }
 
-export function updateCurrentUser(data: { name?: string; phone?: string; bio?: string }) {
+export function updateCurrentUser(data: {
+  name?: string;
+  phone?: string;
+  bio?: string;
+}) {
   const rawUser = localStorage.getItem("touneshelp_user");
   let userId = "";
   try {
     const parsed = JSON.parse(rawUser || "{}") as { id?: string };
     userId = parsed.id || "";
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   if (!userId) return Promise.reject(new Error("User not authenticated"));
   return request<AdminUser>(`/api/users/${userId}`, {
     method: "PATCH",
@@ -325,7 +339,6 @@ export function deleteUser(id: string) {
     method: "DELETE"
   });
 }
-
 
 export type UploadResponse = {
   url: string;
@@ -399,7 +412,9 @@ export function fetchNotifications() {
 }
 
 export function visitCase(id: string) {
-  return request<{ visitorsCount: number }>(`/api/cases/${id}/visit`, { method: "POST" });
+  return request<{ visitorsCount: number }>(`/api/cases/${id}/visit`, {
+    method: "POST"
+  });
 }
 
 export function interactWithCase(id: string, type: "SUPPORT" | "SORRY") {
@@ -414,5 +429,7 @@ export function fetchUserNotifications() {
 }
 
 export function markNotificationsAsRead() {
-  return request<{ message: string }>("/api/users/notifications", { method: "PATCH" });
+  return request<{ message: string }>("/api/users/notifications", {
+    method: "PATCH"
+  });
 }

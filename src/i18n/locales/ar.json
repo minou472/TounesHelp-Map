@@ -33,7 +33,7 @@
     "status_helping": "قيد المساعدة",
     "status_resolved": "تم الحل",
     "admin_label": "مشرف",
-    "admin_email": "admin@touneshelp.tn",
+    "admin_email": "touneshelp.admin@gmail.com",
     "all_cases": "كل الحالات",
     "total_cases": "{{count}} حالات إجمالاً · {{suffering}} يعانون · {{resolved}} محلولة",
     "refresh": "تحديث",
@@ -98,6 +98,7 @@
     "block_user": "حظر المستخدم",
     "unblock_user": "إلغاء حظر المستخدم",
     "user_name": "الاسم",
+    "user_id_card": "بطاقة التعريف / المعرف",
     "user_email": "البريد الإلكتروني",
     "user_phone": "الهاتف",
     "user_role": "الدور",
@@ -194,7 +195,9 @@
     "volunteer": "متطوع",
     "organization": "منظمة",
     "other": "أخرى",
-    "other_description": "يرجى التحديد"
+    "other_description": "يرجى التحديد",
+    "id_card": "رقم بطاقة التعريف الوطنية",
+    "matricule": "رقم التسجيل"
   },
   "terms": {
     "back": "العودة إلى التسجيل",

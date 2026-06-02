@@ -24,6 +24,8 @@ export function RegisterPage() {
     gender: 'MALE' as 'MALE' | 'FEMALE',
     userType: 'VOLUNTEER' as 'CITIZEN' | 'VOLUNTEER' | 'ORGANIZATION' | 'OTHER',
     userTypeDescription: '',
+    idCard: '',
+    matricule: '',
     terms: false,
   });
 
@@ -63,6 +65,8 @@ export function RegisterPage() {
           gender: formData.gender,
           userType: formData.userType,
           userTypeDescription: formData.userType === 'OTHER' ? formData.userTypeDescription : undefined,
+          idCard: formData.userType === 'VOLUNTEER' ? formData.idCard : undefined,
+          matricule: formData.userType !== 'VOLUNTEER' ? formData.matricule : undefined,
         }),
       });
 
@@ -255,7 +259,6 @@ export function RegisterPage() {
                 ))}
               </div>
             </div>
-
             {formData.userType === 'OTHER' && (
               <div className="mt-2">
                 <Label htmlFor="userTypeDescription">{t("register.other_description") || "Please specify"}</Label>
@@ -264,6 +267,32 @@ export function RegisterPage() {
                   value={formData.userTypeDescription}
                   onChange={(e) => setFormData({ ...formData, userTypeDescription: e.target.value })}
                   className="h-12 rounded-lg mt-2"
+                  required
+                />
+              </div>
+            )}
+
+            {formData.userType === 'VOLUNTEER' ? (
+              <div className="mt-2">
+                <Label htmlFor="idCard">{t("register.id_card")}</Label>
+                <Input
+                  id="idCard"
+                  value={formData.idCard}
+                  onChange={(e) => setFormData({ ...formData, idCard: e.target.value })}
+                  className="h-12 rounded-lg mt-2"
+                  placeholder="XXXXXXXX"
+                  required
+                />
+              </div>
+            ) : (
+              <div className="mt-2">
+                <Label htmlFor="matricule">{t("register.matricule")}</Label>
+                <Input
+                  id="matricule"
+                  value={formData.matricule}
+                  onChange={(e) => setFormData({ ...formData, matricule: e.target.value })}
+                  className="h-12 rounded-lg mt-2"
+                  placeholder="MF-XXXXXXX"
                   required
                 />
               </div>

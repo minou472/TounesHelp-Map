@@ -19,7 +19,7 @@ export function AdminSettings() {
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState({
     siteName: "TounesHelp Map",
-    contactEmail: "admin@touneshelp.tn",
+    contactEmail: "touneshelp.admin@gmail.com",
     maxFileSize: "5",
     notificationsEnabled: true,
     autoApprove: false,

@@ -33,7 +33,7 @@
     "status_helping": "Being Helped",
     "status_resolved": "Resolved",
     "admin_label": "Admin",
-    "admin_email": "admin@touneshelp.tn",
+    "admin_email": "touneshelp.admin@gmail.com",
     "all_cases": "All Cases",
     "total_cases": "{{count}} cases total · {{suffering}} suffering · {{resolved}} resolved",
     "refresh": "Refresh",
@@ -109,6 +109,7 @@
     "block_user": "Block User",
     "unblock_user": "Unblock User",
     "user_name": "Name",
+    "user_id_card": "ID Card / Matricule",
     "user_email": "Email",
     "user_phone": "Phone",
     "user_role": "Role",
@@ -206,7 +207,9 @@
     "volunteer": "Volunteer",
     "organization": "Organization",
     "other": "Other",
-    "other_description": "Please specify"
+    "other_description": "Please specify",
+    "id_card": "Identity Card Number",
+    "matricule": "Registration Number"
   },
   "terms": {
     "back": "Back to registration",

@@ -23,7 +23,10 @@ import { AdminStats } from "./components/touneshelp/admin/AdminStats";
 import { AdminLieux } from "./components/touneshelp/admin/AdminLieux";
 import { AdminNotifications } from "./components/touneshelp/admin/AdminNotifications";
 import { AdminSettings } from "./components/touneshelp/admin/AdminSettings";
+import { AdminChatbot } from "./components/touneshelp/admin/AdminChatbot";
 import { AboutPage } from "./components/touneshelp/AboutPage";
+
+
 import { NotFound } from "./components/NotFound";
 
 import { TermsPage } from "./components/touneshelp/TermsPage";
@@ -44,6 +47,7 @@ export const tounesHelpRouter = createBrowserRouter([
       { path: "dashboard", Component: UserDashboard },
       { path: "creer-cas", Component: CreateCasePage },
       { path: "a-propos", Component: AboutPage },
+
       { path: "admin", Component: AdminDashboard },
       { path: "admin/enhanced", Component: EnhancedAdminDashboard },
       { path: "admin/moderation", Component: AdminModeration },
@@ -53,7 +57,9 @@ export const tounesHelpRouter = createBrowserRouter([
       { path: "admin/notifications", Component: AdminNotifications },
       { path: "admin/stats", Component: AdminStats },
       { path: "admin/parametres", Component: AdminSettings },
+      { path: "admin/chatbot", Component: AdminChatbot },
       { path: "*", Component: NotFound },
+
     ],
   },
 ]);

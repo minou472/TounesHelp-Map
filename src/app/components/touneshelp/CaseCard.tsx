@@ -110,11 +110,11 @@ export function CaseCard({ case: caseData }: CaseCardProps) {
         <div className="border-t border-[#F0E6D3] mb-4" />
 
         {/* Action Button */}
-        <Link to={`/cas/${caseData.id}`}>
+        <a href="mailto:touneshelp.admin@gmail.com">
           <Button className="w-full bg-[#C0392B] hover:bg-[#A02E24] text-white rounded-xl h-12 font-semibold">
             {t("cases_list.i_want_to_help", "JE VEUX AIDER")}
           </Button>
-        </Link>
+        </a>
       </div>
     </Card>
   );
