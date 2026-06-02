@@ -341,7 +341,13 @@
     "show_more": "Voir plus",
     "show_less": "Voir moins",
     "video": "Vidéo",
-    "media_section": "Photos & Vidéos"
+    "media_section": "Photos & Vidéos",
+    "i_want_to_help": "Je veux aider",
+    "help_description": "Vous pouvez soutenir directement ce cas en contactant l'administration de TounesHelp.",
+    "admin_email_label": "Voici l'email de l'admin :",
+    "i_want_to_help_btn": "JE VEUX AIDER",
+    "title_label": "Titre",
+    "location_label": "Localisation"
   },
   "create_case": {
     "steps": {
@@ -466,7 +472,10 @@
     "by_governorate": "Par gouvernorat",
     "featured": "À la une",
     "no_cases_found": "Aucun cas trouvé",
-    "reset_filters": "Réinitialiser les filtres"
+    "reset_filters": "Réinitialiser les filtres",
+    "help_email_subject": "Je veux aider",
+    "help_email_body_intro": "Bonjour, je souhaite apporter mon aide pour le cas suivant :",
+    "help_email_body_outro": "Merci de me recontacter."
   },
   "map_page": {
     "search_case": "Rechercher un cas sur la carte...",

@@ -341,7 +341,13 @@
     "show_more": "عرض المزيد",
     "show_less": "عرض أقل",
     "video": "فيديو",
-    "media_section": "الصور ومقاطع الفيديو"
+    "media_section": "الصور ومقاطع الفيديو",
+    "i_want_to_help": "أريد المساعدة",
+    "help_description": "يمكنك دعم هذه الحالة مباشرة من خلال الاتصال بإدارة تونس هيلب.",
+    "admin_email_label": "إليك البريد الإلكتروني للمسؤول:",
+    "i_want_to_help_btn": "أريد المساعدة",
+    "title_label": "العنوان",
+    "location_label": "الموقع"
   },
   "create_case": {
     "steps": {
@@ -465,7 +471,10 @@
     "by_governorate": "حسب الولاية",
     "featured": "مميز",
     "no_cases_found": "لم يتم العثور على حالات",
-    "reset_filters": "إعادة تعيين الفلاتر"
+    "reset_filters": "إعادة تعيين الفلاتر",
+    "help_email_subject": "أريد المساعدة",
+    "help_email_body_intro": "مرحباً، أود تقديم المساعدة للحالة التالية:",
+    "help_email_body_outro": "يرجى معاودة الاتصال بي."
   },
   "map_page": {
     "search_case": "ابحث عن حالة على الخريطة...",

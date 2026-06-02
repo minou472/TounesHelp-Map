@@ -99,7 +99,7 @@ export function CaseCard({ case: caseData }: CaseCardProps) {
           </div>
         ) : (
           <div className="mb-4">
-            <Link to="/login" className="flex items-center gap-2 text-sm text-[#6B6B6B] bg-gray-50 rounded-xl px-4 py-3 hover:bg-gray-100 transition-colors">
+            <Link to="/connexion" className="flex items-center gap-2 text-sm text-[#6B6B6B] bg-gray-50 rounded-xl px-4 py-3 hover:bg-gray-100 transition-colors">
               <Lock size={16} className="text-[#C0392B]" />
               <span>{t("cases_list.login_to_see_info", "Connectez-vous pour voir les coordonnées")}</span>
             </Link>
@@ -110,11 +110,11 @@ export function CaseCard({ case: caseData }: CaseCardProps) {
         <div className="border-t border-[#F0E6D3] mb-4" />
 
         {/* Action Button */}
-        <a href="mailto:touneshelp.admin@gmail.com">
+        <Link to={`/cas/${caseData.id}`}>
           <Button className="w-full bg-[#C0392B] hover:bg-[#A02E24] text-white rounded-xl h-12 font-semibold">
             {t("cases_list.i_want_to_help", "JE VEUX AIDER")}
           </Button>
-        </a>
+        </Link>
       </div>
     </Card>
   );

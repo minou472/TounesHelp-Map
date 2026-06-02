@@ -24,6 +24,20 @@ export function CaseDetailPage() {
   const MEDIA_PREVIEW_COUNT = 3;
   const { user } = useAuth();
   const isAuthenticated = !!user;
+  const [showAdminEmail, setShowAdminEmail] = useState(false);
+
+  const handleHelpClick = () => {
+    setShowAdminEmail(true);
+    if (!caseData) return;
+    const subject = encodeURIComponent(`${t("cases_list.help_email_subject", "Je veux aider")} : ${caseData.title}`);
+    const body = encodeURIComponent(
+      `${t("cases_list.help_email_body_intro", "Bonjour, je souhaite apporter mon aide pour le cas suivant :")}\n\n` +
+      `- ${t("case_detail.title_label", "Titre")} : ${caseData.title}\n` +
+      `- ${t("case_detail.location_label", "Localisation")} : ${caseData.governorate}, ${caseData.city}\n\n` +
+      `${t("cases_list.help_email_body_outro", "Merci de me recontacter.")}`
+    );
+    window.location.href = `mailto:touneshelp.admin@gmail.com?subject=${subject}&body=${body}`;
+  };
 
   const dateLocale = i18n.language === 'ar' ? 'ar-TN' : i18n.language === 'en' ? 'en-US' : 'fr-FR';
 
@@ -175,6 +189,33 @@ export function CaseDetailPage() {
 
           {/* Right Column - Sticky */}
           <div className="space-y-6">
+            {/* Help/Action Card */}
+            <Card className="p-6 bg-white rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.10)] border-t-4 border-[#C0392B]">
+              <h3 className="font-bold text-lg text-[#1C1C1E] mb-2 flex items-center gap-2">
+                <span className="text-xl">🤝</span>
+                {t("case_detail.i_want_to_help", "Je veux aider")}
+              </h3>
+              <p className="text-sm text-[#6B6B6B] mb-4">
+                {t("case_detail.help_description", "Vous pouvez soutenir directement ce cas en contactant l'administration de TounesHelp.")}
+              </p>
+              
+              {showAdminEmail && (
+                <div className="mb-4 p-4 bg-red-50/50 border border-red-100 rounded-xl text-center">
+                  <p className="text-xs text-[#6B6B6B] mb-1.5">{t("case_detail.admin_email_label", "Voici l'email de l'admin :")}</p>
+                  <a href="mailto:touneshelp.admin@gmail.com" className="font-bold text-[#C0392B] hover:underline text-sm break-all">
+                    touneshelp.admin@gmail.com
+                  </a>
+                </div>
+              )}
+
+              <Button 
+                onClick={handleHelpClick}
+                className="w-full bg-[#C0392B] hover:bg-[#A02E24] text-white rounded-xl h-12 font-semibold shadow-md shadow-red-900/10 hover:shadow-red-900/20 transition-all duration-200"
+              >
+                {t("case_detail.i_want_to_help_btn", "JE VEUX AIDER")}
+              </Button>
+            </Card>
+
             {/* Victim Info Card */}
             {isAuthenticated ? (
               <Card className="p-6 bg-white rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.10)]">
@@ -210,7 +251,7 @@ export function CaseDetailPage() {
                     <Lock size={24} className="text-[#C0392B]" />
                   </div>
                   <p className="text-sm text-[#6B6B6B] mb-3">{t("case_detail.login_to_see", "Connectez-vous pour voir les informations de la personne concernée")}</p>
-                  <Button onClick={() => navigate('/login')} variant="outline" className="text-[#C0392B] border-[#C0392B] hover:bg-red-50">
+                  <Button onClick={() => navigate('/connexion')} variant="outline" className="text-[#C0392B] border-[#C0392B] hover:bg-red-50">
                     {t("case_detail.login_btn", "Se connecter")}
                   </Button>
                 </div>
@@ -251,7 +292,7 @@ export function CaseDetailPage() {
                     <Lock size={24} className="text-[#C0392B]" />
                   </div>
                   <p className="text-sm text-[#6B6B6B] mb-3">{t("case_detail.login_to_contact", "Connectez-vous pour contacter le responsable")}</p>
-                  <Button onClick={() => navigate('/login')} className="w-full bg-[#C0392B] hover:bg-[#A02E24] text-white rounded-xl h-12 font-semibold">
+                  <Button onClick={() => navigate('/connexion')} className="w-full bg-[#C0392B] hover:bg-[#A02E24] text-white rounded-xl h-12 font-semibold">
                     {t("case_detail.login_btn", "Se connecter")}
                   </Button>
                 </div>
