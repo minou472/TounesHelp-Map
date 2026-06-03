@@ -32,6 +32,7 @@ import {
   Trash2,
   ShieldCheck,
   UserPlus,
+  Edit,
 } from "lucide-react";
 import {
   fetchAdminUsers,
@@ -50,6 +51,10 @@ const EMPTY_CREATE_FORM = {
   password: "",
   role: "USER" as "USER" | "ADMIN",
   status: "ACTIVE" as "ACTIVE" | "BLOCKED",
+  userType: "VOLUNTEER" as string | null,
+  userTypeDescription: "" as string | null,
+  idCard: "" as string | null,
+  matricule: "" as string | null,
 };
 
 export function AdminUsers() {
@@ -65,6 +70,7 @@ export function AdminUsers() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [createForm, setCreateForm] = useState(EMPTY_CREATE_FORM);
   const [isCreating, setIsCreating] = useState(false);
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
 
   // Profile dialog state
   const [profileOpen, setProfileOpen] = useState(false);
@@ -127,34 +133,68 @@ export function AdminUsers() {
     }
   };
 
-  const handleCreateUser = async () => {
-    if (!createForm.name || !createForm.email || !createForm.password) {
-      toast.error("Nom, email et mot de passe sont obligatoires.");
-      return;
-    }
-    if (createForm.password.length < 6) {
-      toast.error("Le mot de passe doit contenir au moins 6 caractères.");
-      return;
-    }
-    setIsCreating(true);
-    try {
-      await createUser({
-        name: createForm.name,
-        email: createForm.email,
-        phone: createForm.phone || undefined,
-        role: createForm.role,
-        status: createForm.status,
-        password: createForm.password,
-      });
-      toast.success("Utilisateur créé avec succès.");
-      setCreateDialogOpen(false);
-      setCreateForm(EMPTY_CREATE_FORM);
-      await load();
-    } catch (error: any) {
-      console.error("Failed to create user", error);
-      toast.error(error?.message || "Erreur lors de la création de l'utilisateur.");
-    } finally {
-      setIsCreating(false);
+  const handleSubmitUser = async () => {
+    if (editingUserId) {
+      if (!createForm.name || !createForm.email) {
+        toast.error("Nom et email sont obligatoires.");
+        return;
+      }
+      setIsCreating(true);
+      try {
+        await updateUser(editingUserId, {
+          name: createForm.name,
+          phone: createForm.phone || undefined,
+          role: createForm.role,
+          status: createForm.status,
+          userType: createForm.userType,
+          userTypeDescription: createForm.userType === 'OTHER' ? createForm.userTypeDescription : undefined,
+          idCard: createForm.userType === 'VOLUNTEER' ? createForm.idCard : undefined,
+          matricule: createForm.userType !== 'VOLUNTEER' ? createForm.matricule : undefined,
+        });
+        toast.success("Utilisateur mis à jour avec succès.");
+        setCreateDialogOpen(false);
+        setCreateForm(EMPTY_CREATE_FORM);
+        setEditingUserId(null);
+        await load();
+      } catch (error: any) {
+        console.error("Failed to update user", error);
+        toast.error(error?.message || "Erreur lors de la mise à jour de l'utilisateur.");
+      } finally {
+        setIsCreating(false);
+      }
+    } else {
+      if (!createForm.name || !createForm.email || !createForm.password) {
+        toast.error("Nom, email et mot de passe sont obligatoires.");
+        return;
+      }
+      if (createForm.password.length < 6) {
+        toast.error("Le mot de passe doit contenir au moins 6 caractères.");
+        return;
+      }
+      setIsCreating(true);
+      try {
+        await createUser({
+          name: createForm.name,
+          email: createForm.email,
+          phone: createForm.phone || undefined,
+          role: createForm.role,
+          status: createForm.status,
+          password: createForm.password,
+          userType: createForm.userType,
+          userTypeDescription: createForm.userType === 'OTHER' ? createForm.userTypeDescription : undefined,
+          idCard: createForm.userType === 'VOLUNTEER' ? createForm.idCard : undefined,
+          matricule: createForm.userType !== 'VOLUNTEER' ? createForm.matricule : undefined,
+        });
+        toast.success("Utilisateur créé avec succès.");
+        setCreateDialogOpen(false);
+        setCreateForm(EMPTY_CREATE_FORM);
+        await load();
+      } catch (error: any) {
+        console.error("Failed to create user", error);
+        toast.error(error?.message || "Erreur lors de la création de l'utilisateur.");
+      } finally {
+        setIsCreating(false);
+      }
     }
   };
 
@@ -235,6 +275,7 @@ export function AdminUsers() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                   Rôle
                 </th>
+
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                   Statut
                 </th>
@@ -266,12 +307,19 @@ export function AdminUsers() {
                       className={
                         user.role === "ADMIN"
                           ? "bg-purple-100 text-purple-700"
+                          : user.userType === "VOLUNTEER"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : user.userType === "ORGANIZATION"
+                          ? "bg-amber-100 text-amber-700"
+                          : user.userType === "OTHER"
+                          ? "bg-gray-100 text-gray-700"
                           : "bg-blue-100 text-blue-700"
                       }
                     >
-                      {user.role === "ADMIN" ? "Administrateur" : "Utilisateur"}
+                      {user.role === "ADMIN" ? "Administrateur" : user.userType === "VOLUNTEER" ? "Bénévole" : user.userType === "ORGANIZATION" ? "Organisation" : user.userType === "OTHER" ? "Autre" : "Utilisateur"}
                     </Badge>
                   </td>
+
                   <td className="px-6 py-4">
                     <Badge
                       className={
@@ -309,6 +357,28 @@ export function AdminUsers() {
                         </button>
                         <button
                           className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                          onClick={() => {
+                            setEditingUserId(user.id);
+                            setCreateForm({
+                              name: user.name,
+                              email: user.email,
+                              phone: user.phone || "",
+                              password: "", // unused for editing
+                              role: user.role,
+                              status: user.status,
+                              userType: (user.userType as any) || "VOLUNTEER",
+                              userTypeDescription: user.userTypeDescription || "",
+                              idCard: user.idCard || "",
+                              matricule: user.matricule || "",
+                            });
+                            setCreateDialogOpen(true);
+                            setOpenMenuId(null);
+                          }}
+                        >
+                          <Edit size={16} /> Modifier le profil
+                        </button>
+                        <button
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                           onClick={() => handleUpdateStatus(user.id, user.status)}
                         >
                           {user.status === "ACTIVE" ? (
@@ -334,7 +404,7 @@ export function AdminUsers() {
               ))}
               {filteredUsers.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
                     {loading ? "Chargement en cours..." : "Aucun utilisateur trouvé."}
                   </td>
                 </tr>
@@ -344,11 +414,17 @@ export function AdminUsers() {
         </div>
       </Card>
 
-      {/* Create User Dialog */}
-      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+      {/* Create / Edit User Dialog */}
+      <Dialog open={createDialogOpen} onOpenChange={(open) => {
+        setCreateDialogOpen(open);
+        if (!open) {
+          setCreateForm(EMPTY_CREATE_FORM);
+          setEditingUserId(null);
+        }
+      }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Ajouter un utilisateur</DialogTitle>
+            <DialogTitle>{editingUserId ? "Modifier l'utilisateur" : "Ajouter un utilisateur"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1">
@@ -368,6 +444,7 @@ export function AdminUsers() {
                 value={createForm.email}
                 onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
                 placeholder="email@exemple.com"
+                disabled={!!editingUserId}
               />
             </div>
             <div className="space-y-1">
@@ -380,24 +457,42 @@ export function AdminUsers() {
                 placeholder="+216 XX XXX XXX"
               />
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="new-password">Mot de passe *</Label>
-              <Input
-                id="new-password"
-                type="password"
-                value={createForm.password}
-                onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
-                placeholder="Minimum 6 caractères"
-              />
-            </div>
+            {!editingUserId && (
+              <div className="space-y-1">
+                <Label htmlFor="new-password">Mot de passe *</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  value={createForm.password}
+                  onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
+                  placeholder="Minimum 6 caractères"
+                />
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label>Rôle</Label>
                 <Select
-                  value={createForm.role}
-                  onValueChange={(v: "USER" | "ADMIN") =>
-                    setCreateForm({ ...createForm, role: v })
+                  value={
+                    createForm.role === 'ADMIN' ? 'ADMIN' :
+                    (createForm.role === 'USER' && createForm.userType === 'VOLUNTEER') ? 'USER_VOLUNTEER' :
+                    (createForm.role === 'USER' && createForm.userType === 'ORGANIZATION') ? 'USER_ORGANIZATION' :
+                    (createForm.role === 'USER' && createForm.userType === 'OTHER') ? 'USER_OTHER' :
+                    'USER'
                   }
+                  onValueChange={(v: string) => {
+                    if (v === 'ADMIN') {
+                      setCreateForm({ ...createForm, role: 'ADMIN', userType: null, userTypeDescription: null, idCard: null, matricule: null });
+                    } else if (v === 'USER') {
+                      setCreateForm({ ...createForm, role: 'USER', userType: null, userTypeDescription: null, idCard: null, matricule: null });
+                    } else if (v === 'USER_VOLUNTEER') {
+                      setCreateForm({ ...createForm, role: 'USER', userType: 'VOLUNTEER', userTypeDescription: null, matricule: null });
+                    } else if (v === 'USER_ORGANIZATION') {
+                      setCreateForm({ ...createForm, role: 'USER', userType: 'ORGANIZATION', userTypeDescription: null, idCard: null });
+                    } else if (v === 'USER_OTHER') {
+                      setCreateForm({ ...createForm, role: 'USER', userType: 'OTHER', idCard: null, matricule: null });
+                    }
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -405,6 +500,9 @@ export function AdminUsers() {
                   <SelectContent>
                     <SelectItem value="USER">Utilisateur</SelectItem>
                     <SelectItem value="ADMIN">Administrateur</SelectItem>
+                    <SelectItem value="USER_VOLUNTEER">Bénévole</SelectItem>
+                    <SelectItem value="USER_ORGANIZATION">Organisation</SelectItem>
+                    <SelectItem value="USER_OTHER">Autre</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -426,6 +524,52 @@ export function AdminUsers() {
                 </Select>
               </div>
             </div>
+
+            {createForm.role === 'USER' && (
+              <>
+
+                {/* Veuillez préciser — only for OTHER */}
+                {createForm.userType === 'OTHER' && (
+                  <div className="space-y-1 mt-2">
+                    <Label htmlFor="new-userTypeDescription">Veuillez préciser</Label>
+                    <Input
+                      id="new-userTypeDescription"
+                      value={createForm.userTypeDescription || ""}
+                      onChange={(e) => setCreateForm({ ...createForm, userTypeDescription: e.target.value })}
+                      placeholder="Ex: Journaliste, Avocat, etc."
+                    />
+                  </div>
+                )}
+
+                {/* CIN for Bénévole / Utilisateur */}
+                {(createForm.userType === 'VOLUNTEER' || !createForm.userType) && (
+                  <div className="space-y-1 mt-2">
+                    <Label htmlFor="new-idCard">CIN</Label>
+                    <Input
+                      id="new-idCard"
+                      value={createForm.idCard || ""}
+                      onChange={(e) => setCreateForm({ ...createForm, idCard: e.target.value })}
+                      placeholder="XXXXXXXX"
+                    />
+                  </div>
+                )}
+
+                {/* Matricule for Organisation/Autre */}
+                {(createForm.userType === 'ORGANIZATION' || createForm.userType === 'OTHER') && (
+                  <div className="space-y-1 mt-2">
+                    <Label htmlFor="new-matricule">Matricule</Label>
+                    <Input
+                      id="new-matricule"
+                      value={createForm.matricule || ""}
+                      onChange={(e) => setCreateForm({ ...createForm, matricule: e.target.value })}
+                      placeholder="MF-XXXXXXX"
+                    />
+                  </div>
+                )}
+
+
+              </>
+            )}
           </div>
           <DialogFooter>
             <Button
@@ -433,17 +577,18 @@ export function AdminUsers() {
               onClick={() => {
                 setCreateDialogOpen(false);
                 setCreateForm(EMPTY_CREATE_FORM);
+                setEditingUserId(null);
               }}
               disabled={isCreating}
             >
               Annuler
             </Button>
             <Button
-              onClick={handleCreateUser}
+              onClick={handleSubmitUser}
               disabled={isCreating}
               className="bg-[#C0392B] hover:bg-[#A02E24] text-white"
             >
-              {isCreating ? "Création..." : "Créer l'utilisateur"}
+              {isCreating ? (editingUserId ? "Modification..." : "Création...") : (editingUserId ? "Enregistrer" : "Créer l'utilisateur")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -490,6 +635,20 @@ export function AdminUsers() {
                   <div>
                     <h3 className="font-semibold text-sm text-gray-500 mb-1">Description (Type d'utilisateur)</h3>
                     <p className="text-sm bg-gray-50 p-3 rounded-lg">{selectedProfile.userTypeDescription}</p>
+                  </div>
+                )}
+
+                {/* CIN / Matricule */}
+                {selectedProfile.idCard && (
+                  <div>
+                    <h3 className="font-semibold text-sm text-gray-500 mb-1">CIN</h3>
+                    <p className="text-sm bg-gray-50 p-3 rounded-lg font-mono">{selectedProfile.idCard}</p>
+                  </div>
+                )}
+                {selectedProfile.matricule && (
+                  <div>
+                    <h3 className="font-semibold text-sm text-gray-500 mb-1">Matricule</h3>
+                    <p className="text-sm bg-gray-50 p-3 rounded-lg font-mono">{selectedProfile.matricule}</p>
                   </div>
                 )}
 

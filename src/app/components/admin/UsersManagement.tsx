@@ -32,7 +32,7 @@ export function UsersManagement() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState<UserRole | 'all'>('all');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<AccountStatus | 'all'>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
@@ -169,7 +169,11 @@ export function UsersManagement() {
   const filteredUsers = users.filter(user => {
     const matchesSearch = (user.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (user.email || '').toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+    const matchesRole = roleFilter === 'all' 
+      ? true 
+      : (roleFilter === 'ADMIN' || roleFilter === 'USER') 
+        ? user.role === roleFilter 
+        : user.userType === roleFilter;
     const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
     return matchesSearch && matchesRole && matchesStatus;
   });
@@ -197,7 +201,13 @@ export function UsersManagement() {
         <Button
           onClick={() => {
             setShowCreateModal(true);
-            setFormData({ role: 'USER' });
+            setFormData({
+              role: 'USER',
+              userType: 'VOLUNTEER',
+              userTypeDescription: '',
+              idCard: '',
+              matricule: '',
+            });
             setError(null);
           }}
           className="bg-[#1E88E5] hover:bg-[#1565C0] text-white gap-2"
@@ -264,14 +274,36 @@ export function UsersManagement() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#4A5568] mb-1">{t('admin.user_role')}</label>
+              <label className="block text-sm font-medium text-[#4A5568] mb-1">{t('admin.user_role', 'Rôle')}</label>
               <select
-                value={formData.role || 'USER'}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
+                value={
+                  formData.role === 'ADMIN' ? 'ADMIN' :
+                  (formData.role === 'USER' && formData.userType === 'VOLUNTEER') ? 'USER_VOLUNTEER' :
+                  (formData.role === 'USER' && formData.userType === 'ORGANIZATION') ? 'USER_ORGANIZATION' :
+                  (formData.role === 'USER' && formData.userType === 'OTHER') ? 'USER_OTHER' :
+                  'USER'
+                }
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === 'ADMIN') {
+                    setFormData({ ...formData, role: 'ADMIN', userType: null, userTypeDescription: null, idCard: null, matricule: null });
+                  } else if (val === 'USER') {
+                    setFormData({ ...formData, role: 'USER', userType: null, userTypeDescription: null, idCard: null, matricule: null });
+                  } else if (val === 'USER_VOLUNTEER') {
+                    setFormData({ ...formData, role: 'USER', userType: 'VOLUNTEER', userTypeDescription: null, matricule: null });
+                  } else if (val === 'USER_ORGANIZATION') {
+                    setFormData({ ...formData, role: 'USER', userType: 'ORGANIZATION', userTypeDescription: null, idCard: null });
+                  } else if (val === 'USER_OTHER') {
+                    setFormData({ ...formData, role: 'USER', userType: 'OTHER', idCard: null, matricule: null });
+                  }
+                }}
                 className="w-full h-10 px-3 border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88E5] bg-white"
               >
-                <option value="USER">{t('admin.role_user')}</option>
-                <option value="ADMIN">{t('admin.role_admin')}</option>
+                <option value="USER">{t('admin.role_user', 'Utilisateur')}</option>
+                <option value="ADMIN">{t('admin.role_admin', 'Administrateur')}</option>
+                <option value="USER_VOLUNTEER">Bénévole</option>
+                <option value="USER_ORGANIZATION">Organisation</option>
+                <option value="USER_OTHER">Autre</option>
               </select>
             </div>
             {editingUser && (
@@ -286,6 +318,38 @@ export function UsersManagement() {
                   <option value="BLOCKED">{t('admin.status_blocked')}</option>
                 </select>
               </div>
+            )}
+
+            {(formData.role || 'USER') === 'USER' && (
+              <>
+
+
+                {/* Veuillez préciser — only for OTHER */}
+                {formData.userType === 'OTHER' && (
+                  <div className="md:col-span-2 space-y-1 mt-2">
+                    <label className="block text-sm font-medium text-[#4A5568] mb-1">{t('admin.please_specify')}</label>
+                    <Input
+                      value={formData.userTypeDescription || ""}
+                      onChange={(e) => setFormData({ ...formData, userTypeDescription: e.target.value })}
+                      placeholder="Ex: Journaliste, Avocat, etc."
+                    />
+                  </div>
+                )}
+
+                {/* Matricule for Organisation/Autre */}
+                {(formData.userType === 'ORGANIZATION' || formData.userType === 'OTHER') && (
+                  <div className="md:col-span-2 space-y-1 mt-2">
+                    <label className="block text-sm font-medium text-[#4A5568] mb-1">Matricule</label>
+                    <Input
+                      value={formData.matricule || ""}
+                      onChange={(e) => setFormData({ ...formData, matricule: e.target.value })}
+                      placeholder="MF-XXXXXXX"
+                    />
+                  </div>
+                )}
+
+
+              </>
             )}
           </div>
           <div className="flex gap-3 mt-6">
@@ -321,12 +385,15 @@ export function UsersManagement() {
           </div>
           <select
             value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value as UserRole | 'all')}
+            onChange={(e) => setRoleFilter(e.target.value)}
             className="w-full h-10 px-3 border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E88E5] bg-white"
           >
             <option value="all">{t('admin.all_roles')}</option>
             <option value="USER">{t('admin.role_user')}</option>
             <option value="ADMIN">{t('admin.role_admin')}</option>
+            <option value="VOLUNTEER">Bénévole</option>
+            <option value="ORGANIZATION">Organisation</option>
+            <option value="OTHER">Autre</option>
           </select>
           <select
             value={statusFilter}
@@ -366,9 +433,8 @@ export function UsersManagement() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC]">
-                    <th className="text-center px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_type_label')}</th>
                     <th className="text-left px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_name')}</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_id_card', 'CIN / Matricule')}</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_id_label', 'Identifiant')}</th>
                     <th className="text-left px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_email')}</th>
                     <th className="text-center px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_role')}</th>
                     <th className="text-center px-6 py-3 text-xs font-semibold text-[#718096] uppercase tracking-wider">{t('admin.user_status_label')}</th>
@@ -384,15 +450,7 @@ export function UsersManagement() {
                         className={`${idx % 2 === 0 ? 'bg-white' : 'bg-[#FAFBFC]'} hover:bg-[#E3F2FD]/40 transition-colors cursor-pointer group ${expandedUserId === user.id ? 'bg-[#E3F2FD]/20' : ''}`}
                         onClick={() => toggleUserDrawer(user.id)}
                       >
-                        <td className="px-6 py-4 text-center">
-                          {(user.userType && user.userType !== 'CITIZEN') ? (
-                            <Badge className={`${userTypeColors[user.userType]} text-xs whitespace-nowrap`}>
-                              {t(`admin.user_type_${user.userType.toLowerCase()}`)}
-                            </Badge>
-                          ) : (
-                            <span className="text-[#A0AEC0] text-xs">—</span>
-                          )}
-                        </td>
+
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1E88E5] to-[#7C3AED] text-white flex items-center justify-center text-sm font-bold shrink-0">
@@ -410,8 +468,23 @@ export function UsersManagement() {
                         </td>
                         <td className="px-6 py-4 text-sm text-[#4A5568]">{user.email}</td>
                         <td className="px-6 py-4 text-center">
-                          <Badge className={`${roleColors[user.role]} text-xs`}>
-                            {user.role === 'ADMIN' ? t('admin.role_admin') : t('admin.role_user')}
+                          <Badge className={`${
+                            user.role === 'ADMIN' 
+                              ? roleColors.ADMIN 
+                              : user.userType && user.userType !== 'CITIZEN' 
+                                ? userTypeColors[user.userType] || roleColors.USER
+                                : roleColors.USER
+                          } text-xs`}>
+                            {user.role === 'ADMIN' 
+                              ? t('admin.role_admin', 'Administrateur') 
+                              : user.userType === 'VOLUNTEER'
+                                ? 'Bénévole'
+                                : user.userType === 'ORGANIZATION'
+                                  ? 'Organisation'
+                                  : user.userType === 'OTHER'
+                                    ? 'Autre'
+                                    : t('admin.role_user', 'Utilisateur')
+                            }
                           </Badge>
                         </td>
                         <td className="px-6 py-4 text-center">
@@ -431,6 +504,10 @@ export function UsersManagement() {
                                   phone: user.phone || '',
                                   role: user.role,
                                   status: user.status,
+                                  userType: user.userType || 'VOLUNTEER',
+                                  userTypeDescription: user.userTypeDescription || '',
+                                  idCard: user.idCard || '',
+                                  matricule: user.matricule || '',
                                 });
                                 setError(null);
                               }}

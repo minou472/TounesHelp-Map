@@ -12,6 +12,13 @@ export interface User {
   email: string;
   role: "USER" | "ADMIN";
   avatar?: string;
+  phone?: string | null;
+  bio?: string | null;
+  status?: "ACTIVE" | "BLOCKED";
+  userType?: string | null;
+  userTypeDescription?: string | null;
+  idCard?: string | null;
+  matricule?: string | null;
 }
 
 interface AuthContextType {

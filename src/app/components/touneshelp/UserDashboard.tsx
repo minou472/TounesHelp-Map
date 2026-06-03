@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import { uploadFile } from "../../lib/backendApi";
-import { updateCurrentUser } from "../../lib/backendApi";
+import { fetchCurrentUser, fetchUserById, updateCurrentUser } from "../../lib/backendApi";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
@@ -46,6 +46,66 @@ import { fetchCases, updateCase, deleteCase, fetchUserNotifications, markNotific
 import { toast } from "sonner";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyAmk4IjHlJsQb8gchi-9SXxRD0vGaCsxaI";
+
+type ProfileForm = {
+  name: string;
+  phone: string;
+  bio: string;
+  idCard: string;
+  matricule: string;
+  userType: string;
+  userTypeDescription: string;
+};
+
+type ProfileSource = {
+  name?: string | null;
+  phone?: string | null;
+  bio?: string | null;
+  idCard?: string | null;
+  matricule?: string | null;
+  userType?: string | null;
+  userTypeDescription?: string | null;
+};
+
+const EMPTY_PROFILE_FORM: ProfileForm = {
+  name: "",
+  phone: "",
+  bio: "",
+  idCard: "",
+  matricule: "",
+  userType: "",
+  userTypeDescription: "",
+};
+
+const normalizeUserType = (value?: string | null) => (value || "").toUpperCase();
+
+const buildProfileForm = (profile: ProfileSource): ProfileForm => ({
+  ...EMPTY_PROFILE_FORM,
+  name: profile.name || "",
+  phone: profile.phone || "",
+  bio: profile.bio || "",
+  idCard: profile.idCard || "",
+  matricule: profile.matricule || "",
+  userType: profile.userType || "",
+  userTypeDescription: profile.userTypeDescription || "",
+});
+
+const getStoredUserId = () => {
+  const rawUser = localStorage.getItem("touneshelp_user");
+  try {
+    const parsed = JSON.parse(rawUser || "{}") as { id?: string };
+    return parsed.id || "";
+  } catch {
+    return "";
+  }
+};
+
+const getIdentityType = (profile: Pick<ProfileForm, "userType" | "idCard" | "matricule">) => {
+  const userType = normalizeUserType(profile.userType);
+  if (userType === "ORGANIZATION" || userType === "OTHER") return "MATRICULE";
+  if (userType === "VOLUNTEER" || userType === "CITIZEN") return "CIN";
+  return profile.matricule ? "MATRICULE" : "CIN";
+};
 
 const getVideoDuration = (file: File): Promise<number> => {
   return new Promise((resolve) => {
@@ -92,8 +152,9 @@ export function UserDashboard() {
 
   // Profile state
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
-  const [profileForm, setProfileForm] = useState({ name: "", phone: "", bio: "" });
+  const [profileForm, setProfileForm] = useState<ProfileForm>(EMPTY_PROFILE_FORM);
   const [savingProfile, setSavingProfile] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(false);
 
   // Personal location (localStorage only)
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number; city?: string } | null>(null);
@@ -153,14 +214,34 @@ export function UserDashboard() {
     const rawUser = localStorage.getItem("touneshelp_user");
     if (rawUser) {
       try {
-        const p = JSON.parse(rawUser) as { name?: string; phone?: string; bio?: string };
+        const p = JSON.parse(rawUser) as ProfileSource;
         if (p.name) setUserName(p.name);
-        setProfileForm({ name: p.name || "", phone: p.phone || "", bio: p.bio || "" });
+        setProfileForm(buildProfileForm(p));
       } catch { /* ignore */ }
     } else if (user?.name) {
       setUserName(user.name);
-      setProfileForm({ name: user.name, phone: "", bio: "" });
+      setProfileForm(buildProfileForm(user));
     }
+
+    const currentUserId = getStoredUserId() || user?.id || "";
+    const profileRequest = currentUserId ? fetchUserById(currentUserId) : fetchCurrentUser();
+
+    void profileRequest
+      .then((freshUser) => {
+        setUserName(freshUser.name);
+        setProfileForm(buildProfileForm(freshUser));
+        const stored = localStorage.getItem("touneshelp_user");
+        let previous = {};
+        try {
+          previous = stored ? JSON.parse(stored) : {};
+        } catch {
+          previous = {};
+        }
+        localStorage.setItem("touneshelp_user", JSON.stringify({ ...previous, ...freshUser }));
+      })
+      .catch(() => {
+        // The local profile is still usable if the server refresh is unavailable.
+      });
 
     // Load saved personal location
     const savedLoc = localStorage.getItem("touneshelp_user_location");
@@ -190,19 +271,54 @@ export function UserDashboard() {
   const handleSaveProfile = async () => {
     setSavingProfile(true);
     try {
-      await updateCurrentUser(profileForm);
-      setUserName(profileForm.name);
+      const identityType = getIdentityType(profileForm);
+      const cleanProfile = {
+        name: profileForm.name,
+        phone: profileForm.phone,
+        bio: profileForm.bio,
+        ...(profileForm.userType ? { userType: profileForm.userType } : {}),
+        ...(normalizeUserType(profileForm.userType) === "OTHER" ? { userTypeDescription: profileForm.userTypeDescription } : {}),
+        ...(identityType === "CIN" ? { idCard: profileForm.idCard } : {}),
+        ...(identityType === "MATRICULE" ? { matricule: profileForm.matricule } : {}),
+      };
+      const updatedUser = await updateCurrentUser(cleanProfile);
+      const nextProfile = buildProfileForm(updatedUser);
+      setUserName(nextProfile.name);
+      setProfileForm(nextProfile);
       // Update localStorage
       const rawUser = localStorage.getItem("touneshelp_user");
       if (rawUser) {
         const p = JSON.parse(rawUser);
-        localStorage.setItem("touneshelp_user", JSON.stringify({ ...p, ...profileForm }));
+        localStorage.setItem("touneshelp_user", JSON.stringify({ ...p, ...updatedUser }));
       }
       toast.success(t("dashboard.profile_saved"));
       setProfileDialogOpen(false);
     } catch (e: any) {
       toast.error(e?.message || t("dashboard.profile_save_error"));
     } finally { setSavingProfile(false); }
+  };
+
+  const handleOpenProfileDialog = async () => {
+    setLoadingProfile(true);
+    try {
+      const currentUserId = getStoredUserId() || user?.id || "";
+      const freshUser = currentUserId ? await fetchUserById(currentUserId) : await fetchCurrentUser();
+      setUserName(freshUser.name);
+      setProfileForm(buildProfileForm(freshUser));
+      const stored = localStorage.getItem("touneshelp_user");
+      let previous = {};
+      try {
+        previous = stored ? JSON.parse(stored) : {};
+      } catch {
+        previous = {};
+      }
+      localStorage.setItem("touneshelp_user", JSON.stringify({ ...previous, ...freshUser }));
+    } catch {
+      // Keep the last known local profile if the server is temporarily unavailable.
+    } finally {
+      setLoadingProfile(false);
+      setProfileDialogOpen(true);
+    }
   };
 
   // --- Location handler ---
@@ -483,8 +599,8 @@ export function UserDashboard() {
                   <p className="text-sm text-gray-500">{user?.email}</p>
                 </div>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setProfileDialogOpen(true)} className="text-blue-600">
-                <Edit size={16} className="mr-1" /> {t("dashboard.edit")}
+              <Button variant="ghost" size="sm" onClick={handleOpenProfileDialog} disabled={loadingProfile} className="text-blue-600">
+                <Edit size={16} className="mr-1" /> {loadingProfile ? "..." : t("dashboard.edit")}
               </Button>
             </div>
             {profileForm.phone && <p className="text-sm text-gray-700 mt-2">📞 {profileForm.phone}</p>}
@@ -896,6 +1012,17 @@ export function UserDashboard() {
                 <Label>{t("dashboard.bio")}</Label>
                 <Textarea value={profileForm.bio} onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })} placeholder={t("dashboard.bio_placeholder")} />
               </div>
+              {getIdentityType(profileForm) === "MATRICULE" ? (
+                <div>
+                  <Label>{t("register.matricule") || "Matricule"}</Label>
+                  <Input value={profileForm.matricule} onChange={(e) => setProfileForm({ ...profileForm, matricule: e.target.value })} placeholder="MF-XXXXXXX" />
+                </div>
+              ) : (
+                <div>
+                  <Label>{t("register.id_card") || "CIN"}</Label>
+                  <Input value={profileForm.idCard} onChange={(e) => setProfileForm({ ...profileForm, idCard: e.target.value })} placeholder="XXXXXXXX" />
+                </div>
+              )}
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <Button variant="outline" onClick={() => setProfileDialogOpen(false)}>{t("dashboard.cancel")}</Button>

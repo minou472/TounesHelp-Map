@@ -286,10 +286,18 @@ export type CreateUserData = {
   role?: "USER" | "ADMIN";
   status?: "ACTIVE" | "BLOCKED";
   password?: string;
+  userType?: string | null;
+  userTypeDescription?: string | null;
+  idCard?: string | null;
+  matricule?: string | null;
 };
 
 export async function fetchAdminUserById(id: string) {
   return request<any>(`/api/users/${id}`);
+}
+
+export async function fetchUserById(id: string) {
+  return request<AdminUser>(`/api/users/${id}`);
 }
 
 export type UpdateUserData = {
@@ -298,6 +306,10 @@ export type UpdateUserData = {
   bio?: string;
   role?: "USER" | "ADMIN";
   status?: "ACTIVE" | "BLOCKED";
+  userType?: string | null;
+  userTypeDescription?: string | null;
+  idCard?: string | null;
+  matricule?: string | null;
 };
 
 export function createUser(data: CreateUserData) {
@@ -314,10 +326,18 @@ export function updateUser(id: string, data: UpdateUserData) {
   });
 }
 
+export function fetchCurrentUser() {
+  return request<AdminUser>("/api/auth/me");
+}
+
 export function updateCurrentUser(data: {
   name?: string;
   phone?: string;
   bio?: string;
+  userType?: string | null;
+  userTypeDescription?: string | null;
+  idCard?: string | null;
+  matricule?: string | null;
 }) {
   const rawUser = localStorage.getItem("touneshelp_user");
   let userId = "";
