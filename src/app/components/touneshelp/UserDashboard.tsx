@@ -35,15 +35,14 @@ import {
   ChevronDown,
   ChevronUp,
   Eye,
-  Heart,
-  HeartCrack,
+
   History,
   Bell
 } from "lucide-react";
 import { useAuth } from "../../lib/auth";
 import { useTranslation } from "react-i18next";
 import type { TunisiaCase } from "../../data/tunisiaData";
-import { fetchCases, updateCase, deleteCase, interactWithCase, fetchUserNotifications, markNotificationsAsRead } from "../../lib/backendApi";
+import { fetchCases, updateCase, deleteCase, fetchUserNotifications, markNotificationsAsRead } from "../../lib/backendApi";
 import { toast } from "sonner";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyAmk4IjHlJsQb8gchi-9SXxRD0vGaCsxaI";
@@ -344,15 +343,6 @@ export function UserDashboard() {
     }
   };
 
-  const handleInteract = async (caseId: string, type: "SUPPORT" | "SORRY") => {
-    try {
-      await interactWithCase(caseId, type);
-      // Update local state to reflect interaction (optimistic UI could be added)
-      void loadCases();
-    } catch (e: any) {
-      toast.error(e?.message || "Erreur d'interaction");
-    }
-  };
 
   const renderCaseCard = (
     c: TunisiaCase,
@@ -408,37 +398,7 @@ export function UserDashboard() {
         )}
       </div>
 
-      <div className="flex flex-wrap justify-between items-center mt-3 pt-3 border-t border-gray-100">
-        <div className="flex gap-2">
-          {(() => {
-            const supportInteraction = c.interactions?.find((i: any) => i.userId === user?.id && i.type === "SUPPORT");
-            const sorryInteraction = c.interactions?.find((i: any) => i.userId === user?.id && i.type === "SORRY");
-            return (
-              <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={`flex items-center gap-1 group ${supportInteraction ? 'text-red-600 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50'}`}
-                  onClick={() => handleInteract(c.id, "SUPPORT")}
-                  title="Support"
-                >
-                  <Heart size={16} className={supportInteraction ? 'fill-red-600' : 'group-hover:fill-red-600'} />
-                  <span className="text-xs">{c.interactions?.filter((i: any) => i.type === "SUPPORT").length || 0}</span>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={`flex items-center gap-1 group ${sorryInteraction ? 'text-red-600 bg-red-50' : 'text-gray-500 hover:text-red-600 hover:bg-red-50'}`}
-                  onClick={() => handleInteract(c.id, "SORRY")}
-                  title="Sorry"
-                >
-                  <HeartCrack size={16} className={sorryInteraction ? 'fill-red-600' : 'group-hover:fill-red-600'} />
-                  <span className="text-xs">{c.interactions?.filter((i: any) => i.type === "SORRY").length || 0}</span>
-                </Button>
-              </>
-            );
-          })()}
-        </div>
+      <div className="flex flex-wrap justify-end items-center mt-3 pt-3 border-t border-gray-100">
 
         {c.modifications && c.modifications.length > 0 && (
           <div className="text-xs text-gray-500 flex items-center gap-1">
