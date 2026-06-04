@@ -7,6 +7,9 @@ import { Card } from "../ui/card";
 import type { TunisiaCase } from "../../data/tunisiaData";
 import { useAuth } from "../../lib/auth";
 
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800";
+const isVideoUrl = (url: string) => /\.(mp4|mov|avi|webm|m4v)(\?|#|$)/i.test(url);
+
 interface CaseCardProps {
   case: TunisiaCase;
 }
@@ -32,16 +35,26 @@ export function CaseCard({ case: caseData }: CaseCardProps) {
   };
 
   const config = statusConfig[caseData.status];
+  const coverMedia = caseData.images.find((url) => !isVideoUrl(url)) || caseData.images[0] || caseData.videoUrl || FALLBACK_IMAGE;
 
   return (
     <Card className="w-[340px] flex-shrink-0 overflow-hidden bg-white rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.10)] hover:shadow-[0_16px_48px_rgba(192,57,43,0.18)] hover:-translate-y-2 transition-all duration-300">
       {/* Image Area */}
       <div className="relative h-[200px] overflow-hidden">
-        <img
-          src={caseData.images[0]}
-          alt={caseData.title}
-          className="w-full h-full object-cover"
-        />
+        {isVideoUrl(coverMedia) ? (
+          <video
+            src={coverMedia}
+            className="w-full h-full object-cover"
+            muted
+            preload="metadata"
+          />
+        ) : (
+          <img
+            src={coverMedia}
+            alt={caseData.title}
+            className="w-full h-full object-cover"
+          />
+        )}
         {/* Status Badge */}
         <Badge className={`absolute top-4 right-4 ${config.className} rounded-full px-3 py-1`}>
           {config.label}

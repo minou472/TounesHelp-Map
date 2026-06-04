@@ -46,6 +46,46 @@ import { fetchCases, updateCase, deleteCase, fetchUserNotifications, markNotific
 import { toast } from "sonner";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyAmk4IjHlJsQb8gchi-9SXxRD0vGaCsxaI";
+const isVideoUrl = (url: string) => /\.(mp4|mov|avi|webm|m4v)(\?|#|$)/i.test(url);
+const MAX_IMAGES_ONLY = 10;
+const MAX_IMAGES_WITH_VIDEOS = 5;
+const MAX_VIDEOS = 5;
+const MAX_VIDEO_DURATION = 60;
+
+const getMediaCounts = (
+  urls: string[],
+  pendingFiles: Array<{ file: File }> = []
+) => {
+  const imageCount =
+    urls.filter((url) => !isVideoUrl(url)).length +
+    pendingFiles.filter(({ file }) => file.type.startsWith("image/")).length;
+  const videoCount =
+    urls.filter(isVideoUrl).length +
+    pendingFiles.filter(({ file }) => file.type.startsWith("video/")).length;
+
+  return { imageCount, videoCount };
+};
+
+const getMediaLimitError = (
+  urls: string[],
+  pendingFiles: Array<{ file: File }>
+) => {
+  const { imageCount, videoCount } = getMediaCounts(urls, pendingFiles);
+
+  if (videoCount > MAX_VIDEOS) {
+    return `Maximum ${MAX_VIDEOS} vidéos autorisées par cas.`;
+  }
+
+  if (videoCount > 0 && imageCount > MAX_IMAGES_WITH_VIDEOS) {
+    return `Avec des vidéos, vous pouvez ajouter au maximum ${MAX_VIDEOS} vidéos et ${MAX_IMAGES_WITH_VIDEOS} images.`;
+  }
+
+  if (videoCount === 0 && imageCount > MAX_IMAGES_ONLY) {
+    return `Maximum ${MAX_IMAGES_ONLY} images autorisées par cas.`;
+  }
+
+  return "";
+};
 
 type ProfileForm = {
   name: string;
@@ -359,10 +399,9 @@ export function UserDashboard() {
 
       if (isVideo) {
         const duration = await getVideoDuration(file);
-        const maxDuration = 60; // 60 seconds limit
-        if (duration > maxDuration) {
+        if (duration > MAX_VIDEO_DURATION) {
           toast.error(
-            `La vidéo "${file.name}" est trop longue (${Math.round(duration)}s). Veuillez limiter vos vidéos à ${maxDuration} secondes pour les adapter à la plateforme.`
+            `La vidéo "${file.name}" est trop longue (${Math.round(duration)}s). Veuillez limiter vos vidéos à ${MAX_VIDEO_DURATION} secondes pour les adapter à la plateforme.`
           );
           continue;
         }
@@ -371,10 +410,14 @@ export function UserDashboard() {
       checkedFiles.push({ file, previewUrl: URL.createObjectURL(file) });
     }
 
-    const currentTotal = editImages.length + editNewFiles.length;
-    if (currentTotal + checkedFiles.length > 10) {
+    const mediaLimitError = getMediaLimitError(editImages, [
+      ...editNewFiles,
+      ...checkedFiles
+    ]);
+
+    if (mediaLimitError) {
       checkedFiles.forEach(f => URL.revokeObjectURL(f.previewUrl));
-      toast.error("Maximum 10 fichiers autorisés.");
+      toast.error(mediaLimitError);
       return;
     }
 
@@ -393,6 +436,8 @@ export function UserDashboard() {
     if (!editingCase) return;
     const totalFiles = editImages.length + editNewFiles.length;
     if (totalFiles === 0) { toast.error(t("create_case.messages.min_one_file")); return; }
+    const mediaLimitError = getMediaLimitError(editImages, editNewFiles);
+    if (mediaLimitError) { toast.error(mediaLimitError); return; }
     setIsSubmitting(true);
     try {
       const uploadedUrls: string[] = [];
@@ -1090,7 +1135,11 @@ export function UserDashboard() {
                   <div className="flex flex-wrap gap-2">
                     {editImages.map((url, i) => (
                       <div key={`existing-${i}`} className="relative group w-16 h-16 rounded overflow-hidden border">
-                        <img src={url} alt={`img-${i}`} className="w-full h-full object-cover" />
+                        {isVideoUrl(url) ? (
+                          <video src={url} className="w-full h-full object-cover" preload="metadata" />
+                        ) : (
+                          <img src={url} alt={`img-${i}`} className="w-full h-full object-cover" />
+                        )}
                         <button
                           onClick={() => setEditImages((prev) => prev.filter((_, idx) => idx !== i))}
                           className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"

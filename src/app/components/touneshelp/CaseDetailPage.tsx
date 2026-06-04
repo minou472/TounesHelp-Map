@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { ArrowLeft, MapPin, Calendar, Phone, Mail, Users, ChevronDown, ChevronUp, Lock } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Phone, Mail, Users, Lock } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
@@ -8,6 +8,9 @@ import { useTranslation } from "react-i18next";
 import type { TunisiaCase } from "../../data/tunisiaData";
 import { fetchCaseById } from "../../lib/backendApi";
 import { useAuth } from "../../lib/auth";
+
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800";
+const isVideoUrl = (url: string) => /\.(mp4|mov|avi|webm|m4v)(\?|#|$)/i.test(url);
 
 /**
  * CaseDetailPage provides a deep dive into an individual's journey.
@@ -20,8 +23,6 @@ export function CaseDetailPage() {
   const navigate = useNavigate();
   const [caseData, setCaseData] = useState<TunisiaCase | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showAllMedia, setShowAllMedia] = useState(false);
-  const MEDIA_PREVIEW_COUNT = 3;
   const { user } = useAuth();
   const isAuthenticated = !!user;
   const [showAdminEmail, setShowAdminEmail] = useState(false);
@@ -83,6 +84,11 @@ export function CaseDetailPage() {
   };
 
   const config = statusConfig[caseData.status];
+  const mediaUrls = [
+    ...caseData.images,
+    ...(caseData.videoUrl && !caseData.images.includes(caseData.videoUrl) ? [caseData.videoUrl] : [])
+  ].filter(Boolean);
+  const heroMedia = mediaUrls.find((url) => !isVideoUrl(url)) || mediaUrls[0] || FALLBACK_IMAGE;
 
   return (
     <div className="min-h-screen bg-[#FDF6EC]">
@@ -102,11 +108,20 @@ export function CaseDetailPage() {
 
       {/* Hero Image */}
       <div className="relative h-[400px] w-full overflow-hidden">
-        <img
-          src={caseData.images[0]}
-          alt={caseData.title}
-          className="w-full h-full object-cover"
-        />
+        {isVideoUrl(heroMedia) ? (
+          <video
+            src={heroMedia}
+            className="w-full h-full object-cover"
+            controls
+            preload="metadata"
+          />
+        ) : (
+          <img
+            src={heroMedia}
+            alt={caseData.title}
+            className="w-full h-full object-cover"
+          />
+        )}
         <Badge className={`absolute top-6 right-6 ${config.className} text-base px-4 py-2 rounded-full`}>
           {config.label}
         </Badge>
@@ -147,42 +162,20 @@ export function CaseDetailPage() {
             </div>
 
             {/* Media Gallery */}
-            {(caseData.images.length > 0 || caseData.videoUrl) && (
+            {mediaUrls.length > 0 && (
               <div>
                 <h3 className="font-bold text-xl text-[#1C1C1E] mb-4">{t("case_detail.media_section")}</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {caseData.images
-                    .slice(0, showAllMedia ? undefined : MEDIA_PREVIEW_COUNT)
-                    .map((img, index) => (
-                      <div key={index} className="aspect-square rounded-xl overflow-hidden bg-gray-100">
-                        <img src={img} alt={`Photo ${index + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
-                      </div>
-                    ))}
-                  {/* Video thumbnail in the grid */}
-                  {caseData.videoUrl && (showAllMedia || caseData.images.length < MEDIA_PREVIEW_COUNT) && (
-                    <div className="aspect-square rounded-xl overflow-hidden bg-gray-900">
-                      <video
-                        src={caseData.videoUrl}
-                        className="w-full h-full object-cover"
-                        controls
-                        preload="metadata"
-                      />
+                  {mediaUrls.map((url, index) => (
+                    <div key={`${url}-${index}`} className="aspect-square rounded-xl overflow-hidden bg-gray-100">
+                      {isVideoUrl(url) ? (
+                        <video src={url} className="w-full h-full object-cover" controls preload="metadata" />
+                      ) : (
+                        <img src={url} alt={`Media ${index + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                      )}
                     </div>
-                  )}
+                  ))}
                 </div>
-                {/* Expand / Collapse button */}
-                {caseData.images.length > MEDIA_PREVIEW_COUNT && (
-                  <button
-                    onClick={() => setShowAllMedia((v) => !v)}
-                    className="mt-3 flex items-center gap-1 text-sm font-medium text-[#C0392B] hover:text-[#A02E24] transition-colors"
-                  >
-                    {showAllMedia ? (
-                      <><ChevronUp size={16} /> {t("case_detail.show_less")}</>
-                    ) : (
-                      <><ChevronDown size={16} /> +{caseData.images.length - MEDIA_PREVIEW_COUNT} {t("case_detail.show_more")}</>
-                    )}
-                  </button>
-                )}
               </div>
             )}
           </div>
