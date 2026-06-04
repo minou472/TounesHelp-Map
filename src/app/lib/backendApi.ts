@@ -23,6 +23,7 @@ export type BackendCase = {
   dateResolved?: string | null;
   createdAt: string;
   imagesJson?: string;
+  videoUrl?: string | null;
   visitorsCount?: number;
   isEscalated?: boolean;
   assignedTo?: { id: string; name: string; email: string } | null;
@@ -165,7 +166,8 @@ export function mapBackendCaseToUi(item: BackendCase): TunisiaCase {
     modifications: item.modifications || [],
     images: images.length
       ? images
-      : ["https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800"]
+      : ["https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800"],
+    videoUrl: item.videoUrl || undefined
   };
 }
 

@@ -20,6 +20,8 @@ import { toast } from "sonner";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import { uploadFile, createCase } from "../../lib/backendApi";
 
+const isVideoUrl = (url: string) => /\.(mp4|mov|avi|webm|m4v)(\?|#|$)/i.test(url);
+
 const getVideoDuration = (file: File): Promise<number> => {
   return new Promise((resolve) => {
     const video = document.createElement("video");
@@ -164,19 +166,14 @@ export function CreateCasePage() {
     if (uploadedFiles.length === 0) return;
 
     setUploading(true);
-    const newImages: string[] = [];
-    let newVideoUrl = formData.videoUrl;
+    const newMediaUrls: string[] = [];
     const remainingFiles: Array<{ file: File; previewUrl: string }> = [];
     let successCount = 0;
 
     for (const item of uploadedFiles) {
       try {
         const result = await uploadFile(item.file);
-        if (result.type === "image") {
-          newImages.push(result.url);
-        } else if (result.type === "video") {
-          newVideoUrl = result.url;
-        }
+        newMediaUrls.push(result.url);
         URL.revokeObjectURL(item.previewUrl);
         successCount++;
       } catch (error: any) {
@@ -186,8 +183,7 @@ export function CreateCasePage() {
 
     setFormData((prev) => ({
       ...prev,
-      images: [...prev.images, ...newImages],
-      videoUrl: newVideoUrl || prev.videoUrl
+      images: [...prev.images, ...newMediaUrls],
     }));
 
     setUploadedFiles(remainingFiles);
@@ -767,7 +763,11 @@ export function CreateCasePage() {
                     <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
                       {formData.images.map((url, i) => (
                         <div key={i} className="relative group aspect-square rounded-lg overflow-hidden border border-gray-200">
-                          <img src={url} alt={`uploaded-${i}`} className="w-full h-full object-cover" />
+                          {isVideoUrl(url) ? (
+                            <video src={url} className="w-full h-full object-cover" controls preload="metadata" />
+                          ) : (
+                            <img src={url} alt={`uploaded-${i}`} className="w-full h-full object-cover" />
+                          )}
                           <button
                             onClick={() => setFormData((prev) => ({ ...prev, images: prev.images.filter((_, idx) => idx !== i) }))}
                             className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -909,7 +909,11 @@ export function CreateCasePage() {
                     <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mb-2">
                       {formData.images.map((url, i) => (
                         <div key={i} className="aspect-square rounded-lg overflow-hidden border border-blue-200">
-                          <img src={url} alt={`review-${i}`} className="w-full h-full object-cover" />
+                          {isVideoUrl(url) ? (
+                            <video src={url} className="w-full h-full object-cover" controls preload="metadata" />
+                          ) : (
+                            <img src={url} alt={`review-${i}`} className="w-full h-full object-cover" />
+                          )}
                         </div>
                       ))}
                     </div>
